@@ -1,0 +1,45 @@
+---
+// Member portal landing.
+//
+// MVP: the portal is gated by an opaque session token (magic link)
+// which we will wire up in a follow-up. For Phase 3, this page
+// explains what the portal will be and how to request access.
+//
+// See MASTER_SPEC §12.4 (member auth).
+import Base from "@layouts/Base.astro";
+---
+
+<Base
+  title="Member portal"
+  description="Sign in to manage your membership, preferences, and memory."
+  canonicalPath="/portal/"
+>
+  <section class="section">
+    <div class="container">
+      <h1>Member portal</h1>
+      <p>
+        The portal is the place where you see and manage your membership. You can edit preferences,
+        mark facts as do-not-mention, view your timeline, and export a copy of your data.
+      </p>
+      <p>
+        Sign in is by magic link. We do not use passwords. We do not require you to keep any session
+        longer than you want. We do not invent facts about you.
+      </p>
+      <h2>What you can do here</h2>
+      <ul>
+        <li>See <strong>what the Society remembers about you</strong> and edit or remove it.</li>
+        <li>Update your contact details, postal address, and chapter.</li>
+        <li>Choose which optional services are on (newsletter, post, gifts, calls, etc.).</li>
+        <li>Request a manufactured commitment scenario.</li>
+        <li>Request an appearance service quote.</li>
+        <li>Export a copy of your data.</li>
+        <li>Cancel at any time.</li>
+      </ul>
+      <p>
+        The portal is not yet open. The current waiting list is separate and does not create paid
+        membership.
+      </p>
+      <p><a href="/waiting-list/" class="hero__cta">Join the waiting list</a></p>
+    </div>
+  </section>
+</Base>

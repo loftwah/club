@@ -53,15 +53,20 @@ export class MilestoneService {
       .bind(memberId)
       .first<Record<string, unknown>>();
     if (!member) return [];
-    const tier = await this.deps.db
-      .prepare(
-        `SELECT t.slug, t.price_cents, t.id AS tier_id
-           FROM memberships m JOIN membership_tiers t ON t.id = m.tier_id
-           WHERE m.member_id = ?`,
-      )
+    // Two-step query (no JOIN): the mock D1 doesn't handle JOIN, and
+    // the real D1 doesn't care — both reads are cheap.
+    const membership = await this.deps.db
+      .prepare(`SELECT tier_id FROM memberships WHERE member_id = ?`)
       .bind(memberId)
-      .first<{ slug: string; price_cents: number; tier_id: string } | null>();
-    const tierPrice = tier?.price_cents ?? 0;
+      .first<{ tier_id: string | null }>();
+    let tierPrice = 0;
+    if (membership?.tier_id) {
+      const tier = await this.deps.db
+        .prepare(`SELECT price_cents FROM membership_tiers WHERE id = ?`)
+        .bind(membership.tier_id)
+        .first<{ price_cents: number }>();
+      tierPrice = tier?.price_cents ?? 0;
+    }
     const grant = (service: string) =>
       this.deps.db
         .prepare(`SELECT state FROM service_grants WHERE member_id = ? AND service = ?`)

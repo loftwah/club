@@ -1,0 +1,11 @@
+[
+  {
+    "id": "hero_warm",
+    "prompt": "warm cream paper envelope on walnut desk, vermilion wax seal, soft window light, no text, photograph",
+    "destination": "public/og/hero.svg",
+    "width": 1200,
+    "height": 630,
+    "notes": "Reserved. Hero / OG fallback. AI-typography not used (SVG).",
+    "model": "image-01"
+  }
+]

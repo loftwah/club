@@ -1,0 +1,47 @@
+---
+import Base from "@layouts/Base.astro";
+
+const slug = Astro.params.slug ?? "";
+
+const chapters: Record<string, { name: string; status: "ACTIVE" | "COMING"; note: string }> = {
+  melbourne: {
+    name: "Melbourne",
+    status: "ACTIVE",
+    note: "The opening chapter. Waitlist signups are accepted now.",
+  },
+  sydney: { name: "Sydney", status: "COMING", note: "Coming soon." },
+  brisbane: { name: "Brisbane", status: "COMING", note: "Coming soon." },
+  adelaide: { name: "Adelaide", status: "COMING", note: "Coming soon." },
+  perth: { name: "Perth", status: "COMING", note: "Coming soon." },
+};
+
+const chapter = chapters[slug];
+
+if (!chapter) {
+  return Astro.redirect("/chapters/");
+}
+---
+
+<Base
+  title={`${chapter.name} — Chapters`}
+  description={`${chapter.name} chapter. ${chapter.note}`}
+  canonicalPath={`/chapters/${slug}/`}
+>
+  <section class="section">
+    <div class="container">
+      <p><a href="/chapters/">← All chapters</a></p>
+      <h1>{chapter.name}</h1>
+      <p class={`pill ${chapter.status === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
+        {chapter.status === "ACTIVE" ? "Accepting waitlist" : "Coming"}
+      </p>
+      <p>{chapter.note}</p>
+      <p>
+        Even with a waitlist signup, membership is not yet active. The waiting list is separate from
+        the paid membership state machine, and it does not create fake active paid membership.
+      </p>
+      <p>
+        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
+      </p>
+    </div>
+  </section>
+</Base>

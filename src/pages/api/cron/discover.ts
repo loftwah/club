@@ -12,7 +12,7 @@
 import type { APIRoute } from "astro";
 import { SystemClock } from "@infra/clock";
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request: _request, locals }) => {
   const env = locals.runtime.env;
   if (!env?.DB) {
     return new Response("database binding not available", { status: 500 });
@@ -33,27 +33,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
   let dueMilestones = 0;
   let reminderDue = 0;
   try {
-    const critical = await env.DB
-      .prepare(
-        `SELECT COUNT(*) AS n FROM events
+    const critical = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM events
            WHERE state IN ('CANCELLATION_FAILURE', 'CRITICAL_OPERATOR_ACTION', 'SEND_FAILURE')`,
-      )
-      .first<{ n: number }>();
+    ).first<{ n: number }>();
     criticalCount = critical?.n ?? 0;
-    const ms = await env.DB
-      .prepare(
-        `SELECT COUNT(*) AS n FROM member_milestones
+    const ms = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM member_milestones
            WHERE triggered_on = ?`,
-      )
+    )
       .bind(now.slice(0, 10))
       .first<{ n: number }>();
     dueMilestones = ms?.n ?? 0;
-    const rm = await env.DB
-      .prepare(
-        `SELECT COUNT(*) AS n FROM events
+    const rm = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM events
            WHERE state IN ('INVITED', 'REMINDER_WINDOW')
              AND datetime(start_at, '-1 day') <= ?`,
-      )
+    )
       .bind(now)
       .first<{ n: number }>();
     reminderDue = rm?.n ?? 0;
@@ -74,4 +70,3 @@ export const POST: APIRoute = async ({ request, locals }) => {
     },
   );
 };
-
