@@ -7,7 +7,11 @@
 // The wizard shows the current step, the remaining blockers,
 // and never activates a paid member without required gates.
 import Base from "@layouts/Base.astro";
-import { OnboardingService, ONBOARDING_STEPS, type OnboardingStepId } from "../../services/onboarding";
+import {
+  OnboardingService,
+  ONBOARDING_STEPS,
+  type OnboardingStepId,
+} from "../../services/onboarding";
 import { MembershipService } from "@services/membership-service";
 import { SystemClock } from "../../infra/clock";
 import { D1AuditWriter } from "../../infra/audit";
@@ -28,21 +32,20 @@ const onboarding = new OnboardingService({ db: env.DB });
 // The wizard is reachable by magic-link or by a temporary
 // onboarding id. For local dev we look up the most recent
 // APPLICANT member.
-const applicant = await env.DB
-  .prepare(
-    `SELECT m.id, m.email, m.preferred_name FROM members m
+const applicant = await env.DB.prepare(
+  `SELECT m.id, m.email, m.preferred_name FROM members m
        JOIN memberships ms ON ms.member_id = m.id
        WHERE ms.state = 'APPLICANT'
        ORDER BY m.created_at DESC LIMIT 1`,
-  )
-  .first<{ id: string; email: string; preferred_name: string | null }>();
+).first<{ id: string; email: string; preferred_name: string | null }>();
 const memberId = applicant?.id ?? null;
 const progress = memberId ? await onboarding.getProgress(memberId) : null;
 const evaluation = memberId ? await ms.evaluateActivation(memberId) : null;
 
 const currentStepIndex = ONBOARDING_STEPS.findIndex((s) => s.id === stepId);
 const prevStep = currentStepIndex > 0 ? ONBOARDING_STEPS[currentStepIndex - 1] : null;
-const nextStep = currentStepIndex < ONBOARDING_STEPS.length - 1 ? ONBOARDING_STEPS[currentStepIndex + 1] : null;
+const nextStep =
+  currentStepIndex < ONBOARDING_STEPS.length - 1 ? ONBOARDING_STEPS[currentStepIndex + 1] : null;
 
 const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : null;
 ---
@@ -60,7 +63,9 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
       <h1>Onboarding</h1>
       {
         applicant ? (
-          <p>Signed in as <strong>{applicant.preferred_name ?? applicant.email}</strong></p>
+          <p>
+            Signed in as <strong>{applicant.preferred_name ?? applicant.email}</strong>
+          </p>
         ) : (
           <p style="color: var(--fg-muted)">
             No applicant record. <a href="/waiting-list/">Add your name to the list</a> first.
@@ -70,21 +75,23 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
 
       <h2>Progress</h2>
       <ol class="onboarding-progress">
-        {ONBOARDING_STEPS.map((s) => {
-          const isCurrent = s.id === stepId;
-          const isDone = s.order < step.order;
-          const classes = ["onboarding-progress__step"];
-          if (isCurrent) classes.push("is-current");
-          if (isDone) classes.push("is-done");
-          const cls = classes.join(" ");
-          return (
-            <li class={cls}>
-              <span class="onboarding-progress__num">{s.order}</span>
-              <a href={memberId ? `/onboarding/${s.id}/` : "#"}>{s.title}</a>
-              {s.requiredForActivation ? <span class="pill pill--warn">required</span> : null}
-            </li>
-          );
-        })}
+        {
+          ONBOARDING_STEPS.map((s) => {
+            const isCurrent = s.id === stepId;
+            const isDone = s.order < step.order;
+            const classes = ["onboarding-progress__step"];
+            if (isCurrent) classes.push("is-current");
+            if (isDone) classes.push("is-done");
+            const cls = classes.join(" ");
+            return (
+              <li class={cls}>
+                <span class="onboarding-progress__num">{s.order}</span>
+                <a href={memberId ? `/onboarding/${s.id}/` : "#"}>{s.title}</a>
+                {s.requiredForActivation ? <span class="pill pill--warn">required</span> : null}
+              </li>
+            );
+          })
+        }
       </ol>
 
       {
@@ -107,26 +114,96 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         step.id === "identity" ? (
           <form class="form" method="post" action="/api/onboarding/identity">
             <label for="preferredName">Preferred first name</label>
-            <input id="preferredName" name="preferredName" type="text" required maxlength="120" value={(stepData as Record<string, string> | null)?.preferredName ?? applicant?.preferred_name ?? ""} />
+            <input
+              id="preferredName"
+              name="preferredName"
+              type="text"
+              required
+              maxlength="120"
+              value={
+                (stepData as Record<string, string> | null)?.preferredName ??
+                applicant?.preferred_name ??
+                ""
+              }
+            />
             <label for="country">Country</label>
-            <input id="country" name="country" type="text" required maxlength="60" value={(stepData as Record<string, string> | null)?.country ?? "AU"} />
+            <input
+              id="country"
+              name="country"
+              type="text"
+              required
+              maxlength="60"
+              value={(stepData as Record<string, string> | null)?.country ?? "AU"}
+            />
             <label for="metroArea">Metro / city</label>
-            <input id="metroArea" name="metroArea" type="text" required maxlength="120" value={(stepData as Record<string, string> | null)?.metroArea ?? ""} placeholder="Melbourne" />
+            <input
+              id="metroArea"
+              name="metroArea"
+              type="text"
+              required
+              maxlength="120"
+              value={(stepData as Record<string, string> | null)?.metroArea ?? ""}
+              placeholder="Melbourne"
+            />
             <label for="birthday">Birthday (MM-DD)</label>
-            <input id="birthday" name="birthday" type="text" maxlength="10" value={(stepData as Record<string, string> | null)?.birthday ?? ""} placeholder="08-15" />
+            <input
+              id="birthday"
+              name="birthday"
+              type="text"
+              maxlength="10"
+              value={(stepData as Record<string, string> | null)?.birthday ?? ""}
+              placeholder="08-15"
+            />
             <label for="timezone">Timezone</label>
-            <input id="timezone" name="timezone" type="text" maxlength="60" value={(stepData as Record<string, string> | null)?.timezone ?? "Australia/Melbourne"} />
+            <input
+              id="timezone"
+              name="timezone"
+              type="text"
+              maxlength="60"
+              value={(stepData as Record<string, string> | null)?.timezone ?? "Australia/Melbourne"}
+            />
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "chapter" ? (
           <form class="form" method="post" action="/api/onboarding/chapter">
             <label for="chapterId">Chapter</label>
             <select id="chapterId" name="chapterId" required>
-              <option value="chap_melbourne" selected={(stepData as Record<string, string> | null)?.chapterId === "chap_melbourne"}>Melbourne — accepting waitlist</option>
-              <option value="chap_sydney" selected={(stepData as Record<string, string> | null)?.chapterId === "chap_sydney"}>Sydney — coming</option>
-              <option value="chap_brisbane" selected={(stepData as Record<string, string> | null)?.chapterId === "chap_brisbane"}>Brisbane — coming</option>
-              <option value="chap_adelaide" selected={(stepData as Record<string, string> | null)?.chapterId === "chap_adelaide"}>Adelaide — coming</option>
-              <option value="chap_perth" selected={(stepData as Record<string, string> | null)?.chapterId === "chap_perth"}>Perth — coming</option>
+              <option
+                value="chap_melbourne"
+                selected={
+                  (stepData as Record<string, string> | null)?.chapterId === "chap_melbourne"
+                }
+              >
+                Melbourne — accepting waitlist
+              </option>
+              <option
+                value="chap_sydney"
+                selected={(stepData as Record<string, string> | null)?.chapterId === "chap_sydney"}
+              >
+                Sydney — coming
+              </option>
+              <option
+                value="chap_brisbane"
+                selected={
+                  (stepData as Record<string, string> | null)?.chapterId === "chap_brisbane"
+                }
+              >
+                Brisbane — coming
+              </option>
+              <option
+                value="chap_adelaide"
+                selected={
+                  (stepData as Record<string, string> | null)?.chapterId === "chap_adelaide"
+                }
+              >
+                Adelaide — coming
+              </option>
+              <option
+                value="chap_perth"
+                selected={(stepData as Record<string, string> | null)?.chapterId === "chap_perth"}
+              >
+                Perth — coming
+              </option>
             </select>
             <button type="submit">Save and continue</button>
           </form>
@@ -136,19 +213,22 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <div>
               <label>
                 <input type="radio" name="tier" value="core" required />{" "}
-                <strong>{brand.tiers.core.name}</strong> — A${brand.tiers.core.priceAud}/month · {brand.tiers.core.tagline}
+                <strong>{brand.tiers.core.name}</strong> — A${brand.tiers.core.priceAud}/month ·{" "}
+                {brand.tiers.core.tagline}
               </label>
             </div>
             <div>
               <label>
                 <input type="radio" name="tier" value="correspondence" required />{" "}
-                <strong>{brand.tiers.correspondence.name}</strong> — A${brand.tiers.correspondence.priceAud}/month · {brand.tiers.correspondence.tagline}
+                <strong>{brand.tiers.correspondence.name}</strong> — A$
+                {brand.tiers.correspondence.priceAud}/month · {brand.tiers.correspondence.tagline}
               </label>
             </div>
             <div>
               <label>
                 <input type="radio" name="tier" value="deluxe" required />{" "}
-                <strong>{brand.tiers.deluxe.name}</strong> — A${brand.tiers.deluxe.priceAud}/month · {brand.tiers.deluxe.tagline}
+                <strong>{brand.tiers.deluxe.name}</strong> — A${brand.tiers.deluxe.priceAud}/month ·{" "}
+                {brand.tiers.deluxe.tagline}
               </label>
             </div>
             <button type="submit">Save and continue</button>
@@ -156,16 +236,63 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : step.id === "why" ? (
           <form class="form" method="post" action="/api/onboarding/why">
             <label>Why are you joining? (multi-select)</label>
-            <div><label><input type="checkbox" name="why" value="cancelled-plans" /> I enjoy having plans cancelled.</label></div>
-            <div><label><input type="checkbox" name="why" value="belong-without-attendance" /> I want to feel included without attendance pressure.</label></div>
-            <div><label><input type="checkbox" name="why" value="correspondence" /> I want proper correspondence.</label></div>
-            <div><label><input type="checkbox" name="why" value="remembered" /> I want the Society to remember me.</label></div>
-            <div><label><input type="checkbox" name="why" value="physical-mail" /> I want physical mail.</label></div>
-            <div><label><input type="checkbox" name="why" value="human-contact" /> I want occasional human contact.</label></div>
-            <div><label><input type="checkbox" name="why" value="manufactured-commitments" /> I want manufactured commitments.</label></div>
-            <div><label><input type="checkbox" name="why" value="gifts" /> I like gifts and surprises.</label></div>
-            <div><label><input type="checkbox" name="why" value="appearance" /> I may use the appearance service.</label></div>
-            <div><label><input type="checkbox" name="why" value="funny" /> I mostly think this is funny.</label></div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="cancelled-plans" /> I enjoy having plans
+                cancelled.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="belong-without-attendance" /> I want to
+                feel included without attendance pressure.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="correspondence" /> I want proper
+                correspondence.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="remembered" /> I want the Society to
+                remember me.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="physical-mail" /> I want physical mail.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="human-contact" /> I want occasional human
+                contact.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="manufactured-commitments" /> I want
+                manufactured commitments.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="gifts" /> I like gifts and surprises.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="appearance" /> I may use the appearance
+                service.
+              </label>
+            </div>
+            <div>
+              <label>
+                <input type="checkbox" name="why" value="funny" /> I mostly think this is funny.
+              </label>
+            </div>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "event-preferences" ? (
@@ -184,34 +311,80 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <option value="last-minute">Last minute</option>
               <option value="discretion">Society discretion</option>
             </select>
-            <label><input type="checkbox" name="types" value="dinners" /> Dinners</label>
-            <label><input type="checkbox" name="types" value="gallery" /> Gallery / museum</label>
-            <label><input type="checkbox" name="types" value="theatre" /> Theatre</label>
-            <label><input type="checkbox" name="types" value="music" /> Music</label>
-            <label><input type="checkbox" name="types" value="walks" /> Walks</label>
-            <label><input type="checkbox" name="types" value="talks" /> Talks</label>
-            <label><input type="checkbox" name="types" value="cultural" /> Cultural</label>
-            <label><input type="checkbox" name="types" value="surprise" /> Surprise me</label>
+            <label>
+              <input type="checkbox" name="types" value="dinners" /> Dinners
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="gallery" /> Gallery / museum
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="theatre" /> Theatre
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="music" /> Music
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="walks" /> Walks
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="talks" /> Talks
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="cultural" /> Cultural
+            </label>
+            <label>
+              <input type="checkbox" name="types" value="surprise" /> Surprise me
+            </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "communications" ? (
           <form class="form" method="post" action="/api/onboarding/communications">
-            <label><input type="checkbox" name="opt" value="NEWSLETTER" /> Newsletter (slow, mostly text)</label>
-            <label><input type="checkbox" name="opt" value="CALENDAR_MESSAGES" /> Calendar messages (invitations + cancellations)</label>
-            <label><input type="checkbox" name="opt" value="PHYSICAL_CORRESPONDENCE" /> Physical mail</label>
-            <label><input type="checkbox" name="opt" value="GIFTS" /> Gifts (incl. surprises)</label>
-            <label><input type="checkbox" name="opt" value="CALLS" /> Calls (at permitted windows)</label>
-            <label><input type="checkbox" name="opt" value="MANUFACTURED_COMMITMENTS" /> Manufactured commitments</label>
-            <label><input type="checkbox" name="opt" value="APPEARANCE_INTEREST" /> Appearance service interest</label>
+            <label>
+              <input type="checkbox" name="opt" value="NEWSLETTER" /> Newsletter (slow, mostly text)
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="CALENDAR_MESSAGES" /> Calendar messages
+              (invitations + cancellations)
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="PHYSICAL_CORRESPONDENCE" /> Physical mail
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="GIFTS" /> Gifts (incl. surprises)
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="CALLS" /> Calls (at permitted windows)
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="MANUFACTURED_COMMITMENTS" /> Manufactured
+              commitments
+            </label>
+            <label>
+              <input type="checkbox" name="opt" value="APPEARANCE_INTEREST" /> Appearance service
+              interest
+            </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "memory" ? (
           <form class="form" method="post" action="/api/onboarding/memory">
-            <p>You may add facts the Society may use to personalise correspondence. You can edit or remove any fact at any time from the portal.</p>
-            <label for="memoryHint">What should the Society remember about you? (free text, optional)</label>
-            <textarea id="memoryHint" name="memoryHint" rows="3" maxlength="600" placeholder="My dog Frank; I am doing a pottery class; my birthday is in August."></textarea>
-            <label for="doNotMention">What should the Society <strong>never</strong> mention? (free text, optional)</label>
-            <textarea id="doNotMention" name="doNotMention" rows="3" maxlength="600"></textarea>
+            <p>
+              You may add facts the Society may use to personalise correspondence. You can edit or
+              remove any fact at any time from the portal.
+            </p>
+            <label for="memoryHint">
+              What should the Society remember about you? (free text, optional)
+            </label>
+            <textarea
+              id="memoryHint"
+              name="memoryHint"
+              rows="3"
+              maxlength="600"
+              placeholder="My dog Frank; I am doing a pottery class; my birthday is in August."
+            />
+            <label for="doNotMention">
+              What should the Society <strong>never</strong> mention? (free text, optional)
+            </label>
+            <textarea id="doNotMention" name="doNotMention" rows="3" maxlength="600" />
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "post" ? (
@@ -228,17 +401,31 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <input id="postcode" name="postcode" type="text" maxlength="20" required />
             <label for="country2">Country</label>
             <input id="country2" name="country" type="text" maxlength="60" required value="AU" />
-            <label><input type="checkbox" name="surprisePackages" value="true" /> Surprise packages are OK</label>
+            <label>
+              <input type="checkbox" name="surprisePackages" value="true" /> Surprise packages are
+              OK
+            </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "gifts" ? (
           <form class="form" method="post" action="/api/onboarding/gifts">
-            <label><input type="checkbox" name="gifts" value="enabled" checked /> Enable gifts (A$50+ tier only)</label>
-            <label><input type="checkbox" name="surprises" value="enabled" /> Surprises are OK</label>
+            <label>
+              <input type="checkbox" name="gifts" value="enabled" checked /> Enable gifts (A$50+
+              tier only)
+            </label>
+            <label>
+              <input type="checkbox" name="surprises" value="enabled" /> Surprises are OK
+            </label>
             <label for="interests">Interests (free text)</label>
-            <textarea id="interests" name="interests" rows="2" maxlength="500"></textarea>
+            <textarea id="interests" name="interests" rows="2" maxlength="500" />
             <label for="neverSend">Never send (free text)</label>
-            <textarea id="neverSend" name="neverSend" rows="2" maxlength="500" placeholder="no alcohol, no leather, no soy candles"></textarea>
+            <textarea
+              id="neverSend"
+              name="neverSend"
+              rows="2"
+              maxlength="500"
+              placeholder="no alcohol, no leather, no soy candles"
+            />
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "calls" ? (
@@ -252,26 +439,36 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <option value="ALL_ALLOWED">All allowed</option>
             </select>
             <label for="callWindow">Preferred window (local time)</label>
-            <input id="callWindow" name="callWindow" type="text" maxlength="60" placeholder="16:00–18:00" />
-            <label><input type="checkbox" name="voicemail" value="ok" /> Voicemail is OK</label>
-            <label><input type="checkbox" name="surpriseCall" value="ok" /> Surprise calls are OK</label>
+            <input
+              id="callWindow"
+              name="callWindow"
+              type="text"
+              maxlength="60"
+              placeholder="16:00–18:00"
+            />
+            <label>
+              <input type="checkbox" name="voicemail" value="ok" /> Voicemail is OK
+            </label>
+            <label>
+              <input type="checkbox" name="surpriseCall" value="ok" /> Surprise calls are OK
+            </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "manufactured-commitments" ? (
           <form class="form" method="post" action="/api/onboarding/manufactured-commitments">
             <p>
-              A manufactured commitment is a consensual artificial social obligation. You
-              ask the Society to construct a plausible visitor. You confirm. The Society
-              creates useful pressure and then explicitly cancels. You can abort at any time.
-              Nothing dangles.
+              A manufactured commitment is a consensual artificial social obligation. You ask the
+              Society to construct a plausible visitor. You confirm. The Society creates useful
+              pressure and then explicitly cancels. You can abort at any time. Nothing dangles.
             </p>
             <label for="mcOptIn">
-              <input id="mcOptIn" type="checkbox" name="mcOptIn" value="true" /> I may request manufactured commitments in the future
+              <input id="mcOptIn" type="checkbox" name="mcOptIn" value="true" /> I may request
+              manufactured commitments in the future
             </label>
             <p style="color: var(--fg-muted)">
-              I understand the scenario is constructed. Fictional names may be used. No one
-              is really travelling unless I separately book the appearance service. I can
-              abort at any time and the Society will cancel the scenario.
+              I understand the scenario is constructed. Fictional names may be used. No one is
+              really travelling unless I separately book the appearance service. I can abort at any
+              time and the Society will cancel the scenario.
             </p>
             <button type="submit">Save and continue</button>
           </form>
@@ -279,67 +476,73 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
           <form class="form" method="post" action="/api/onboarding/appearance-interest">
             <label for="app">
               <select id="app" name="appearance">
-                <option value="INTERESTED">Interested — let me know when the service is available</option>
+                <option value="INTERESTED">
+                  Interested — let me know when the service is available
+                </option>
                 <option value="ASK_LATER">Ask me later</option>
                 <option value="NOT_INTERESTED">Not interested</option>
               </select>
             </label>
             <p style="color: var(--fg-muted)">
-              This is not a booking. Real bookings go through the portal appearance page
-              when the service is enabled.
+              This is not a booking. Real bookings go through the portal appearance page when the
+              service is enabled.
             </p>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "plain-language" ? (
           <form class="form" method="post" action="/api/onboarding/plain-language">
             <p>
-              Before paid activation, the {brand.shortName} asks you to explicitly
-              acknowledge in plain language that:
+              Before paid activation, the {brand.shortName} asks you to explicitly acknowledge in
+              plain language that:
             </p>
             <ul>
               <li>ordinary events are constructed;</li>
               <li>ordinary events are intended to be cancelled;</li>
               <li>members are not expected to attend;</li>
               <li>some characters and references are fictional;</li>
-              <li>AI and automation may assist personalisation within the rules the Society sets;</li>
+              <li>
+                AI and automation may assist personalisation within the rules the Society sets;
+              </li>
               <li>human operators perform selected real-world tasks;</li>
               <li>optional services are controllable.</li>
             </ul>
             <label>
-              <input type="checkbox" name="acknowledged" value="true" required /> I have read and acknowledge the above.
+              <input type="checkbox" name="acknowledged" value="true" required /> I have read and
+              acknowledge the above.
             </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "terms" ? (
           <form class="form" method="post" action="/api/onboarding/terms">
             <p>
-              The {brand.shortName} shows the exact document version, effective date, and
-              content hash for every acceptance. You can re-accept at any time. Re-acceptance
-              of an updated document does not by itself re-charge or change your membership.
+              The {brand.shortName} shows the exact document version, effective date, and content
+              hash for every acceptance. You can re-accept at any time. Re-acceptance of an updated
+              document does not by itself re-charge or change your membership.
             </p>
             <p>
-              The current terms and privacy policy are placeholders pending Australian-facing
-              legal review. By accepting, you confirm you have read them and agree to the
-              current version.
+              The current terms and privacy policy are placeholders pending Australian-facing legal
+              review. By accepting, you confirm you have read them and agree to the current version.
             </p>
             <label>
-              <input type="checkbox" name="termsAccepted" value="true" required /> I accept the current Terms.
+              <input type="checkbox" name="termsAccepted" value="true" required /> I accept the
+              current Terms.
             </label>
             <label>
-              <input type="checkbox" name="privacyAccepted" value="true" required /> I accept the current Privacy Policy.
+              <input type="checkbox" name="privacyAccepted" value="true" required /> I accept the
+              current Privacy Policy.
             </label>
             <label>
-              <input type="checkbox" name="theatricalAccepted" value="true" required /> I accept the Theatrical / Constructed Experience acknowledgement.
+              <input type="checkbox" name="theatricalAccepted" value="true" required /> I accept the
+              Theatrical / Constructed Experience acknowledgement.
             </label>
             <button type="submit">Save and continue</button>
           </form>
         ) : step.id === "payment-gate" ? (
           <div>
             <p>
-              The payment gate is the last step. It is <strong>disabled</strong> in this
-              build. Real paid activation is webhook-authoritative (a verified Stripe
-              payment is required) and is not enabled until the user explicitly approves
-              paid launch.
+              The payment gate is the last step. It is <strong>disabled</strong> in this build. Real
+              paid activation is webhook-authoritative (a verified Stripe payment is required) and
+              is not enabled until the user explicitly approves paid launch.
             </p>
             <p style="color: var(--fg-muted)">
               {evaluation?.ready
@@ -347,7 +550,9 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
                 : "All required gates must be satisfied before activation. See remaining blockers above."}
             </p>
             <p>
-              <a href="/onboarding/identity/" class="link-button">Review the wizard from the start</a>
+              <a href="/onboarding/identity/" class="link-button">
+                Review the wizard from the start
+              </a>
             </p>
           </div>
         ) : (
@@ -356,8 +561,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
       }
 
       <nav class="onboarding-nav" aria-label="Onboarding navigation">
-        {prevStep ? <a href={`/onboarding/${prevStep.id}/`}>← {prevStep.title}</a> : <span></span>}
-        {nextStep ? <a href={`/onboarding/${nextStep.id}/`}>{nextStep.title} →</a> : <a href="/portal/">Finish</a>}
+        {prevStep ? <a href={`/onboarding/${prevStep.id}/`}>← {prevStep.title}</a> : <span />}
+        {
+          nextStep ? (
+            <a href={`/onboarding/${nextStep.id}/`}>{nextStep.title} →</a>
+          ) : (
+            <a href="/portal/">Finish</a>
+          )
+        }
       </nav>
     </div>
   </section>

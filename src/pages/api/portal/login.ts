@@ -36,8 +36,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // Look up member by email. We never echo whether the email
   // exists; we always return ok: true on a well-formed request.
   const audit = new D1AuditWriter(env.DB, new SystemClock());
-  const member = await env.DB
-    .prepare(`SELECT id, email FROM members WHERE email = ?`)
+  const member = await env.DB.prepare(`SELECT id, email FROM members WHERE email = ?`)
     .bind(parsed.data.email.toLowerCase())
     .first<{ id: string; email: string }>();
   if (!member) {
@@ -98,7 +97,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
   // Surface the dev URL only when the local dev env flag is set.
   // NEVER in production. The Resend path is the production path.
-  const isDev = (env.APP_BASE_URL ?? "").includes("localhost") || (env.APP_BASE_URL ?? "").includes("127.0.0.1");
+  const isDev =
+    (env.APP_BASE_URL ?? "").includes("localhost") ||
+    (env.APP_BASE_URL ?? "").includes("127.0.0.1");
   return json({ ok: true, devUrl: isDev ? issued.url : undefined }, 200);
 };
 

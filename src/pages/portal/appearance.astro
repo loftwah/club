@@ -6,23 +6,24 @@ const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
 if (!ctx) return Astro.redirect("/portal/login/");
 
 const env = Astro.locals.runtime.env;
-const rows = (await env.DB
-  .prepare(
+const rows = (
+  await env.DB.prepare(
     `SELECT id, role, location, travel_required, state, quote_total_cents, created_at
        FROM appearance_requests
        WHERE member_id = ?
        ORDER BY created_at DESC LIMIT 20`,
   )
-  .bind(ctx.member.id)
-  .all<{
-    id: string;
-    role: string;
-    location: string;
-    travel_required: number;
-    state: string;
-    quote_total_cents: number | null;
-    created_at: string;
-  }>()).results;
+    .bind(ctx.member.id)
+    .all<{
+      id: string;
+      role: string;
+      location: string;
+      travel_required: number;
+      state: string;
+      quote_total_cents: number | null;
+      created_at: string;
+    }>()
+).results;
 ---
 
 <Base
@@ -37,20 +38,19 @@ const rows = (await env.DB
       </p>
       <h1>Appearance service</h1>
       <p>
-        The Society can send a real person to a real event in an agreed role — friend,
-        plus-one, club representative, guest, supporter. The customer understands the
-        arrangement. Travel, accommodation and substantial preparation are quoted
-        separately. Members may receive priority and member pricing.
+        The Society can send a real person to a real event in an agreed role — friend, plus-one,
+        club representative, guest, supporter. The customer understands the arrangement. Travel,
+        accommodation and substantial preparation are quoted separately. Members may receive
+        priority and member pricing.
       </p>
       <p>
-        The Society will <strong>not</strong> support requests to impersonate real
-        authorities (police, lawyer, doctor, government), commit fraud, harass, or
-        facilitate illegal activity. Disallowed directions are declined at suitability
-        review before any quote is prepared.
+        The Society will <strong>not</strong> support requests to impersonate real authorities (police,
+        lawyer, doctor, government), commit fraud, harass, or facilitate illegal activity. Disallowed
+        directions are declined at suitability review before any quote is prepared.
       </p>
       <p>
-        Final public pricing is not locked. Submitting an enquiry is free; you will
-        receive a quote before any commitment.
+        Final public pricing is not locked. Submitting an enquiry is free; you will receive a quote
+        before any commitment.
       </p>
 
       <h2>Request an appearance</h2>
@@ -64,25 +64,46 @@ const rows = (await env.DB
           <option value="supporter">Supporter</option>
         </select>
         <label for="location">Location (city / suburb)</label>
-        <input id="location" name="location" type="text" required maxlength="200" placeholder="Carlton, VIC" />
+        <input
+          id="location"
+          name="location"
+          type="text"
+          required
+          maxlength="200"
+          placeholder="Carlton, VIC"
+        />
         <label for="eventDate">Event date (if known)</label>
         <input id="eventDate" name="eventDate" type="date" />
         <label for="eventTime">Event time (if known)</label>
         <input id="eventTime" name="eventTime" type="time" />
         <label for="duration">Duration (hours)</label>
-        <input id="duration" name="duration" type="number" min="1" max="48" step="0.5" placeholder="3" />
+        <input
+          id="duration"
+          name="duration"
+          type="number"
+          min="1"
+          max="48"
+          step="0.5"
+          placeholder="3"
+        />
         <label for="travel">Travel needed?</label>
         <select id="travel" name="travel" required>
           <option value="false">No — local</option>
           <option value="true">Yes — interstate or international</option>
         </select>
         <label for="brief">Context, dress, accessibility, anything we should know</label>
-        <textarea id="brief" name="brief" rows="4" maxlength="1000" required placeholder="A casual friend for a wedding-adjacent dinner. Outgoing, can hold a conversation. No impersonation of any authority."></textarea>
+        <textarea
+          id="brief"
+          name="brief"
+          rows="4"
+          maxlength="1000"
+          required
+          placeholder="A casual friend for a wedding-adjacent dinner. Outgoing, can hold a conversation. No impersonation of any authority."
+        ></textarea>
         <label>
           <input type="checkbox" name="acknowledged" value="true" required />
-          I understand the Society will not impersonate real authorities, will not commit
-          fraud, will not harass, and will not facilitate illegal activity. The
-          arrangement is consensual.
+          I understand the Society will not impersonate real authorities, will not commit fraud, will
+          not harass, and will not facilitate illegal activity. The arrangement is consensual.
         </label>
         <button type="submit">Submit enquiry</button>
       </form>
@@ -94,24 +115,41 @@ const rows = (await env.DB
         ) : (
           <table class="admin-table">
             <thead>
-              <tr><th>State</th><th>Role</th><th>Location</th><th>Travel</th><th>Quote</th><th>Created</th></tr>
+              <tr>
+                <>
+                  <th>State</th>
+                  <th>Role</th>
+                  <th>Location</th>
+                  <th>Travel</th>
+                  <th>Quote</th>
+                  <th>Created</th>
+                </>
+              </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr>
                   <td>
-                    <span class={`pill ${
-                      r.state === "BOOKED" || r.state === "PERFORMED" ? "pill--ok" :
-                      r.state === "SUITABILITY_DECLINED" || r.state === "CUSTOMER_CANCELLED" || r.state === "CLUB_CANCELLED" ? "pill--warn" :
-                      "pill--info"
-                    }`}>
+                    <span
+                      class={`pill ${
+                        r.state === "BOOKED" || r.state === "PERFORMED"
+                          ? "pill--ok"
+                          : r.state === "SUITABILITY_DECLINED" ||
+                              r.state === "CUSTOMER_CANCELLED" ||
+                              r.state === "CLUB_CANCELLED"
+                            ? "pill--warn"
+                            : "pill--info"
+                      }`}
+                    >
                       {r.state}
                     </span>
                   </td>
                   <td>{r.role}</td>
                   <td>{r.location}</td>
                   <td>{r.travel_required === 1 ? "Yes" : "No"}</td>
-                  <td>{r.quote_total_cents ? `A$${(r.quote_total_cents / 100).toFixed(2)}` : "—"}</td>
+                  <td>
+                    {r.quote_total_cents ? `A$${(r.quote_total_cents / 100).toFixed(2)}` : "—"}
+                  </td>
                   <td>{r.created_at.slice(0, 10)}</td>
                 </tr>
               ))}

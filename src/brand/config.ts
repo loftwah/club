@@ -144,8 +144,7 @@ export const brand: Brand = {
     line: "rgba(17, 17, 17, 0.12)",
   },
   typography: {
-    serif:
-      '"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif',
+    serif: '"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif',
     sans: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     mono: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
   },
@@ -174,13 +173,7 @@ export const brand: Brand = {
     titleTemplate: "%s — Plans With You",
     description:
       "A real paid membership that takes your absence seriously. Plans were made. Plans were unmade.",
-    keywords: [
-      "membership",
-      "low pressure",
-      "cancelled plans",
-      "social club",
-      "contemporary",
-    ],
+    keywords: ["membership", "low pressure", "cancelled plans", "social club", "contemporary"],
   },
   copy: {
     hero: {

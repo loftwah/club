@@ -436,11 +436,7 @@ export class MembershipService {
    * writer. Used by the onboarding wizard so a single audit
    * session can be reused across many step transitions.
    */
-  async advanceTo(
-    memberId: string,
-    to: MembershipState,
-    audit: AuditWriter,
-  ): Promise<void> {
+  async advanceTo(memberId: string, to: MembershipState, audit: AuditWriter): Promise<void> {
     const validFrom: Record<MembershipState, MembershipState[]> = {
       APPLICANT: ["EMAIL_VERIFIED", "ABANDONED"],
       EMAIL_VERIFIED: ["IDENTITY_COMPLETE", "ABANDONED"],

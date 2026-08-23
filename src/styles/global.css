@@ -15,10 +15,10 @@
   --fg: #111111;
   --fg-muted: #3a3a3a;
   --fg-faint: #6a6a6a; /* raised from #5a5a5a for WCAG AA on --bg */
-  --accent: #ff5a1f; /* signal orange — the cancellation */
+  --accent: #ff5a1f; /* signal orange — the cancellation (large/display use) */
   --accent-dim: #8a3a1a;
   --accent-secondary: #5c1a1b; /* oxblood, secondary */
-  --link: #c84a18; /* darker accent for in-text links (WCAG AA on --bg) */
+  --link: #b03d10; /* darker accent for normal-size text (WCAG AA on --bg) */
   --success: #1b6e3a;
   --error: #a12622;
   --line: rgba(17, 17, 17, 0.12);
@@ -133,7 +133,7 @@ a:focus {
   font-size: 0.95rem;
 }
 .site-header nav .cta-link {
-  color: var(--accent);
+  color: var(--accent-secondary);
   border: 1px solid var(--accent-dim);
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius);

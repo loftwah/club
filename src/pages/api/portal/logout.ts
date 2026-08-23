@@ -7,7 +7,7 @@ import { MagicLinkService, buildClearSessionCookie, SESSION_COOKIE } from "@serv
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 
-export const POST: APIRoute = async ({ request, locals, redirect }) => {
+export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
   if (!env?.DB) {
     return new Response("Database not available", { status: 500 });

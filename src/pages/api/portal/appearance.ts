@@ -36,5 +36,8 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   });
   // If declined, still show the user a clear page. Otherwise
   // the admin will prepare a quote.
-  return redirect(r.state === "SUITABILITY_DECLINED" ? "/portal/appearance/?declined=1" : "/portal/appearance/", 303);
+  return redirect(
+    r.state === "SUITABILITY_DECLINED" ? "/portal/appearance/?declined=1" : "/portal/appearance/",
+    303,
+  );
 };

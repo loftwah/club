@@ -22,19 +22,23 @@ const membership = new MembershipService({ db: env.DB, audit, clock });
 const memory = new MemberMemoryService({ db: env.DB, audit, clock });
 
 const member = ctx.member;
-const membershipRow = await env.DB
-  .prepare(
-    `SELECT m.state, m.started_at, m.tier_id, t.display_name AS tier_name, t.price_cents
+const membershipRow = await env.DB.prepare(
+  `SELECT m.state, m.started_at, m.tier_id, t.display_name AS tier_name, t.price_cents
        FROM memberships m
        LEFT JOIN membership_tiers t ON t.id = m.tier_id
        WHERE m.member_id = ?`,
-  )
+)
   .bind(member.id)
-  .first<{ state: string; started_at: string | null; tier_id: string | null; tier_name: string | null; price_cents: number | null }>();
+  .first<{
+    state: string;
+    started_at: string | null;
+    tier_id: string | null;
+    tier_name: string | null;
+    price_cents: number | null;
+  }>();
 
 const chapter = member.chapterId
-  ? await env.DB
-      .prepare(`SELECT name FROM chapters WHERE id = ?`)
+  ? await env.DB.prepare(`SELECT name FROM chapters WHERE id = ?`)
       .bind(member.chapterId)
       .first<{ name: string }>()
   : null;
@@ -48,36 +52,33 @@ const tenureMonths = membershipRow?.started_at
   : 0;
 
 // Current/upcoming fictional engagements.
-const upcoming = await env.DB
-  .prepare(
-    `SELECT id, title, start_at, state FROM events
+const upcoming = await env.DB.prepare(
+  `SELECT id, title, start_at, state FROM events
        WHERE chapter_id = ?
          AND state IN ('SCHEDULED', 'INVITATIONS_QUEUED', 'INVITED', 'REMINDER_WINDOW')
          AND start_at > ?
        ORDER BY start_at ASC
        LIMIT 5`,
-  )
+)
   .bind(member.chapterId, clock.nowIso())
   .all<{ id: string; title: string; start_at: string; state: string }>();
 
-const recentCancellations = await env.DB
-  .prepare(
-    `SELECT id, title, cancelled_at FROM events
+const recentCancellations = await env.DB.prepare(
+  `SELECT id, title, cancelled_at FROM events
        WHERE chapter_id = ?
          AND state IN ('CANCELLED', 'ARCHIVED')
          AND cancelled_at > ?
        ORDER BY cancelled_at DESC
        LIMIT 5`,
-  )
+)
   .bind(member.chapterId, new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString())
   .all<{ id: string; title: string; cancelled_at: string | null }>();
 
-const correspondence = await env.DB
-  .prepare(
-    `SELECT id, template_key, state, sent_at, related_entity_type FROM communications
+const correspondence = await env.DB.prepare(
+  `SELECT id, template_key, state, sent_at, related_entity_type FROM communications
        WHERE member_id = ?
        ORDER BY created_at DESC LIMIT 10`,
-  )
+)
   .bind(member.id)
   .all<{
     id: string;
@@ -87,30 +88,24 @@ const correspondence = await env.DB
     related_entity_type: string | null;
   }>();
 
-const milestones = await env.DB
-  .prepare(
-    `SELECT id, trigger_type, triggered_on FROM member_milestones
+const milestones = await env.DB.prepare(
+  `SELECT id, trigger_type, triggered_on FROM member_milestones
        WHERE member_id = ?
        ORDER BY triggered_on DESC LIMIT 10`,
-  )
+)
   .bind(member.id)
   .all<{ id: string; trigger_type: string; triggered_on: string }>();
 
 const memoryFacts = await memory.listForMember(member.id);
 const usableFacts = await memory.usableForMember(member.id);
 
-const grants = await env.DB
-  .prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
+const grants = await env.DB.prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
   .bind(member.id)
   .all<{ service: string; state: string }>();
 const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? []);
 ---
 
-<Base
-  title="Member portal"
-  description="Your membership at a glance."
-  canonicalPath="/portal/"
->
+<Base title="Member portal" description="Your membership at a glance." canonicalPath="/portal/">
   <section class="section">
     <div class="container">
       <p style="color: var(--fg-faint)">
@@ -118,30 +113,46 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
       </p>
       <h1>Hello, {member.preferredName ?? "member"}</h1>
       <p style="color: var(--fg-muted)">
-        Member number <code style="font-family: var(--font-mono); background: var(--bg-elev); padding: 0.1rem 0.4rem; border-radius: 3px;">{memberNumber}</code>
+        Member number <code
+          style="font-family: var(--font-mono); background: var(--bg-elev); padding: 0.1rem 0.4rem; border-radius: 3px;"
+          >{memberNumber}</code
+        >
       </p>
 
       <h2>Membership</h2>
       <table class="admin-table">
         <tbody>
-          <tr><th>State</th><td>
-            <span class={`pill ${membershipRow?.state === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
-              {membershipRow?.state ?? "—"}
-            </span>
-          </td></tr>
-          <tr><th>Tier</th><td>
-            {membershipRow?.tier_name ?? "—"}
-            {membershipRow?.price_cents ? (
-              <span style="color: var(--fg-faint)"> · A${(membershipRow.price_cents / 100).toFixed(0)}/month</span>
-            ) : null}
-          </td></tr>
+          <tr
+            ><th>State</th><td>
+              <span class={`pill ${membershipRow?.state === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
+                {membershipRow?.state ?? "—"}
+              </span>
+            </td></tr
+          >
+          <tr
+            ><th>Tier</th><td>
+              {membershipRow?.tier_name ?? "—"}
+              {
+                membershipRow?.price_cents ? (
+                  <span style="color: var(--fg-faint)">
+                    {" "}
+                    · A${(membershipRow.price_cents / 100).toFixed(0)}/month
+                  </span>
+                ) : null
+              }
+            </td></tr
+          >
           <tr><th>Chapter</th><td>{chapter?.name ?? "—"}</td></tr>
-          <tr><th>Joined</th><td>
-            {membershipRow?.started_at?.slice(0, 10) ?? "—"}
-            {tenureMonths > 0 ? (
-              <span style="color: var(--fg-faint)"> · {tenureMonths} months</span>
-            ) : null}
-          </td></tr>
+          <tr
+            ><th>Joined</th><td>
+              {membershipRow?.started_at?.slice(0, 10) ?? "—"}
+              {
+                tenureMonths > 0 ? (
+                  <span style="color: var(--fg-faint)"> · {tenureMonths} months</span>
+                ) : null
+              }
+            </td></tr
+          >
           <tr><th>Country</th><td>{member.country ?? "—"}</td></tr>
           <tr><th>Timezone</th><td>{member.timezone ?? "—"}</td></tr>
         </tbody>
@@ -150,11 +161,19 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
       <h2>Current & upcoming plans</h2>
       {
         upcoming.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">No plans on the schedule right now. New plans arrive in your inbox when they do.</p>
+          <p style="color: var(--fg-muted)">
+            No plans on the schedule right now. New plans arrive in your inbox when they do.
+          </p>
         ) : (
           <table class="admin-table">
             <thead>
-              <tr><th>State</th><th>Title</th><th>When</th></tr>
+              <tr>
+                <>
+                  <th>State</th>
+                  <th>Title</th>
+                  <th>When</th>
+                </>
+              </tr>
             </thead>
             <tbody>
               {upcoming.results?.map((e) => (
@@ -178,7 +197,12 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
         ) : (
           <table class="admin-table">
             <thead>
-              <tr><th>Title</th><th>Unmade on</th></tr>
+              <tr>
+                <>
+                  <th>Title</th>
+                  <th>Unmade on</th>
+                </>
+              </tr>
             </thead>
             <tbody>
               {recentCancellations.results?.map((e) => (
@@ -199,13 +223,21 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
         ) : (
           <table class="admin-table">
             <thead>
-              <tr><th>Type</th><th>State</th><th>Sent</th></tr>
+              <tr>
+                <>
+                  <th>Type</th>
+                  <th>State</th>
+                  <th>Sent</th>
+                </>
+              </tr>
             </thead>
             <tbody>
               {correspondence.results?.map((c) => (
                 <tr>
                   <td>{c.template_key}</td>
-                  <td><span class="pill pill--info">{c.state}</span></td>
+                  <td>
+                    <span class="pill pill--info">{c.state}</span>
+                  </td>
                   <td>{c.sent_at?.slice(0, 10) ?? "queued"}</td>
                 </tr>
               ))}
@@ -221,7 +253,9 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
         ) : (
           <ul>
             {milestones.results?.map((m) => (
-              <li>{m.trigger_type.replaceAll("_", " ")} on {m.triggered_on}</li>
+              <li>
+                {m.trigger_type.replaceAll("_", " ")} on {m.triggered_on}
+              </li>
             ))}
           </ul>
         )
@@ -233,12 +267,15 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
       </p>
       {
         usableFacts.length === 0 ? (
-          <p style="color: var(--fg-muted)">No memory yet. The Society will remember what you choose to share.</p>
+          <p style="color: var(--fg-muted)">
+            No memory yet. The Society will remember what you choose to share.
+          </p>
         ) : (
           <ul>
             {usableFacts.map((f) => (
               <li>
-                <strong>{f.category}</strong>: {f.subject} = {typeof f.value === "string" ? f.value : JSON.stringify(f.value)}
+                <strong>{f.category}</strong>: {f.subject} ={" "}
+                {typeof f.value === "string" ? f.value : JSON.stringify(f.value)}
                 <span style="color: var(--fg-faint)"> · source: {f.sourceType ?? "self"}</span>
               </li>
             ))}
@@ -247,19 +284,34 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
       }
 
       <h2>Optional services</h2>
-      <p><a href="/portal/preferences">Manage preferences, optional services, and reconsents →</a></p>
+      <p>
+        <a href="/portal/preferences">Manage preferences, optional services, and reconsents →</a>
+      </p>
       <ul>
-        {["NEWSLETTER", "PERSONALISED_MEMORY", "CALENDAR_MESSAGES", "PHYSICAL_CORRESPONDENCE", "GIFTS", "CALLS", "MANUFACTURED_COMMITMENTS", "APPEARANCE_INTEREST"].map((svc) => {
-          const state = grantMap.get(svc) ?? "AVAILABLE";
-          return (
-            <li>
-              <strong>{svc}</strong> —{" "}
-              <span class={`pill pill--${state === "OPTED_IN" ? "ok" : state === "OPTED_OUT" ? "warn" : "info"}`}>
-                {state}
-              </span>
-            </li>
-          );
-        })}
+        {
+          [
+            "NEWSLETTER",
+            "PERSONALISED_MEMORY",
+            "CALENDAR_MESSAGES",
+            "PHYSICAL_CORRESPONDENCE",
+            "GIFTS",
+            "CALLS",
+            "MANUFACTURED_COMMITMENTS",
+            "APPEARANCE_INTEREST",
+          ].map((svc) => {
+            const state = grantMap.get(svc) ?? "AVAILABLE";
+            return (
+              <li>
+                <strong>{svc}</strong> —{" "}
+                <span
+                  class={`pill pill--${state === "OPTED_IN" ? "ok" : state === "OPTED_OUT" ? "warn" : "info"}`}
+                >
+                  {state}
+                </span>
+              </li>
+            );
+          })
+        }
       </ul>
 
       <h2>Manufactured commitments</h2>
@@ -269,15 +321,17 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
       </p>
 
       <h2>Appearance service</h2>
-      <p><a href="/portal/appearance">Request a Society representative for a real-world event →</a></p>
+      <p>
+        <a href="/portal/appearance">Request a Society representative for a real-world event →</a>
+      </p>
 
       <h2>Sign out</h2>
       <form method="post" action="/api/portal/logout">
         <button type="submit">Sign out this device</button>
       </form>
       <p>
-        <a href="/portal/account/delete">Request account deletion</a> · closes future
-        personalisation and triggers the data-removal workflow.
+        <a href="/portal/account/delete">Request account deletion</a> · closes future personalisation
+        and triggers the data-removal workflow.
       </p>
     </div>
   </section>

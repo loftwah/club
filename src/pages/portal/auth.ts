@@ -6,7 +6,7 @@ import { MagicLinkService, MagicLinkError, buildSessionCookie } from "@services/
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 
-export const GET: APIRoute = async ({ url, locals, redirect }) => {
+export const GET: APIRoute = async ({ url, locals }) => {
   const env = locals.runtime.env;
   if (!env?.DB) {
     return new Response("Database not available.", { status: 500 });

@@ -39,8 +39,7 @@ export async function requireSession(
     }
     throw err;
   }
-  const member = await env.DB
-    .prepare(`SELECT * FROM members WHERE id = ?`)
+  const member = await env.DB.prepare(`SELECT * FROM members WHERE id = ?`)
     .bind(session.memberId)
     .first<Record<string, unknown>>();
   if (!member) return null;

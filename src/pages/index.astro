@@ -35,12 +35,13 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="counter-h" class="counter__heading">So far, the plans that have been unmade</h2>
       <p class="counter__big" data-testid="public-cancelled-counter">
-        {stats.cancelledEvents} <span class="counter__unit">plans</span>
+        {stats.cancelledEvents}
+        <span class="counter__unit">plans</span>
       </p>
       <p class="counter__sub">
         — and the invitations that went with them. The estimated attendance hours avoided is
-        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>.
-        The counter is derived from real records. An unmade plan is successful fulfilment.
+        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>. The
+        counter is derived from real records. An unmade plan is successful fulfilment.
       </p>
     </div>
   </section>
@@ -51,8 +52,7 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
       <p>{brand.copy.howItWorks.lede}</p>
       <pre
         class="emotional-arc"
-        aria-label="The signature emotional arc"
-      >{brand.copy.emotionalArc.join("\n→ ")}</pre>
+        aria-label="The signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
       <p>{brand.copy.aboutClosing}</p>
     </div>
   </section>
@@ -76,8 +76,10 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
           member never had to show up.
         </p>
         <p class="example__scale">
-          <em>Scale that by every member, every month, every tier, and the membership becomes a
-          long, quiet correspondence — and the unmade plans add up.</em>
+          <em
+            >Scale that by every member, every month, every tier, and the membership becomes a long,
+            quiet correspondence — and the unmade plans add up.</em
+          >
         </p>
       </article>
     </div>
@@ -102,7 +104,9 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
         </article>
         <article class="tier" aria-labelledby="tier-phys-h">
           <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
-          <p class="tier__price">{formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small></p>
+          <p class="tier__price">
+            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
+          </p>
           <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
           <ul>
             <li>Welcome pack and physical card</li>
@@ -126,8 +130,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
         </article>
       </div>
       <p>
-        Membership is a relationship, not a transaction. Pricing is per individual, per month.
-        There is no per-event surcharge for being remembered.
+        Membership is a relationship, not a transaction. Pricing is per individual, per month. There
+        is no per-event surcharge for being remembered.
       </p>
     </div>
   </section>
@@ -136,13 +140,13 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="memory-h">Care is real</h2>
       <p>
-        The Society remembers what you choose to share. A birthday, a preferred pen, a pet
-        called Frank, an inside joke that became a tradition. You decide what the Society
-        keeps, and you can ask it to forget any of it.
+        The Society remembers what you choose to share. A birthday, a preferred pen, a pet called
+        Frank, an inside joke that became a tradition. You decide what the Society keeps, and you
+        can ask it to forget any of it.
       </p>
       <p>
-        Optional services — post, gifts, calls, manufactured commitments, the real-world
-        appearance service — are controllable. The default is off. The default is silence.
+        Optional services — post, gifts, calls, manufactured commitments, the real-world appearance
+        service — are controllable. The default is off. The default is silence.
       </p>
     </div>
   </section>
@@ -151,8 +155,9 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="chapters-h">Chapters</h2>
       <p>
-        The Society opens slowly, chapter by chapter. <a href="/chapters/">See which chapters are
-        open</a>.
+        The Society opens slowly, chapter by chapter. <a href="/chapters/"
+          >See which chapters are open</a
+        >.
       </p>
     </div>
   </section>
@@ -162,8 +167,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
       <h2 id="lore-h">From the journal</h2>
       <p>
         The Society publishes a journal: chapter reports, upcoming plans, unmade plans,
-        correspondence extracts, Society history, etiquette, seasonal letters, and
-        artefact announcements. <a href="/journal/">Read the journal</a>.
+        correspondence extracts, Society history, etiquette, seasonal letters, and artefact
+        announcements. <a href="/journal/">Read the journal</a>.
       </p>
     </div>
   </section>
@@ -172,9 +177,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="faq-h">A few questions, briefly</h2>
       <p>
-        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid
-        membership. You do not need to attend. The Society can be wrong about the weather
-        too.
+        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid membership. You
+        do not need to attend. The Society can be wrong about the weather too.
       </p>
     </div>
   </section>
@@ -183,8 +187,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="wlist-h">The list</h2>
       <p>
-        We are opening slowly. Add your name to the list and the Society will be in touch when
-        it is ready for you.
+        We are opening slowly. Add your name to the list and the Society will be in touch when it is
+        ready for you.
       </p>
       <p>
         <a href="/waiting-list/" class="hero__cta">Add your name to the list</a>

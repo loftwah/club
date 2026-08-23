@@ -72,3 +72,10 @@ run = """
 set -euo pipefail
 node scripts/resend-contract.mjs
 """
+
+[tasks."contracts:minimax"]
+description = "CREDENTIALLED MiniMax contract verification. Requires MINIMAX_API_KEY. NOT part of default acceptance."
+run = """
+set -euo pipefail
+node scripts/minimax-contract.mjs
+"""

@@ -6,7 +6,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 
 const BRAND = {
-  name: "The Reserved Society",
+  name: "Plans With You",
   shortName: "The Society",
   tagline: "You belong. You are invited. You are remembered. You do not have to show up.",
   palette: {

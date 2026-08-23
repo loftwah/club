@@ -5,7 +5,11 @@
 
 import type { APIRoute } from "astro";
 import type { D1Database } from "@cloudflare/workers-types";
-import { OnboardingService, ONBOARDING_STEPS, type OnboardingStepId } from "../../services/onboarding";
+import {
+  OnboardingService,
+  ONBOARDING_STEPS,
+  type OnboardingStepId,
+} from "../../services/onboarding";
 import { MembershipService } from "../../services/membership-service";
 import { D1AuditWriter } from "../../infra/audit";
 import { SystemClock } from "../../infra/clock";
@@ -25,14 +29,12 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
   // Look up the most-recent applicant. (Local dev: there is
   // typically exactly one.) When the portal auth is wired, this
   // becomes `ctx.member.id`.
-  const applicant = await env.DB
-    .prepare(
-      `SELECT m.id FROM members m
+  const applicant = await env.DB.prepare(
+    `SELECT m.id FROM members m
          JOIN memberships ms ON ms.member_id = m.id
          WHERE ms.state = 'APPLICANT'
          ORDER BY m.created_at DESC LIMIT 1`,
-    )
-    .first<{ id: string }>();
+  ).first<{ id: string }>();
   if (!applicant) return new Response("No applicant to onboard", { status: 400 });
 
   const form = await request.formData();
@@ -144,14 +146,20 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
     }
     case "appearance-interest": {
       const interest = String(form.get("appearance") ?? "ASK_LATER");
-      const state = interest === "INTERESTED" ? "OPTED_IN" : interest === "NOT_INTERESTED" ? "OPTED_OUT" : "AVAILABLE";
+      const state =
+        interest === "INTERESTED"
+          ? "OPTED_IN"
+          : interest === "NOT_INTERESTED"
+            ? "OPTED_OUT"
+            : "AVAILABLE";
       await ms.setServiceGrant(applicant.id, "APPEARANCE_INTEREST", state);
       await onboarding.storeStepData(applicant.id, step, { interest });
       break;
     }
     case "plain-language": {
       const acked = form.get("acknowledged") === "true";
-      if (!acked) return new Response("You must acknowledge the plain-language terms.", { status: 400 });
+      if (!acked)
+        return new Response("You must acknowledge the plain-language terms.", { status: 400 });
       await ms.advanceAlignment(applicant.id, audit);
       await onboarding.storeStepData(applicant.id, step, { acknowledged: acked });
       break;
@@ -167,13 +175,20 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
       // upsert placeholders with the current date.
       await ensureLegalDocument(env.DB, "TERMS", "0.0.1-dev", "TERMS_PLACEHOLDER");
       await ensureLegalDocument(env.DB, "PRIVACY_POLICY", "0.0.1-dev", "PRIVACY_PLACEHOLDER");
-      await ensureLegalDocument(env.DB, "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT", "0.0.1-dev", "THEATRICAL_PLACEHOLDER");
+      await ensureLegalDocument(
+        env.DB,
+        "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT",
+        "0.0.1-dev",
+        "THEATRICAL_PLACEHOLDER",
+      );
       await ms.completeConsents(applicant.id, [
-        ...(await documentIds(env.DB, ["TERMS", "PRIVACY_POLICY", "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT"])),
+        ...(await documentIds(env.DB, [
+          "TERMS",
+          "PRIVACY_POLICY",
+          "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT",
+        ])),
       ]);
-      await ms.acceptTerms(applicant.id, [
-        ...(await documentIds(env.DB, ["TERMS"])),
-      ]);
+      await ms.acceptTerms(applicant.id, [...(await documentIds(env.DB, ["TERMS"]))]);
       await onboarding.storeStepData(applicant.id, step, { terms, privacy, theatrical });
       break;
     }
@@ -215,7 +230,9 @@ async function documentIds(db: D1Database, types: string[]): Promise<string[]> {
   const ids: string[] = [];
   for (const t of types) {
     const row = await db
-      .prepare(`SELECT id FROM legal_documents WHERE doc_type = ? ORDER BY effective_at DESC LIMIT 1`)
+      .prepare(
+        `SELECT id FROM legal_documents WHERE doc_type = ? ORDER BY effective_at DESC LIMIT 1`,
+      )
       .bind(t)
       .first<{ id: string }>();
     if (row) ids.push(row.id);
@@ -227,5 +244,7 @@ async function sha256Hex(input: string): Promise<string> {
   const data = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest("SHA-256", data);
   const bytes = new Uint8Array(digest);
-  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }

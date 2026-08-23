@@ -37,40 +37,35 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
     // scheduled work (invariant 9 / 3.15).
     if (state === "OPTED_OUT") {
       if (service === "GIFTS") {
-        await env.DB
-          .prepare(
-            `UPDATE gifts SET state = 'CANCELLED' WHERE member_id = ? AND state NOT IN ('DELIVERED', 'CANCELLED')`,
-          )
+        await env.DB.prepare(
+          `UPDATE gifts SET state = 'CANCELLED' WHERE member_id = ? AND state NOT IN ('DELIVERED', 'CANCELLED')`,
+        )
           .bind(ctx.member.id)
           .run();
       } else if (service === "CALLS") {
-        await env.DB
-          .prepare(
-            `UPDATE calls SET state = 'PERMISSION_REVOKED' WHERE member_id = ? AND state NOT IN ('COMPLETED', 'CLOSED', 'PERMISSION_REVOKED')`,
-          )
+        await env.DB.prepare(
+          `UPDATE calls SET state = 'PERMISSION_REVOKED' WHERE member_id = ? AND state NOT IN ('COMPLETED', 'CLOSED', 'PERMISSION_REVOKED')`,
+        )
           .bind(ctx.member.id)
           .run();
-        await env.DB
-          .prepare(
-            `UPDATE fulfilment_tasks SET state = 'CANCELLED'
+        await env.DB.prepare(
+          `UPDATE fulfilment_tasks SET state = 'CANCELLED'
              WHERE member_id = ? AND task_type = 'MAKE_CALL' AND state IN ('CREATED', 'OPERATOR_NOTIFIED', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESCHEDULED')`,
-          )
+        )
           .bind(ctx.member.id)
           .run();
       } else if (service === "MANUFACTURED_COMMITMENTS") {
-        await env.DB
-          .prepare(
-            `UPDATE commitment_scenarios SET state = 'ABORTED'
+        await env.DB.prepare(
+          `UPDATE commitment_scenarios SET state = 'ABORTED'
              WHERE member_id = ? AND state NOT IN ('COMPLETED', 'ABORTED', 'DECLINED')`,
-          )
+        )
           .bind(ctx.member.id)
           .run();
-        await env.DB
-          .prepare(
-            `UPDATE jobs SET state = 'DEAD_LETTER', failure_reason = 'SERVICE_OPTED_OUT'
+        await env.DB.prepare(
+          `UPDATE jobs SET state = 'DEAD_LETTER', failure_reason = 'SERVICE_OPTED_OUT'
              WHERE state IN ('AVAILABLE', 'CLAIMED', 'RUNNING') AND type IN ('SEND_EMAIL', 'CREATE_HUMAN_TASK', 'AI_AGENT_WORK')
                AND json_extract(payload_json, '$.memberId') = ?`,
-          )
+        )
           .bind(ctx.member.id)
           .run();
       }

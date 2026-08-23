@@ -18,16 +18,14 @@ export const POST: APIRoute = async ({ request, locals, redirect }) => {
   if (!ctx) return new Response("Sign in first.", { status: 401 });
   const id = newId("del");
   const now = new SystemClock().nowIso();
-  await env.DB
-    .prepare(
-      `INSERT INTO deletion_requests (id, member_id, requested_at, state)
+  await env.DB.prepare(
+    `INSERT INTO deletion_requests (id, member_id, requested_at, state)
        VALUES (?, ?, ?, 'PENDING_CONFIRM')`,
-    )
+  )
     .bind(id, ctx.member.id, now)
     .run();
   // Future personalisation is suspended immediately.
-  await env.DB
-    .prepare(`UPDATE members SET updated_at = ? WHERE id = ?`)
+  await env.DB.prepare(`UPDATE members SET updated_at = ? WHERE id = ?`)
     .bind(now, ctx.member.id)
     .run();
   const audit = new D1AuditWriter(env.DB, new SystemClock());

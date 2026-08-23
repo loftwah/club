@@ -117,9 +117,7 @@ export class MagicLinkService {
   async consume(token: string): Promise<MemberSession> {
     const tokenHash = await sha256B64(token);
     const row = await this.deps.db
-      .prepare(
-        `SELECT * FROM magic_links WHERE token_hash = ?`,
-      )
+      .prepare(`SELECT * FROM magic_links WHERE token_hash = ?`)
       .bind(tokenHash)
       .first<{
         id: string;

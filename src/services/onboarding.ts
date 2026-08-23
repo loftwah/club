@@ -40,21 +40,113 @@ export interface OnboardingStep {
 }
 
 export const ONBOARDING_STEPS: ReadonlyArray<OnboardingStep> = [
-  { id: "identity", title: "Identity", description: "Email, name, country, metro area, birthday, timezone.", order: 1, requiredForActivation: true },
-  { id: "chapter", title: "Chapter", description: "Where you are. Determines which chapter letters and local events you receive.", order: 2, requiredForActivation: true },
-  { id: "tier", title: "Tier", description: "A$5 / A$20 / A$50. Tier grants capabilities; the service grant is the on/off switch.", order: 3, requiredForActivation: true },
-  { id: "why", title: "Why are you joining?", description: "Multi-select alignment form.", order: 4, requiredForActivation: true },
-  { id: "event-preferences", title: "Event preferences", description: "Frequency, types, timing, geography, cancellation style.", order: 5, requiredForActivation: false },
-  { id: "communications", title: "Communications", description: "Newsletter, calendar, postal, calls, gifts.", order: 6, requiredForActivation: false },
-  { id: "memory", title: "Memory preferences", description: "What the Society may remember, and what it must never mention.", order: 7, requiredForActivation: false },
-  { id: "post", title: "Physical post preferences", description: "Address, postal name, what to send, surprise packages.", order: 8, requiredForActivation: false },
-  { id: "gifts", title: "Gift preferences", description: "Enabled/disabled, surprises, exclusions, interests, never-send notes.", order: 9, requiredForActivation: false },
-  { id: "calls", title: "Call preferences", description: "Mode (no calls / birthday / milestone / occasional / all), windows, timezone, voicemail, surprise-call permission.", order: 10, requiredForActivation: false },
-  { id: "manufactured-commitments", title: "Manufactured commitments", description: "Opt-in only. Every scenario requires separate confirmation.", order: 11, requiredForActivation: false },
-  { id: "appearance-interest", title: "Appearance service interest", description: "Interested / not / ask later. Not a booking.", order: 12, requiredForActivation: false },
-  { id: "plain-language", title: "Plain-language expectations", description: "Acknowledge the product's theatrical / cancellation nature.", order: 13, requiredForActivation: true },
-  { id: "terms", title: "Terms & privacy", description: "Versioned. Stored with content hash.", order: 14, requiredForActivation: true },
-  { id: "payment-gate", title: "Payment gate", description: "Stripe-authoritative activation. Disabled in this build.", order: 15, requiredForActivation: true },
+  {
+    id: "identity",
+    title: "Identity",
+    description: "Email, name, country, metro area, birthday, timezone.",
+    order: 1,
+    requiredForActivation: true,
+  },
+  {
+    id: "chapter",
+    title: "Chapter",
+    description: "Where you are. Determines which chapter letters and local events you receive.",
+    order: 2,
+    requiredForActivation: true,
+  },
+  {
+    id: "tier",
+    title: "Tier",
+    description:
+      "A$5 / A$20 / A$50. Tier grants capabilities; the service grant is the on/off switch.",
+    order: 3,
+    requiredForActivation: true,
+  },
+  {
+    id: "why",
+    title: "Why are you joining?",
+    description: "Multi-select alignment form.",
+    order: 4,
+    requiredForActivation: true,
+  },
+  {
+    id: "event-preferences",
+    title: "Event preferences",
+    description: "Frequency, types, timing, geography, cancellation style.",
+    order: 5,
+    requiredForActivation: false,
+  },
+  {
+    id: "communications",
+    title: "Communications",
+    description: "Newsletter, calendar, postal, calls, gifts.",
+    order: 6,
+    requiredForActivation: false,
+  },
+  {
+    id: "memory",
+    title: "Memory preferences",
+    description: "What the Society may remember, and what it must never mention.",
+    order: 7,
+    requiredForActivation: false,
+  },
+  {
+    id: "post",
+    title: "Physical post preferences",
+    description: "Address, postal name, what to send, surprise packages.",
+    order: 8,
+    requiredForActivation: false,
+  },
+  {
+    id: "gifts",
+    title: "Gift preferences",
+    description: "Enabled/disabled, surprises, exclusions, interests, never-send notes.",
+    order: 9,
+    requiredForActivation: false,
+  },
+  {
+    id: "calls",
+    title: "Call preferences",
+    description:
+      "Mode (no calls / birthday / milestone / occasional / all), windows, timezone, voicemail, surprise-call permission.",
+    order: 10,
+    requiredForActivation: false,
+  },
+  {
+    id: "manufactured-commitments",
+    title: "Manufactured commitments",
+    description: "Opt-in only. Every scenario requires separate confirmation.",
+    order: 11,
+    requiredForActivation: false,
+  },
+  {
+    id: "appearance-interest",
+    title: "Appearance service interest",
+    description: "Interested / not / ask later. Not a booking.",
+    order: 12,
+    requiredForActivation: false,
+  },
+  {
+    id: "plain-language",
+    title: "Plain-language expectations",
+    description: "Acknowledge the product's theatrical / cancellation nature.",
+    order: 13,
+    requiredForActivation: true,
+  },
+  {
+    id: "terms",
+    title: "Terms & privacy",
+    description: "Versioned. Stored with content hash.",
+    order: 14,
+    requiredForActivation: true,
+  },
+  {
+    id: "payment-gate",
+    title: "Payment gate",
+    description: "Stripe-authoritative activation. Disabled in this build.",
+    order: 15,
+    requiredForActivation: true,
+  },
 ];
 
 export interface OnboardingProgress {
@@ -95,7 +187,11 @@ export class OnboardingService {
       .run();
   }
 
-  async storeStepData(memberId: string, step: OnboardingStepId, data: Record<string, unknown>): Promise<void> {
+  async storeStepData(
+    memberId: string,
+    step: OnboardingStepId,
+    data: Record<string, unknown>,
+  ): Promise<void> {
     const now = new Date().toISOString();
     await this.deps.db
       .prepare(
@@ -131,7 +227,7 @@ export class OnboardingService {
   async nextStep(memberId: string): Promise<OnboardingStep | null> {
     const progress = await this.getProgress(memberId);
     const currentOrder = progress
-      ? ONBOARDING_STEPS.find((s) => s.id === progress.step)?.order ?? 0
+      ? (ONBOARDING_STEPS.find((s) => s.id === progress.step)?.order ?? 0)
       : 0;
     return ONBOARDING_STEPS.find((s) => s.order === currentOrder + 1) ?? null;
   }

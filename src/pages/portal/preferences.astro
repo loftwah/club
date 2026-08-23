@@ -12,20 +12,18 @@ const env = Astro.locals.runtime.env;
 const audit = new D1AuditWriter(env.DB, new SystemClock());
 const clock = new SystemClock();
 
-const grants = await env.DB
-  .prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
+const grants = await env.DB.prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
   .bind(ctx.member.id)
   .all<{ service: string; state: string }>();
 const grantMap = new Map((grants.results ?? []).map((g) => [g.service, g.state]));
 
-const acceptances = await env.DB
-  .prepare(
-    `SELECT ma.id, ma.accepted_at, ma.method, ld.doc_type, ld.version, ld.effective_at, ld.content_hash
+const acceptances = await env.DB.prepare(
+  `SELECT ma.id, ma.accepted_at, ma.method, ld.doc_type, ld.version, ld.effective_at, ld.content_hash
        FROM member_acceptances ma
        JOIN legal_documents ld ON ld.id = ma.document_id
        WHERE ma.member_id = ?
        ORDER BY ma.accepted_at DESC`,
-  )
+)
   .bind(ctx.member.id)
   .all<{
     id: string;
@@ -37,10 +35,9 @@ const acceptances = await env.DB
     content_hash: string;
   }>();
 
-const memberPrefs = await env.DB
-  .prepare(
-    `SELECT preferred_name, postal_name, country, metro_area, chapter_id, birthday, timezone FROM members WHERE id = ?`,
-  )
+const memberPrefs = await env.DB.prepare(
+  `SELECT preferred_name, postal_name, country, metro_area, chapter_id, birthday, timezone FROM members WHERE id = ?`,
+)
   .bind(ctx.member.id)
   .first<{
     preferred_name: string | null;
@@ -68,25 +65,62 @@ const memberPrefs = await env.DB
       <h2>Identity</h2>
       <form class="form" method="post" action="/api/portal/preferences/identity">
         <label for="preferredName">Preferred first name</label>
-        <input id="preferredName" name="preferredName" type="text" maxlength="120" value={memberPrefs?.preferred_name ?? ""} />
+        <input
+          id="preferredName"
+          name="preferredName"
+          type="text"
+          maxlength="120"
+          value={memberPrefs?.preferred_name ?? ""}
+        />
         <label for="postalName">Postal name (for letters)</label>
-        <input id="postalName" name="postalName" type="text" maxlength="200" value={memberPrefs?.postal_name ?? ""} />
+        <input
+          id="postalName"
+          name="postalName"
+          type="text"
+          maxlength="200"
+          value={memberPrefs?.postal_name ?? ""}
+        />
         <label for="country">Country</label>
-        <input id="country" name="country" type="text" maxlength="60" value={memberPrefs?.country ?? ""} />
+        <input
+          id="country"
+          name="country"
+          type="text"
+          maxlength="60"
+          value={memberPrefs?.country ?? ""}
+        />
         <label for="metroArea">Metro / chapter area</label>
-        <input id="metroArea" name="metroArea" type="text" maxlength="120" value={memberPrefs?.metro_area ?? ""} />
+        <input
+          id="metroArea"
+          name="metroArea"
+          type="text"
+          maxlength="120"
+          value={memberPrefs?.metro_area ?? ""}
+        />
         <label for="birthday">Birthday (MM-DD or YYYY-MM-DD)</label>
-        <input id="birthday" name="birthday" type="text" maxlength="10" value={memberPrefs?.birthday ?? ""} placeholder="MM-DD or YYYY-MM-DD" />
+        <input
+          id="birthday"
+          name="birthday"
+          type="text"
+          maxlength="10"
+          value={memberPrefs?.birthday ?? ""}
+          placeholder="MM-DD or YYYY-MM-DD"
+        />
         <label for="timezone">Timezone</label>
-        <input id="timezone" name="timezone" type="text" maxlength="60" value={memberPrefs?.timezone ?? "Australia/Melbourne"} />
+        <input
+          id="timezone"
+          name="timezone"
+          type="text"
+          maxlength="60"
+          value={memberPrefs?.timezone ?? "Australia/Melbourne"}
+        />
         <button type="submit">Save identity</button>
       </form>
 
       <h2>Optional services</h2>
       <p>
-        Each service is an independent opt-in. Revoking a service cancels already-scheduled
-        future work for that service; other actions continue. Tier may grant the
-        _capability_; the service grant is the on/off switch.
+        Each service is an independent opt-in. Revoking a service cancels already-scheduled future
+        work for that service; other actions continue. Tier may grant the _capability_; the service
+        grant is the on/off switch.
       </p>
       <table class="admin-table">
         <thead>
@@ -113,20 +147,34 @@ const memberPrefs = await env.DB
                 <tr>
                   <td>{svc.label}</td>
                   <td>
-                    <span class={`pill pill--${current === "OPTED_IN" ? "ok" : current === "OPTED_OUT" ? "warn" : "info"}`}>
+                    <span
+                      class={`pill pill--${current === "OPTED_IN" ? "ok" : current === "OPTED_OUT" ? "warn" : "info"}`}
+                    >
                       {current}
                     </span>
                   </td>
                   <td>
-                    <form method="post" action="/api/portal/preferences/grant" style="display: inline;">
+                    <form
+                      method="post"
+                      action="/api/portal/preferences/grant"
+                      style="display: inline;"
+                    >
                       <input type="hidden" name="service" value={svc.key} />
                       <input type="hidden" name="state" value="OPTED_IN" />
-                      <button type="submit" disabled={current === "OPTED_IN"} class="link-button">Opt in</button>
+                      <button type="submit" disabled={current === "OPTED_IN"} class="link-button">
+                        Opt in
+                      </button>
                     </form>
-                    <form method="post" action="/api/portal/preferences/grant" style="display: inline;">
+                    <form
+                      method="post"
+                      action="/api/portal/preferences/grant"
+                      style="display: inline;"
+                    >
                       <input type="hidden" name="service" value={svc.key} />
                       <input type="hidden" name="state" value="OPTED_OUT" />
-                      <button type="submit" disabled={current === "OPTED_OUT"} class="link-button">Opt out</button>
+                      <button type="submit" disabled={current === "OPTED_OUT"} class="link-button">
+                        Opt out
+                      </button>
                     </form>
                   </td>
                 </tr>
@@ -143,16 +191,30 @@ const memberPrefs = await env.DB
         ) : (
           <table class="admin-table">
             <thead>
-              <tr><th>Document</th><th>Version</th><th>Effective</th><th>Accepted at</th><th>Hash</th></tr>
+              <tr>
+                <>
+                  <th>Document</th>
+                  <th>Version</th>
+                  <th>Effective</th>
+                  <th>Accepted at</th>
+                  <th>Hash</th>
+                </>
+              </tr>
             </thead>
             <tbody>
               {acceptances.results?.map((a) => (
                 <tr>
                   <td>{a.doc_type}</td>
-                  <td><code style="font-family: var(--font-mono);">{a.version}</code></td>
+                  <td>
+                    <code style="font-family: var(--font-mono);">{a.version}</code>
+                  </td>
                   <td>{a.effective_at?.slice(0, 10) ?? "—"}</td>
                   <td>{a.accepted_at?.slice(0, 10) ?? "—"}</td>
-                  <td><code style="font-family: var(--font-mono); font-size: 0.8em;">{a.content_hash.slice(0, 12)}…</code></td>
+                  <td>
+                    <code style="font-family: var(--font-mono); font-size: 0.8em;">
+                      {a.content_hash.slice(0, 12)}…
+                    </code>
+                  </td>
                 </tr>
               ))}
             </tbody>

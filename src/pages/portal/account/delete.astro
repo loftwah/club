@@ -18,9 +18,9 @@ if (!ctx) return Astro.redirect("/portal/login/");
       </p>
       <h1>Account deletion</h1>
       <p>
-        Account deletion stops future personalisation and triggers the data-removal
-        workflow. Required records (e.g. financial records) are kept for the
-        minimum period required by law and then removed.
+        Account deletion stops future personalisation and triggers the data-removal workflow.
+        Required records (e.g. financial records) are kept for the minimum period required by law
+        and then removed.
       </p>
       <p style="color: var(--fg-muted)">
         <strong>You can re-join at any time.</strong> The waiting list is always open.
@@ -28,8 +28,8 @@ if (!ctx) return Astro.redirect("/portal/login/");
       <form class="form" method="post" action="/api/portal/account/delete">
         <label for="confirm">
           <input id="confirm" type="checkbox" name="confirm" value="true" required />
-          I understand my membership will end, my memory and timeline will be removed,
-          and the Society will email me a confirmation link to verify the request.
+          I understand my membership will end, my memory and timeline will be removed, and the Society
+          will email me a confirmation link to verify the request.
         </label>
         <button type="submit">Request account deletion</button>
       </form>
