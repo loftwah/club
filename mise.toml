@@ -1,0 +1,74 @@
+# Canonical local task runner. The authoritative gate is:
+#
+#   mise run acceptance
+#
+# It must operate from a clean local state.
+# See docs/14_ACCEPTANCE_CONTRACT.md and docs/17_ADR_ARCHITECTURE.md (ADR-002).
+
+[env]
+NODE_VERSION = "22.23.1"
+PNPM_VERSION = "11.22.0"
+
+[tasks.dev]
+description = "Run the local Astro dev server backed by workerd (wrangler dev under the hood)."
+run = """
+set -euo pipefail
+node node_modules/wrangler/bin/wrangler.js dev --persist-to .wrangler/state
+"""
+
+[tasks.check]
+description = "Fast check: format, lint, typecheck, unit tests."
+run = """
+set -euo pipefail
+node node_modules/prettier/bin/prettier.cjs --check .
+node node_modules/eslint/bin/eslint.js . --max-warnings=0
+node node_modules/astro/astro.js check
+node node_modules/typescript/bin/tsc --noEmit
+node node_modules/vitest/vitest.mjs run tests/unit
+"""
+
+[tasks.test]
+description = "Run all tests (unit + integration)."
+run = """
+set -euo pipefail
+node node_modules/vitest/vitest.mjs run tests/unit
+node node_modules/vitest/vitest.mjs run tests/integration
+"""
+
+[tasks.acceptance]
+description = "Authoritative local acceptance. Operates from a clean local state."
+run = """
+set -euo pipefail
+node scripts/acceptance.mjs
+"""
+
+[tasks.deploy-staging]
+description = "Run acceptance, then deploy to a staging Cloudflare environment."
+run = """
+set -euo pipefail
+mise run acceptance
+node node_modules/wrangler/bin/wrangler.js deploy --env staging
+"""
+
+[tasks.deploy-production]
+description = "Run acceptance, then deploy to production."
+run = """
+set -euo pipefail
+mise run acceptance
+node node_modules/wrangler/bin/wrangler.js deploy --env production
+"""
+
+[tasks.reset-local]
+description = "Wipe .wrangler/state and re-apply migrations from zero."
+run = """
+set -euo pipefail
+rm -rf .wrangler
+node node_modules/wrangler/bin/wrangler.js d1 migrations apply social-club --local
+"""
+
+[tasks.contracts]
+description = "CREDENTIALLED provider contract tests. Requires real Resend credentials in env. NOT part of default acceptance."
+run = """
+set -euo pipefail
+node scripts/resend-contract.mjs
+"""

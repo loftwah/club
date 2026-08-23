@@ -1,0 +1,43 @@
+{
+  // Example only. Verify current Wrangler schema before finalising.
+  "name": "social-club",
+  "compatibility_date": "SET_TO_CURRENT_APPROVED_DATE",
+
+  "vars": {
+    "APP_BASE_URL": "https://club.loftwah.com"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "social-club"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "ARTIFACTS",
+      "bucket_name": "social-club-artifacts"
+    }
+  ],
+
+  "queues": {
+    "producers": [
+      {
+        "binding": "JOBS",
+        "queue": "social-club-jobs"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "social-club-jobs"
+      }
+    ]
+  },
+
+  "triggers": {
+    "crons": [
+      "CONFIGURE_AFTER_SCHEDULING_POLICY_IS_APPROVED"
+    ]
+  }
+}

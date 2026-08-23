@@ -1,0 +1,98 @@
+---
+// Public homepage. SEO-first; semantic content above the fold.
+// ThreeUI is mounted as a small island in the hero. The hero degrades
+// gracefully to a static SVG seal when JS is unavailable or
+// prefers-reduced-motion is set.
+
+import Base from "@layouts/Base.astro";
+import SocietySeal from "@components/SocietySeal.tsx";
+---
+
+<Base
+  title="The Social Club — you belong, you are invited, you do not have to show up"
+  description="A real paid social club that takes your absence seriously. Invitations, cancellations, correspondence, gifts, calls, manufactured commitments. A$5, A$20 or A$50 a month."
+  canonicalPath="/"
+>
+  <section class="hero" aria-labelledby="hero-h">
+    <div class="container">
+      <div class="hero__canvas" data-testid="hero-seal">
+        <div class="hero__canvas-fallback" aria-hidden="true">SC</div>
+        <SocietySeal client:only="react" />
+      </div>
+      <h1 id="hero-h">You belong. You are invited. You are remembered.</h1>
+      <p>You do not have to show up.</p>
+      <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-h">
+    <div class="container">
+      <h2 id="how-h">How it works</h2>
+      <p>
+        You join. The Society remembers you. From time to time the Society sends you a plausible
+        invitation to a small, ordinary, deliberately constructed event. You are not expected to
+        attend. The plan feels plausible, the date approaches, and the Society cancels it. The
+        relationship continues.
+      </p>
+      <p>
+        That is the product. Everything else — letters, gifts, calls, manufactured commitments,
+        real-world Society representative services — is intensity, not belonging.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="tiers-h">
+    <div class="container">
+      <h2 id="tiers-h">Three tiers</h2>
+      <p>Higher tiers buy more physical and human intensity. They are not more loved.</p>
+      <div class="tiers">
+        <article class="tier" aria-labelledby="tier-core-h">
+          <h3 id="tier-core-h">Core</h3>
+          <p class="tier__price">A$5<small>/month</small></p>
+          <ul>
+            <li>Member identity and number</li>
+            <li>Invitations and cancellations</li>
+            <li>Personalised digital correspondence</li>
+            <li>Birthday and anniversary recognition</li>
+            <li>Member memory</li>
+          </ul>
+        </article>
+        <article class="tier" aria-labelledby="tier-phys-h">
+          <h3 id="tier-phys-h">Physical correspondence</h3>
+          <p class="tier__price">A$20<small>/month</small></p>
+          <ul>
+            <li>Welcome pack and physical card</li>
+            <li>Posted birthday card</li>
+            <li>Signed correspondence</li>
+            <li>Milestone artefacts</li>
+            <li>Optional manufactured commitments</li>
+          </ul>
+        </article>
+        <article class="tier" aria-labelledby="tier-del-h">
+          <h3 id="tier-del-h">Deluxe human</h3>
+          <p class="tier__price">A$50<small>/month</small></p>
+          <ul>
+            <li>All of the above</li>
+            <li>Hand-signed personal letters</li>
+            <li>Thoughtful gifts</li>
+            <li>Opted-in calls</li>
+            <li>Priority handling</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="wlist-h">
+    <div class="container">
+      <h2 id="wlist-h">The waiting list</h2>
+      <p>
+        We are opening slowly. Leave your email and we will be in touch when the Society is ready
+        for you.
+      </p>
+      <p>
+        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
+      </p>
+    </div>
+  </section>
+</Base>

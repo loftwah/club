@@ -1,0 +1,71 @@
+version: 1
+
+members:
+  core:
+    tier: 5
+    chapter: melbourne
+    calendar: true
+    newsletter: true
+    calls: false
+    gifts: false
+
+  correspondence:
+    tier: 20
+    chapter: melbourne
+    postal: true
+    commitments: true
+
+  deluxe:
+    tier: 50
+    chapter: melbourne
+    postal: true
+    calls: birthday
+    gifts: true
+    facts:
+      - category: pet
+        subject: Max
+        value: dog
+        status: CONFIRMED
+      - category: interest
+        subject: pottery
+        value: true
+        status: CONFIRMED
+
+scenarios:
+  event_success:
+    members: [core, correspondence, deluxe]
+    expected:
+      invitation_count: 3
+      cancellation_count: 3
+      attendance_count: 0
+      public_counter_delta: 1
+
+  event_cancellation_failure:
+    inject:
+      email_transient_failure: true
+      retry_failure: true
+    expected:
+      critical_escalation: true
+      silent_success: false
+
+  birthday_deluxe:
+    member: deluxe
+    expected:
+      digital: true
+      physical_task: true
+      gift_task: true
+      call_task: true
+
+  permission_revocation:
+    member: deluxe
+    revoke: calls
+    expected:
+      existing_future_call_cancelled: true
+      birthday_other_actions_unchanged: true
+
+  manufactured_commitment:
+    member: correspondence
+    confirmed: true
+    expected:
+      terminal_state: COMPLETED
+      dangling_future_jobs: 0

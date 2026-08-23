@@ -1,0 +1,96 @@
+---
+import Base from "@layouts/Base.astro";
+---
+
+<Base
+  title="Join the waiting list — The Social Club"
+  description="Leave your email to join the Social Club waiting list."
+  canonicalPath="/waiting-list/"
+>
+  <section class="hero" aria-labelledby="wl-h">
+    <div class="container">
+      <h1 id="wl-h">Waiting list</h1>
+      <p>One field. No follow-up nag. We write when there is something to say.</p>
+      <form class="form" id="wl-form" novalidate aria-describedby="wl-status">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@example.com"
+        />
+        <label for="name">Preferred first name (optional)</label>
+        <input
+          id="name"
+          name="preferredName"
+          type="text"
+          autocomplete="given-name"
+          maxlength="120"
+        />
+        <label for="chapter">Chapter (optional)</label>
+        <input
+          id="chapter"
+          name="chapterId"
+          type="text"
+          list="chapters"
+          maxlength="64"
+          placeholder="melbourne"
+        />
+        <datalist id="chapters">
+          <option value="melbourne"></option>
+          <option value="sydney"></option>
+          <option value="brisbane"></option>
+          <option value="adelaide"></option>
+          <option value="perth"></option>
+        </datalist>
+        <button type="submit" id="wl-submit">Add me to the list</button>
+        <p id="wl-status" class="form__status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    const form = document.getElementById("wl-form") as HTMLFormElement | null;
+    const status = document.getElementById("wl-status") as HTMLElement | null;
+    const submit = document.getElementById("wl-submit") as HTMLButtonElement | null;
+    if (form && status && submit) {
+      form.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        status.className = "form__status";
+        status.textContent = "Submitting…";
+        submit.disabled = true;
+        const data = new FormData(form);
+        const payload = {
+          email: String(data.get("email") ?? "").trim(),
+          preferredName: String(data.get("preferredName") ?? "").trim() || undefined,
+          chapterId: String(data.get("chapterId") ?? "").trim() || undefined,
+        };
+        try {
+          const res = await fetch("/api/waitlist", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) {
+            const body = (await res.json().catch(() => ({}))) as { error?: string };
+            status.className = "form__status form__status--error";
+            status.textContent = body.error ?? `Submission failed (${res.status})`;
+            submit.disabled = false;
+            return;
+          }
+          status.className = "form__status form__status--success";
+          status.textContent = "You are on the list. We will be in touch.";
+          form.reset();
+          submit.disabled = false;
+        } catch {
+          status.className = "form__status form__status--error";
+          status.textContent = "Network error. Please try again.";
+          submit.disabled = false;
+        }
+      });
+    }
+  </script>
+</Base>

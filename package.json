@@ -1,0 +1,71 @@
+{
+  "name": "social-club",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Social Club — a paid membership relationship built on belonging, correspondence and intentional cancellation. See README.md, AGENTS.md, MASTER_SPEC.md and docs/.",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/copy-assets.mjs",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "astro check && tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:state": "vitest run tests/unit/state-machines",
+    "wrangler:dev": "wrangler dev",
+    "wrangler:deploy:dry": "wrangler deploy --dry-run --outdir=dist",
+    "d1:migrate:local": "wrangler d1 migrations apply social-club --local",
+    "d1:migrate:remote": "wrangler d1 migrations apply social-club --remote",
+    "migrate:reset:local": "rm -rf .wrangler/state && pnpm d1:migrate:local",
+    "acceptance": "node scripts/acceptance.mjs"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/cloudflare": "^12.5.0",
+    "@astrojs/react": "^4.2.4",
+    "@designcodeio/threeui": "latest",
+    "astro": "^5.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "resend": "^4.0.0",
+    "svix": "^1.45.0",
+    "typescript": "^5.6.0",
+    "ulid": "^2.3.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.17.0",
+    "eslint-plugin-astro": "^1.3.0",
+    "playwright": "^1.62.1",
+    "prettier": "^3.4.0",
+    "prettier-plugin-astro": "^0.14.0",
+    "vitest": "^2.1.0",
+    "wrangler": "^4.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "workerd",
+      "unrs-resolver",
+      "playwright"
+    ]
+  }
+}

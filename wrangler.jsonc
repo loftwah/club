@@ -1,0 +1,77 @@
+// Wrangler configuration for the Social Club Worker.
+//
+// This file declares the bindings for ALL environments. The cron schedule
+// here is the explicit "test cadence" used by `wrangler dev` and the
+// local acceptance run. The exact production cadence and cancellation
+// windows are explicitly OPEN per AGENTS.md "Ask before locking" and
+// docs/18_LOCKED_AND_OPEN_DECISIONS.md — they are NOT to be set here
+// without explicit user approval. The acceptance script and CI must run
+// against this file with the placeholder schedule; production deploys
+// must override `triggers.crons` via a per-environment Wrangler config
+// (or be left empty until the user signs off on a cadence).
+//
+// Local development uses simulated D1/R2/Queues via workerd/Miniflare.
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "social-club",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2026-08-15",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "vars": {
+    "APP_BASE_URL": "https://club.loftwah.com",
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "social-club",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "ARTIFACTS",
+      "bucket_name": "social-club-artifacts",
+    },
+  ],
+
+  // ASSETS binding for the @astrojs/cloudflare adapter's static-asset
+  // and 404 fallback handler. The adapter calls env.ASSETS.fetch()
+  // when no route matches; without this binding the 404 path 500s.
+  // We point it at ./public (an Astro-emitted directory for static
+  // files) so production behaviour is identical to local.
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./public",
+  },
+
+  "queues": {
+    "producers": [
+      {
+        "binding": "JOBS",
+        "queue": "social-club-jobs",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "social-club-jobs",
+        "max_batch_size": 10,
+        "max_batch_timeout": 30,
+      },
+    ],
+  },
+
+  // LOCAL / TEST cadence only. See the comment at the top of this file.
+  // Production cadence is OPEN and must be approved before deploy.
+  "triggers": {
+    "crons": ["*/5 * * * *"],
+  },
+
+  "observability": {
+    "enabled": true,
+  },
+}

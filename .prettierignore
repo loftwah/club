@@ -1,0 +1,11 @@
+dist
+.wrangler
+node_modules
+coverage
+playwright-report
+test-results
+public/_astro
+*.min.js
+*.min.css
+.DS_Store
+social-club-complete-spec-corrected.zip

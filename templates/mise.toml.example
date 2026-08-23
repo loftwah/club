@@ -1,0 +1,34 @@
+# Adapt exact commands to the chosen repository/framework.
+# Preserve one canonical local acceptance command.
+
+[tasks.dev]
+run = "pnpm dev"
+
+[tasks.check]
+run = '''
+set -euo pipefail
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test:unit
+'''
+
+[tasks.acceptance]
+run = '''
+set -euo pipefail
+pnpm acceptance
+'''
+
+[tasks.deploy-staging]
+run = '''
+set -euo pipefail
+mise run acceptance
+pnpm deploy:staging
+'''
+
+[tasks.deploy-production]
+run = '''
+set -euo pipefail
+mise run acceptance
+pnpm deploy:production
+'''

@@ -1,0 +1,18 @@
+# Example only. Verify current action/tool versions before use.
+# Business/test logic remains in the local task.
+
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Install the repository-approved toolchain/mise.
+      - name: Acceptance
+        run: mise run acceptance

@@ -1,0 +1,182 @@
+{
+  "supersedes_previous_packs": true,
+  "public_url": "https://club.loftwah.com",
+  "notes": "Corrected complete pack: includes split docs/ files as well as MASTER_SPEC.md.",
+  "files": {
+    "AGENTS.md": {
+      "bytes": 2815,
+      "lines": 66,
+      "sha256": "500e209cf67ddef46ccbca414d8c5afc2c4a295be8c362c790836362912f1be0"
+    },
+    "AI_START_HERE.md": {
+      "bytes": 1163,
+      "lines": 32,
+      "sha256": "58dc941efedd22cdabe4bdd938d6ecd7b20cb23b2dd571d55d2c1b39f3cb6c70"
+    },
+    "MASTER_SPEC.md": {
+      "bytes": 67481,
+      "lines": 3280,
+      "sha256": "5e09beb993935c5f5a54f570c344493fdc66424ce90304e5802931a7dace51bb"
+    },
+    "PROJECT_BRIEF.md": {
+      "bytes": 3339,
+      "lines": 78,
+      "sha256": "7007e7d523998564738b8ca61276d58567ec12f2474fd2fc55e9f1dd9fbe9098"
+    },
+    "README.md": {
+      "bytes": 1917,
+      "lines": 58,
+      "sha256": "346d79d936975024b77ec53b71b0a1cea4eae65c5581a47457577c11004c1637"
+    },
+    "config/.env.example": {
+      "bytes": 488,
+      "lines": 20,
+      "sha256": "5d7a83954a3ffca83b91e70fe988a34817e07abda6333f4feebc55a0f4871c3c"
+    },
+    "config/ENVIRONMENT.md": {
+      "bytes": 2183,
+      "lines": 66,
+      "sha256": "a899525e2ace176f55616a0a0803896c1775db924e0d11ec20271f1d77984ef7"
+    },
+    "docs/00_PRODUCT_CONSTITUTION.md": {
+      "bytes": 1782,
+      "lines": 48,
+      "sha256": "a54fedfff1b915483baf61fa138c814da316ce499f0655bad38238bc7fa61958"
+    },
+    "docs/01_PRODUCT_AND_TIERS.md": {
+      "bytes": 3800,
+      "lines": 168,
+      "sha256": "0a67ee1fefa1c97e76c6cdedd031742ee51f91f25ff62443eaf3894e9414cd20"
+    },
+    "docs/02_MEMBER_ONBOARDING_CONSENT.md": {
+      "bytes": 5281,
+      "lines": 295,
+      "sha256": "8fa50f658383e2e4f4a5f00bb1ee690ede060e485d87f6f5a06b90eafe9ed505"
+    },
+    "docs/03_BRAND_NAMING_COPY_SEO.md": {
+      "bytes": 4518,
+      "lines": 233,
+      "sha256": "aa5e0638cbbc7852e0d1217e6aa6e34b616176868da5589b8e4de4550c4e05d7"
+    },
+    "docs/04_ARCHITECTURE_C4.md": {
+      "bytes": 4737,
+      "lines": 200,
+      "sha256": "c5236044834d015935183012b87a85b73ecf7da19d94f79e8a8850716c2098ee"
+    },
+    "docs/05_DATA_MODEL_ERD.md": {
+      "bytes": 4226,
+      "lines": 293,
+      "sha256": "2ba80cfa288db42afb063701c2032a0c68147524de47fefaf650a57b32d98172"
+    },
+    "docs/06_STATE_MACHINES.md": {
+      "bytes": 6508,
+      "lines": 278,
+      "sha256": "0c165ec8b112730d5b6cbb768992ebaae5ea5631ebc74975fd6eddf62854735b"
+    },
+    "docs/07_FUNCTIONS_AND_MECHANISMS.md": {
+      "bytes": 6244,
+      "lines": 385,
+      "sha256": "1d0c1db3aa67bd84c6b7634a6fa514d4752879cecfd9a2e1d5616ed03faa9620"
+    },
+    "docs/08_RESEND_EMAIL_CALENDAR.md": {
+      "bytes": 4151,
+      "lines": 194,
+      "sha256": "f3fb5867c87ef05cde235cb3bee1e2aaa0d40d509601c727a119ab16d86807ee"
+    },
+    "docs/09_AI_MINIMAX_API_MCP.md": {
+      "bytes": 3029,
+      "lines": 183,
+      "sha256": "e89fb5c61949442c0ebc14c46edb05410a3c3d5bed6849810294dcdbd527bbcc"
+    },
+    "docs/10_OPERATOR_HUMAN_RUNTIME.md": {
+      "bytes": 1165,
+      "lines": 74,
+      "sha256": "6d0846b1ff5621505846b1922d603c58b42f6759e8ba32c80a2851feceb015bc"
+    },
+    "docs/11_PRIVACY_SECURITY_LEGAL.md": {
+      "bytes": 2430,
+      "lines": 81,
+      "sha256": "234d7f02a8371bbff647041c859156cf4052874704b5982b954924e355e4ea05"
+    },
+    "docs/12_GITHUB_LOCAL_CI_DEPLOYMENT.md": {
+      "bytes": 1905,
+      "lines": 95,
+      "sha256": "407f42d0cf0dfd001f14594388b1e16bab6e150949317fe07a1902f30cf6cc60"
+    },
+    "docs/13_TEST_PLAN.md": {
+      "bytes": 7005,
+      "lines": 300,
+      "sha256": "422fdda6da08753e80d5f4b2f01001d8be53d9e20cae82b56bb0bb16cc20c4f1"
+    },
+    "docs/14_ACCEPTANCE_CONTRACT.md": {
+      "bytes": 2597,
+      "lines": 136,
+      "sha256": "30190705976a322e180bfe37dbaeb8cfff7d9412b88ee76fa8bc5450cb92b75e"
+    },
+    "docs/15_IMPLEMENTATION_ROADMAP.md": {
+      "bytes": 1606,
+      "lines": 56,
+      "sha256": "f94c1875c861f0ded961dda90742dbdd66adf075205e75f2338609dc33b3762c"
+    },
+    "docs/16_ENVIRONMENT_AND_SETUP.md": {
+      "bytes": 1594,
+      "lines": 63,
+      "sha256": "b8199f14683b5acefacc07e841cf1ef3d4d7fc1d727457f83b253fb858cbc97c"
+    },
+    "docs/18_LOCKED_AND_OPEN_DECISIONS.md": {
+      "bytes": 1559,
+      "lines": 92,
+      "sha256": "5db54ee09e0e7cf9ec70f530f935c7a029f9b031c6b873013e37c2cb94fa39af"
+    },
+    "docs/19_REQUIREMENTS_TRACEABILITY.md": {
+      "bytes": 1312,
+      "lines": 31,
+      "sha256": "29f6acdd2e18a3148b5004078c2efcb009943d635fd80d38a7a7dd945f974198"
+    },
+    "docs/20_PROVIDER_VERIFICATION.md": {
+      "bytes": 1732,
+      "lines": 67,
+      "sha256": "115d908cd075014c8e9ee7c279691a36671fbe733e0baac1444c2e05f68b11c0"
+    },
+    "fixtures/acceptance-scenarios.yaml": {
+      "bytes": 1364,
+      "lines": 72,
+      "sha256": "777bbf4c58be6a2dbdfb92d1eb61ca83c987db6a7127874e599cb1b5fed5b98c"
+    },
+    "prompts/MINIMAX_ACCEPTANCE_LOOP.md": {
+      "bytes": 4057,
+      "lines": 236,
+      "sha256": "c86632d1446c4404a9dba15a6d9127dae67a08a057b2d605d26f413e5a320252"
+    },
+    "prompts/MINIMAX_KICKOFF.md": {
+      "bytes": 6497,
+      "lines": 278,
+      "sha256": "72f2dc50e726f8e8427fc06a9535f2d97dabc27a52d28d87b7e425c1b2644acb"
+    },
+    "prompts/MINIMAX_RESUME.md": {
+      "bytes": 569,
+      "lines": 8,
+      "sha256": "63df23bbe09f332e8ca164d92e7f86bb85ddf59a24e3ae1073cdabf3e1660c6a"
+    },
+    "templates/.gitignore.example": {
+      "bytes": 132,
+      "lines": 13,
+      "sha256": "bf1657b99b814586a604a229033025671f94f6924f93260831291e8b1ad2daa7"
+    },
+    "templates/github-verify.yml.example": {
+      "bytes": 384,
+      "lines": 19,
+      "sha256": "4ff576bd1ff0bca64509fa67accbcb79d8ac2e35204bf8c6afcefee05a9da915"
+    },
+    "templates/mise.toml.example": {
+      "bytes": 511,
+      "lines": 35,
+      "sha256": "47157738874301ae97aedc9eade5e11871c3b8117b172267d1095ff9411b0d7d"
+    },
+    "templates/wrangler.jsonc.example": {
+      "bytes": 726,
+      "lines": 44,
+      "sha256": "6bde4c530332a834aa363ae85760e75cc40681a1585f08c14e529913f2045218"
+    }
+  }
+}
