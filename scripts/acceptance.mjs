@@ -72,6 +72,10 @@ const steps = [
     cmd: ["node", "scripts/copy-assets.mjs"],
   },
   {
+    name: "generate canonical OG / social SVG images",
+    cmd: ["node", "scripts/og-generate.mjs"],
+  },
+  {
     name: "wrangler config validation (dry-run)",
     cmd: ["node", "node_modules/wrangler/bin/wrangler.js", "deploy", "--dry-run", "--outdir=dist"],
   },

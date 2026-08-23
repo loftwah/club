@@ -53,6 +53,46 @@ export function newGiftId(): string {
   return newId("gift");
 }
 
+export function newMemberFactId(): string {
+  return newId("fact");
+}
+
+export function newLocationId(): string {
+  return newId("loc");
+}
+
+export function newAppearanceId(): string {
+  return newId("app");
+}
+
+export function newCalendarId(): string {
+  return newId("cal");
+}
+
+export function newInvitationId(): string {
+  return newId("inv");
+}
+
+export function newChapterId(): string {
+  return newId("chap");
+}
+
+export function newTierId(): string {
+  return newId("tier");
+}
+
+export function newMembershipId(): string {
+  return newId("mship");
+}
+
+export function newServiceGrantId(): string {
+  return newId("sg");
+}
+
+export function newAcceptanceId(): string {
+  return newId("acc");
+}
+
 export function newLeaseId(): string {
   return newId("lease");
 }

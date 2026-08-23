@@ -1,0 +1,71 @@
+---
+import Base from "@layouts/Base.astro";
+
+interface MemberRow {
+  id: string;
+  email: string;
+  preferred_name: string | null;
+  chapter_id: string | null;
+  state: string;
+  created_at: string;
+}
+
+const env = Astro.locals?.runtime?.env;
+const members: MemberRow[] = env?.DB
+  ? await env.DB.prepare(
+      `SELECT m.id, m.email, m.preferred_name, m.chapter_id, ms.state, m.created_at
+           FROM members m
+           LEFT JOIN memberships ms ON ms.member_id = m.id
+           ORDER BY m.created_at DESC LIMIT 100`,
+    )
+      .all<MemberRow>()
+      .then((r) => (r.results ?? []) as MemberRow[])
+  : [];
+---
+
+<Base title="Members — Admin" description="Member directory" canonicalPath="/admin/members/">
+  <section class="section">
+    <div class="container">
+      <p><a href="/admin/">← Back to admin</a></p>
+      <h1>Members</h1>
+      <p>
+        Every member record in D1. Only the columns needed for the operator are shown — full details
+        are accessible through the member portal (operator-only).
+      </p>
+      {
+        members.length === 0 ? (
+          <p style="color: var(--fg-muted)">No members yet.</p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Chapter</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((m) => (
+                <tr>
+                  <td>
+                    <span
+                      class={`pill ${m.state === "ACTIVE" ? "pill--ok" : m.state === "CANCELLED" ? "pill--warn" : "pill--info"}`}
+                    >
+                      {m.state ?? "—"}
+                    </span>
+                  </td>
+                  <td>{m.preferred_name ?? "—"}</td>
+                  <td>{m.email}</td>
+                  <td>{m.chapter_id ?? "—"}</td>
+                  <td>{m.created_at}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+    </div>
+  </section>
+</Base>

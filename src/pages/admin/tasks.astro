@@ -1,0 +1,71 @@
+---
+import Base from "@layouts/Base.astro";
+
+interface FulfilmentTaskRow {
+  id: string;
+  member_id: string;
+  task_type: string;
+  state: string;
+  deadline: string | null;
+  created_at: string;
+}
+
+const env = Astro.locals?.runtime?.env;
+const tasks: FulfilmentTaskRow[] = env?.DB
+  ? await env.DB.prepare(
+      `SELECT id, member_id, task_type, state, deadline, created_at
+           FROM fulfilment_tasks
+           WHERE state NOT IN ('COMPLETED', 'CANCELLED')
+           ORDER BY (deadline IS NULL), deadline ASC, created_at ASC
+           LIMIT 100`,
+    )
+      .all<FulfilmentTaskRow>()
+      .then((r) => (r.results ?? []) as FulfilmentTaskRow[])
+  : [];
+---
+
+<Base title="Tasks — Admin" description="Fulfilment tasks" canonicalPath="/admin/tasks/">
+  <section class="section">
+    <div class="container">
+      <p><a href="/admin/">← Back to admin</a></p>
+      <h1>Fulfilment tasks</h1>
+      <p>Open tasks for the human operator. Sort: deadline first, then created date.</p>
+      {
+        tasks.length === 0 ? (
+          <p style="color: var(--success)">
+            <strong>No open tasks.</strong>
+          </p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Type</th>
+                <th>Member</th>
+                <th>Deadline</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tasks.map((t) => (
+                <tr>
+                  <td>
+                    <span
+                      class={`pill ${t.state === "OVERDUE" ? "pill--danger" : t.state === "ESCALATED" ? "pill--danger" : "pill--info"}`}
+                    >
+                      {t.state}
+                    </span>
+                  </td>
+                  <td>{t.task_type}</td>
+                  <td>{t.member_id}</td>
+                  <td>{t.deadline ?? "—"}</td>
+                  <td>{t.created_at}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+    </div>
+  </section>
+</Base>

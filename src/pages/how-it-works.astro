@@ -1,9 +1,10 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
 ---
 
 <Base
-  title="How it works — The Social Club"
+  title="How it works"
   description="Invitations, cancellations, correspondence, gifts, calls, manufactured commitments."
   canonicalPath="/how-it-works/"
 >
@@ -11,29 +12,51 @@ import Base from "@layouts/Base.astro";
     <div class="container">
       <h1>How it works</h1>
       <p>
-        You join. The Society remembers you. From time to time the Society sends you a plausible
-        invitation to a small, ordinary, deliberately constructed event. You are not expected to
-        attend. The plan feels plausible, the date approaches, and the Society cancels it. The
-        relationship continues.
+        You join. The {brand.shortName} remembers you. From time to time the {brand.shortName}
+        sends you a plausible invitation to a small, ordinary, deliberately constructed event. You are
+        not expected to attend. The plan feels plausible, the date approaches, and the
+        {brand.shortName} cancels it. The relationship continues.
       </p>
       <p>
-        Cancellation is successful fulfilment, not failure. The Society's signature emotional arc
-        is:
+        Cancellation is successful fulfilment, not failure. The {brand.shortName}'s signature
+        emotional arc is:
       </p>
       <pre
-        style="font-family: var(--font-serif); color: var(--fg-muted); font-size: 1.05rem; line-height: 1.8; padding-left: 1.2rem; border-left: 2px solid var(--accent); margin: 1.5rem 0;">
-I belong
-→ I am invited
-→ I have plans
-→ the plan feels plausible
-→ the date approaches
-→ the club cancels it
-→ relief
-→ the relationship continues
-</pre>
+        class="emotional-arc"
+        aria-label="The signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
       <p>
         Optional services — physical mail, gifts, calls, manufactured commitments, real-world
-        Society representative services — are intensity, not belonging.
+        {brand.shortName} representative services — are intensity, not belonging.
+      </p>
+
+      <h2>The cadence</h2>
+      <p>
+        Each member sets their own event-frequency preset — "occasional", "about monthly", "a couple
+        per month", or "Society discretion". The {brand.shortName} keeps the chosen cadence more or less
+        accurately. You can change the preset at any time.
+      </p>
+
+      <h2>What gets remembered</h2>
+      <p>
+        The {brand.shortName} remembers what you choose to share. Birthday (so a card can be sent), preferred
+        first name, postal address (if you opt into physical mail), interests and pets and inside jokes
+        (if you want them remembered), do-not-mention list. Nothing else. You can see, edit, and remove
+        anything the {brand.shortName} knows about you.
+      </p>
+
+      <h2>What gets produced</h2>
+      <p>
+        The {brand.shortName} produces, in order of frequency: cancellations, invitations, birthday and
+        anniversary recognitions, chapter letters, occasional artefacts, and (when appropriate) gifts
+        and calls. Each of these has its own cadence, its own entitlement, its own opt-in.
+      </p>
+
+      <h2>What the human operator does</h2>
+      <p>
+        A small number of real human operators run the {brand.shortName}. They print, sign, and post
+        letters. They select gifts within a budget. They make calls at the agreed window. They
+        review inbound email. They handle the rare critical cancellation when automation needs a
+        person.
       </p>
     </div>
   </section>

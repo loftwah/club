@@ -13,11 +13,11 @@ export interface AuditEvent {
   readonly action: string;
   readonly entityType: string | null;
   readonly entityId: string | null;
-  readonly fromState: string | null;
-  readonly toState: string | null;
-  readonly reasonCode: string | null;
-  readonly correlationId: string | null;
-  readonly metadata?: Record<string, unknown>;
+  readonly fromState?: string | null;
+  readonly toState?: string | null;
+  readonly reasonCode?: string | null;
+  readonly correlationId?: string | null;
+  readonly metadata?: Record<string, unknown> | null;
 }
 
 export interface AuditWriter {
@@ -45,10 +45,10 @@ export class D1AuditWriter implements AuditWriter {
         event.action,
         event.entityType,
         event.entityId,
-        event.fromState,
-        event.toState,
-        event.reasonCode,
-        event.correlationId,
+        event.fromState ?? null,
+        event.toState ?? null,
+        event.reasonCode ?? null,
+        event.correlationId ?? null,
         event.metadata ? JSON.stringify(event.metadata) : null,
         this.clock.nowIso(),
       )

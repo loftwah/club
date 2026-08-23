@@ -1,9 +1,63 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
+
+interface Article {
+  readonly slug: string;
+  readonly title: string;
+  readonly category: string;
+  readonly date: string;
+  readonly dek: string;
+}
+
+const articles: ReadonlyArray<Article> = [
+  {
+    slug: "etiquette-of-being-remembered",
+    title: "Etiquette of being remembered",
+    category: "Etiquette",
+    date: "Volume I, Issue 1",
+    dek: "A short, dry guide to what the Society remembers, how it remembers, and how to ask it to forget.",
+  },
+  {
+    slug: "a-short-history-of-the-cancelled-engagement",
+    title: "A short history of the cancelled engagement",
+    category: "Society history",
+    date: "Volume I, Issue 1",
+    dek: "The institution of the cancelled plan is older than the Society, and the Society takes it seriously.",
+  },
+  {
+    slug: "chapter-letters-melbourne",
+    title: "Chapter letters: Melbourne",
+    category: "Chapter report",
+    date: "Volume I, Issue 1",
+    dek: "Notes from the opening chapter. The weather. The locations. The wax.",
+  },
+  {
+    slug: "the-society-seal",
+    title: "The Society seal",
+    category: "Etiquette",
+    date: "Volume I, Issue 1",
+    dek: "The seal is a quiet commitment: a letter, a member, a record. A note on the design.",
+  },
+  {
+    slug: "manufactured-commitments-explained",
+    title: "Manufactured commitments, explained",
+    category: "Optional services",
+    date: "Volume I, Issue 1",
+    dek: "What it is. What it isn't. Why the cancellation is part of the work.",
+  },
+  {
+    slug: "gifts-and-surprises",
+    title: "Gifts and surprises",
+    category: "Optional services",
+    date: "Volume I, Issue 1",
+    dek: "On the difference between a thoughtful gift and a surprise that someone had to guess about.",
+  },
+];
 ---
 
 <Base
-  title="Journal — The Social Club"
+  title="Journal"
   description="Chapter reports, upcoming constructed engagements, cancellations, correspondence extracts, Society history."
   canonicalPath="/journal/"
 >
@@ -11,12 +65,26 @@ import Base from "@layouts/Base.astro";
     <div class="container">
       <h1>Journal</h1>
       <p>
-        The Society publishes an institutional journal, not a company blog. Future editions will
-        include chapter reports, upcoming constructed engagements, cancellations, archive pieces,
-        correspondence extracts, Society history, etiquette, seasonal letters, and artefact
-        announcements.
+        The {brand.shortName} publishes an institutional journal, not a company blog. Future editions
+        will include chapter reports, upcoming constructed engagements, cancellations, archive pieces,
+        correspondence extracts, Society history, etiquette, seasonal letters, and artefact announcements.
       </p>
-      <p>The first issue is pending the brand phase.</p>
+      <p>
+        The first issue is a curated selection of short pieces. New issues are published slowly.
+      </p>
+      <ul class="article-list">
+        {
+          articles.map((a) => (
+            <li class="article-card">
+              <p class="meta">
+                {a.category} &middot; {a.date}
+              </p>
+              <h3>{a.title}</h3>
+              <p>{a.dek}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </Base>

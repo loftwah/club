@@ -1,0 +1,383 @@
+---
+// THROWAWAY: brand-direction exploration page. Not part of the public
+// information architecture. Will be deleted once the user locks a name
+// and direction. Does not replace any production page or layout.
+import Base from "@layouts/Base.astro";
+import ThreeUISealPrototype from "@components/ThreeUISealPrototype.tsx";
+import "../styles/brand-explorer.css";
+---
+
+<Base
+  title="Brand exploration — The Social Club"
+  description="Internal comparison of three brand direction candidates. Throwaway."
+  canonicalPath="/brand-explorer/"
+>
+  <section class="bx-section">
+    <div class="bx-container">
+      <p class="bx-eyebrow">Internal · throwaway · not for indexing</p>
+      <h1>Brand exploration</h1>
+      <p class="bx-lede">
+        Three brand directions are defined in
+        <code>explorations/brand/docs/</code>. This page is a single visual comparison surface so
+        the choice can be made by looking, not just by reading. No permanent rebrand happens here.
+      </p>
+      <p class="bx-lede">
+        <strong>Decision package:</strong>
+        <a href="/explorations/brand/docs/00-DECISION_PACKAGE.md"
+          >explorations/brand/docs/00-DECISION_PACKAGE.md</a
+        >. The <a href="#production-seals">production seals</a> below are the only files in this gallery
+        that are safe to ship.
+      </p>
+      <nav class="bx-jump" aria-label="Direction navigation">
+        <a href="#production-seals">Production seals</a>
+        <a href="#direction-a">A · Modernist Institution</a>
+        <a href="#direction-b">B · Old-World Society</a>
+        <a href="#direction-c">C · Quiet Modern</a>
+        <a href="#threeui-check">ThreeUI check</a>
+      </nav>
+    </div>
+  </section>
+
+  <section id="production-seals" class="bx-section">
+    <div class="bx-container">
+      <p class="bx-eyebrow">Production-ready</p>
+      <h2>SVG seals (canonical, AI-typography-free)</h2>
+      <p class="bx-tagline">
+        The three seals below are hand-written SVG with real typography. They replace the AI-garbled <code
+          >seal_001.jpg</code
+        > references in each direction. Phase 3 can use these directly.
+      </p>
+      <div class="bx-seal-row">
+        <figure>
+          <img
+            src="/explorations/brand/seals/seal-a-modernist.svg"
+            alt="Direction A production seal — monoline circle, interlocked R/S monogram, mono arc text"
+            width="240"
+            height="240"
+          />
+          <figcaption>Direction A · Modernist</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/seals/seal-b-old-world.svg"
+            alt="Direction B production seal — rope-twist border, oxblood centre, RS monogram with leaf"
+            width="240"
+            height="240"
+          />
+          <figcaption>Direction B · Old-World</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/seals/seal-c-quiet-modern.svg"
+            alt="Direction C production seal — hand-drawn wobbly circle, hand-drawn R monogram"
+            width="240"
+            height="240"
+          />
+          <figcaption>Direction C · Quiet Modern</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="direction-a" class="bx-section bx-direction bx-direction--a">
+    <div class="bx-container">
+      <p class="bx-eyebrow">Direction A</p>
+      <h2>Modernist Institution</h2>
+      <p class="bx-tagline">
+        A contemporary learned society. Mid-century editorial rigour. No ornament that does not earn
+        its place.
+      </p>
+      <div class="bx-grid">
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/hero_001.jpg"
+            alt="Direction A hero concept — cream paper, vermilion wax seal, soft window light"
+            loading="lazy"
+          />
+          <figcaption>Hero concept · cream paper + vermilion seal</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/seal_001.jpg"
+            alt="Direction A seal concept — monoline circle, RS monogram, fine rule"
+            loading="lazy"
+          />
+          <figcaption>Seal · monoline circle + RS monogram (concept only)</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/card_001.jpg"
+            alt="Direction A membership card — cream paper, vermilion monogram, hairline rule"
+            loading="lazy"
+          />
+          <figcaption>Membership card · single vermilion spot-ink monogram</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/invite_001.jpg"
+            alt="Direction A invitation — cream paper, body type, vermilion seal"
+            loading="lazy"
+          />
+          <figcaption>Invitation · same paper as letterhead</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/cancel_001.jpg"
+            alt="Direction A cancellation — same paper, single seal, short heading"
+            loading="lazy"
+          />
+          <figcaption>Cancellation · same paper, only the heading changes</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/artefact_001.jpg"
+            alt="Direction A medallion — brushed brass with engraved emblem"
+            loading="lazy"
+          />
+          <figcaption>Medallion · brushed brass, engraved seal</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/archive_001.jpg"
+            alt="Direction A archival Society ephemera"
+            loading="lazy"
+          />
+          <figcaption>Archival Society ephemera · fictional record</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/a/og_001.jpg"
+            alt="Direction A social-share image concept"
+            loading="lazy"
+          />
+          <figcaption>OG / social share · wide negative space, single seal</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="direction-b" class="bx-section bx-direction bx-direction--b">
+    <div class="bx-container">
+      <p class="bx-eyebrow">Direction B</p>
+      <h2>Old-World Society</h2>
+      <p class="bx-tagline">
+        A late-Victorian learned society, kept up to date. Engraved metal, cream paper, deep
+        pigment. The door is closed by design.
+      </p>
+      <div class="bx-grid">
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/hero_001.jpg"
+            alt="Direction B hero concept — cream paper, oxblood wax seal, brass pen, dark walnut"
+            loading="lazy"
+          />
+          <figcaption>Hero concept · walnut desk + oxblood seal + brass pen</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/seal_001.jpg"
+            alt="Direction B seal — oxblood wax seal with heraldic centre"
+            loading="lazy"
+          />
+          <figcaption>Seal · oxblood wax impression (concept only)</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/card_001.jpg"
+            alt="Direction B membership card — cream stock, engraved oxblood border, brass monogram"
+            loading="lazy"
+          />
+          <figcaption>Membership card · brass foil monogram + oxblood border</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/invite_001.jpg"
+            alt="Direction B invitation — cream paper on walnut, oxblood wax seal, engraved border"
+            loading="lazy"
+          />
+          <figcaption>Invitation · cream paper + engraved oxblood border</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/cancel_001.jpg"
+            alt="Direction B cancellation — same paper as invitation, same seal"
+            loading="lazy"
+          />
+          <figcaption>Cancellation · same paper, only the heading changes</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/artefact_001.jpg"
+            alt="Direction B medallion — polished brass, engraved emblem"
+            loading="lazy"
+          />
+          <figcaption>Medallion · polished brass, deeply engraved</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/archive_001.jpg"
+            alt="Direction B archival Society record — oxblood seal, handwritten signature"
+            loading="lazy"
+          />
+          <figcaption>Archival Society record · fictional, oxblood-sealed</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/b/og_001.jpg"
+            alt="Direction B social-share image concept"
+            loading="lazy"
+          />
+          <figcaption>OG / social share · warm light, oxblood seal, deep paper</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="direction-c" class="bx-section bx-direction bx-direction--c">
+    <div class="bx-container">
+      <p class="bx-eyebrow">Direction C</p>
+      <h2>Quiet Modern</h2>
+      <p class="bx-tagline">
+        A small correspondence institution, run like a journal. Warm, restrained, a little
+        melancholic. The page is the medium.
+      </p>
+      <div class="bx-grid">
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/hero_001.jpg"
+            alt="Direction C hero — cream envelope on warm wood, fountain pen, hand-drawn monogram"
+            loading="lazy"
+          />
+          <figcaption>Hero concept · envelope on warm wood, fountain pen</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/seal_001.jpg"
+            alt="Direction C seal — hand-drawn R inside a wobbly circle"
+            loading="lazy"
+          />
+          <figcaption>Seal · hand-drawn R, fountain-pen line</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/card_001.jpg"
+            alt="Direction C membership card — warm paper, hand-drawn monogram, wooden pen"
+            loading="lazy"
+          />
+          <figcaption>Membership card · warm paper, hand-drawn R</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/invite_001.jpg"
+            alt="Direction C invitation — warm paper, wooden pen, hand-drawn mark"
+            loading="lazy"
+          />
+          <figcaption>Invitation · warm paper, no border, hand-drawn mark</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/cancel_001.jpg"
+            alt="Direction C cancellation — warm paper, pen, soft light"
+            loading="lazy"
+          />
+          <figcaption>Cancellation · same paper, no border, hand-drawn mark</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/artefact_001.jpg"
+            alt="Direction C medallion — wooden, hand-drawn R"
+            loading="lazy"
+          />
+          <figcaption>Medallion · figured walnut, hand-drawn R</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/archive_001.jpg"
+            alt="Direction C archival paper — aged warm paper, fountain pen, hand-drawn mark"
+            loading="lazy"
+          />
+          <figcaption>Archival paper · aged warm paper, fountain pen, hand-drawn mark</figcaption>
+        </figure>
+        <figure>
+          <img
+            src="/explorations/brand/assets/c/og_001.jpg"
+            alt="Direction C social-share image concept"
+            loading="lazy"
+          />
+          <figcaption>OG / social share · warm paper, hand-drawn mark, pen</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="threeui-check" class="bx-section">
+    <div class="bx-container">
+      <p class="bx-eyebrow">ThreeUI verification</p>
+      <h2>Does the engraved certificate actually mount?</h2>
+      <p>
+        Phase 1 imports the ThreeUI package and renders an empty canvas as a progressive-enhancement
+        placeholder. This prototype mounts the real
+        <code>EngravedCertificate</code> component to verify it works on the current stack, in light mode,
+        with the static SVG fallback behind it.
+      </p>
+      <div class="bx-threeui-row">
+        <div class="bx-threeui-cell">
+          <p class="bx-threeui-label">Static SVG fallback (always works)</p>
+          <svg
+            viewBox="0 0 200 200"
+            width="200"
+            height="200"
+            role="img"
+            aria-label="Static seal fallback"
+          >
+            <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1"
+            ></circle>
+            <text
+              x="100"
+              y="40"
+              text-anchor="middle"
+              font-family="serif"
+              font-size="9"
+              letter-spacing="2"
+              fill="currentColor">THE</text
+            >
+            <text
+              x="100"
+              y="170"
+              text-anchor="middle"
+              font-family="serif"
+              font-size="9"
+              letter-spacing="2"
+              fill="currentColor">SOCIETY</text
+            >
+            <text
+              x="100"
+              y="118"
+              text-anchor="middle"
+              font-family="serif"
+              font-size="48"
+              letter-spacing="-2"
+              fill="currentColor">RS</text
+            >
+          </svg>
+        </div>
+        <div class="bx-threeui-cell">
+          <p class="bx-threeui-label">EngravedCertificate (light mode)</p>
+          <ThreeUISealPrototype client:only="react" mode="light" />
+        </div>
+        <div class="bx-threeui-cell">
+          <p class="bx-threeui-label">EngravedCertificate (dark mode)</p>
+          <ThreeUISealPrototype client:only="react" mode="dark" />
+        </div>
+      </div>
+      <p class="bx-threeui-note">
+        Note: the current static <code>SocietySeal</code> import in
+        <code>Base.astro</code> is a no-op shell. The new design uses
+        <code>EngravedCertificate</code> in light mode for the hero seal, falling back to the SVG above
+        when JS is unavailable, when
+        <code>prefers-reduced-motion</code> is set, or when the GPU is weak. The same pattern applies
+        to the medallion scene if Direction B is chosen.
+      </p>
+    </div>
+  </section>
+</Base>

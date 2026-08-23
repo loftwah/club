@@ -1,0 +1,71 @@
+---
+import Base from "@layouts/Base.astro";
+
+interface InboundRow {
+  id: string;
+  from_address: string | null;
+  subject: string | null;
+  state: string;
+  received_at: string;
+  human_review_required: number;
+}
+
+const env = Astro.locals?.runtime?.env;
+const rows: InboundRow[] = env?.DB
+  ? await env.DB.prepare(
+      `SELECT id, from_address, subject, state, received_at, human_review_required
+           FROM inbound_messages
+           ORDER BY received_at DESC LIMIT 100`,
+    )
+      .all<InboundRow>()
+      .then((r) => (r.results ?? []) as InboundRow[])
+  : [];
+---
+
+<Base title="Inbound — Admin" description="Inbound email review" canonicalPath="/admin/inbound/">
+  <section class="section">
+    <div class="container">
+      <p><a href="/admin/">← Back to admin</a></p>
+      <h1>Inbound email</h1>
+      <p>
+        Recent inbound messages. Filter by state on the MCP server if you need to scope a session.
+      </p>
+      {
+        rows.length === 0 ? (
+          <p style="color: var(--success)">
+            <strong>No inbound messages.</strong>
+          </p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Received</th>
+                <th>Review</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr>
+                  <td>
+                    <span
+                      class={`pill ${r.state === "HUMAN_REVIEW" ? "pill--warn" : "pill--info"}`}
+                    >
+                      {r.state}
+                    </span>
+                  </td>
+                  <td>{r.from_address ?? "—"}</td>
+                  <td>{r.subject ?? "—"}</td>
+                  <td>{r.received_at}</td>
+                  <td>{r.human_review_required ? "yes" : "no"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+    </div>
+  </section>
+</Base>

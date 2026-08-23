@@ -54,16 +54,16 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
   test("GET /membership renders the tier preview", async ({ page }) => {
     const response = await page.goto("/membership/");
     expect(response?.status()).toBe(200);
-    await expect(page.getByText(/Core/)).toBeVisible();
-    await expect(page.getByText(/Physical correspondence/)).toBeVisible();
-    await expect(page.getByText(/Deluxe human/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Core", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Correspondence", level: 3 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Deluxe Human", level: 3 })).toBeVisible();
   });
 
   test("GET /how-it-works renders the canonical arc", async ({ page }) => {
     const response = await page.goto("/how-it-works/");
     expect(response?.status()).toBe(200);
     await expect(page.getByText(/I belong/)).toBeVisible();
-    await expect(page.getByText(/the club cancels it/)).toBeVisible();
+    await expect(page.getByText(/the Society cancels it/)).toBeVisible();
   });
 
   test("GET /chapters renders the chapter list", async ({ page }) => {
@@ -125,9 +125,7 @@ test.describe("reduced motion", () => {
     expect(response?.status()).toBe(200);
     // All canonical proposition text is present even when animations
     // are suppressed.
-    await expect(page.getByText(/You belong/)).toBeVisible();
-    await expect(page.getByText(/invited/)).toBeVisible();
-    await expect(page.getByText(/remembered/)).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/invited/);
     await expect(page.getByText(/You do not have to show up/i)).toBeVisible();
     // The ThreeUI canvas (or its fallback) is in the DOM but does not
     // hide the form links.

@@ -1,21 +1,59 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
 ---
 
-<Base
-  title="Privacy — The Social Club"
-  description="How the Society handles your data."
-  canonicalPath="/privacy/"
->
+<Base title="Privacy" description="How the Society handles your data." canonicalPath="/privacy/">
   <section class="section">
     <div class="container">
       <h1>Privacy</h1>
       <p>
-        The Society remembers what you choose to share, and nothing more. Member memory is
-        transparent, editable and removable. The Society does not silently enrich members from
-        public sources.
+        The {brand.shortName} remembers what you choose to share, and nothing more. Member memory is transparent,
+        editable and removable. The {brand.shortName} does not silently enrich members from public sources.
       </p>
-      <p>Full privacy policy text will be published before the paid launch.</p>
+
+      <h2>What we keep</h2>
+      <ul>
+        <li>Your email address (to write to you)</li>
+        <li>Your first name and any preferred name you give us</li>
+        <li>Your chapter or metro area, if you give it (so chapter letters are accurate)</li>
+        <li>Your birthday, if you give it (so a card can be sent on the right day)</li>
+        <li>Your postal address, if you opt in to physical mail (so we can post to you)</li>
+        <li>Any other facts you choose to share, plus your do-not-mention list</li>
+      </ul>
+
+      <h2>What we do not do</h2>
+      <ul>
+        <li>We do not enrich your record from public sources without asking.</li>
+        <li>
+          We do not sell your data. We do not share it with third parties except as required to
+          deliver the service (Resend for email, Cloudflare for hosting, Stripe for billing when
+          billing is enabled).
+        </li>
+        <li>We do not use your data to train general AI models.</li>
+        <li>We do not infer sensitive personal categories for personalisation.</li>
+      </ul>
+
+      <h2>Your controls</h2>
+      <p>
+        When the member portal is available, you will be able to see exactly what the
+        {brand.shortName} remembers about you, edit or remove any fact, mark any fact as "do not mention",
+        and export a copy of your data. Until the portal is available, you can ask the operator to do
+        this on your behalf.
+      </p>
+
+      <h2>Retention</h2>
+      <p>
+        When you ask to be forgotten, the {brand.shortName} stops future personalisation and removes your
+        personal data subject to legitimate retention requirements (for example, financial records we
+        are required to keep for a number of years).
+      </p>
+
+      <h2>Full policy</h2>
+      <p>
+        The full privacy policy will be published before the paid launch. The summary above is not
+        the policy; it is the plain-language preview.
+      </p>
     </div>
   </section>
 </Base>

@@ -1,0 +1,86 @@
+---
+// Admin landing page.
+// Primary question: "What does the Society need from me?"
+// Per MASTER_SPEC §11.2.
+import Base from "@layouts/Base.astro";
+import { dailyOperations } from "../../lib/admin-data";
+
+const ops = await dailyOperations(Astro.locals?.runtime?.env);
+---
+
+<Base
+  title="Admin"
+  description="Operator landing page. What does the Society need from me?"
+  canonicalPath="/admin/"
+>
+  <section class="section">
+    <div class="container">
+      <h1>What does the Society need from me?</h1>
+      <p class="muted" style="color: var(--fg-muted);">
+        The admin landing is intentionally short. If there is nothing to do, the page says so.
+      </p>
+
+      <h2>Today</h2>
+      {
+        ops.todayCount === 0 ? (
+          <p style="color: var(--success)">
+            <strong>No intervention required.</strong>
+          </p>
+        ) : (
+          <ul class="admin-list">
+            {ops.today.map((t) => (
+              <li>
+                <span class={`pill pill--${t.urgency}`}>{t.label}</span>
+                <span class="admin-list__detail">{t.detail}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <h2>System</h2>
+      <ul class="admin-list">
+        <li>
+          <span class={`pill pill--${ops.dangerousEvents > 0 ? "danger" : "ok"}`}
+            >{ops.dangerousEvents}</span
+          >
+          <span class="admin-list__detail">dangerous uncancelled events</span>
+        </li>
+        <li>
+          <span class={`pill pill--${ops.retriedEmails > 0 ? "warn" : "ok"}`}
+            >{ops.retriedEmails}</span
+          >
+          <span class="admin-list__detail">retried emails</span>
+        </li>
+        <li>
+          <span class={`pill pill--${ops.overdueFulfilments > 0 ? "warn" : "ok"}`}
+            >{ops.overdueFulfilments}</span
+          >
+          <span class="admin-list__detail">overdue fulfilments</span>
+        </li>
+        <li>
+          <span class={`pill pill--${ops.deadLetters > 0 ? "danger" : "ok"}`}
+            >{ops.deadLetters}</span
+          >
+          <span class="admin-list__detail">dead-letter jobs (operator review required)</span>
+        </li>
+        <li>
+          <span class={`pill pill--${ops.inboundReview > 0 ? "warn" : "ok"}`}
+            >{ops.inboundReview}</span
+          >
+          <span class="admin-list__detail">inbound messages requiring review</span>
+        </li>
+      </ul>
+
+      <h2>Quick links</h2>
+      <ul>
+        <li><a href="/admin/operations/">Operations digest</a></li>
+        <li><a href="/admin/tasks/">Fulfilment tasks</a></li>
+        <li><a href="/admin/inbound/">Inbound email</a></li>
+        <li><a href="/admin/events/">Events</a></li>
+        <li><a href="/admin/members/">Members</a></li>
+        <li><a href="/admin/appearance/">Appearance enquiries</a></li>
+      </ul>
+    </div>
+  </section>
+</Base>

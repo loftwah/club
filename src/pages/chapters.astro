@@ -1,26 +1,84 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
+
+interface Chapter {
+  readonly slug: string;
+  readonly name: string;
+  readonly status: "ACTIVE" | "WAITLIST_ONLY" | "COMING";
+  readonly note: string;
+}
+
+const chapters: ReadonlyArray<Chapter> = [
+  {
+    slug: "melbourne",
+    name: "Melbourne",
+    status: "ACTIVE",
+    note: "The opening chapter. Waitlist signups are accepted now.",
+  },
+  {
+    slug: "sydney",
+    name: "Sydney",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  {
+    slug: "brisbane",
+    name: "Brisbane",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  {
+    slug: "adelaide",
+    name: "Adelaide",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  {
+    slug: "perth",
+    name: "Perth",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+];
 ---
 
 <Base
-  title="Chapters — The Social Club"
-  description="Where the Society is open."
+  title="Chapters"
+  description="Where the Society is open, and where it is coming."
   canonicalPath="/chapters/"
 >
   <section class="section">
     <div class="container">
       <h1>Chapters</h1>
-      <p>The Society opens slowly, chapter by chapter.</p>
-      <ul>
-        <li>Melbourne — accepting waitlist signups</li>
-        <li>Sydney — coming</li>
-        <li>Brisbane — coming</li>
-        <li>Adelaide — coming</li>
-        <li>Perth — coming</li>
-      </ul>
+      <p>
+        The {brand.shortName} opens slowly, chapter by chapter. Each chapter is a regional community of
+        members. Events are still constructed, letters are still personal, and cancellations are still
+        the relationship — but the locations, the local references, and the chapter letters are specific
+        to where you actually are.
+      </p>
       <p>
         Even with a waitlist signup, membership is not yet active. The waiting list is separate from
-        the paid membership state machine.
+        the paid membership state machine, and it does not create fake active paid membership.
+      </p>
+      <div class="chapter-grid">
+        {
+          chapters.map((c) => (
+            <article
+              class={`chapter-card${c.status === "ACTIVE" ? " is-active" : ""}`}
+              aria-labelledby={`chapter-${c.slug}-h`}
+            >
+              <h3 id={`chapter-${c.slug}-h`}>{c.name}</h3>
+              <p class="chapter-status">
+                {c.status === "ACTIVE" ? "Accepting waitlist" : "Coming"}
+              </p>
+              <p>{c.note}</p>
+            </article>
+          ))
+        }
+      </div>
+      <p>
+        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
       </p>
     </div>
   </section>

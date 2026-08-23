@@ -1,10 +1,11 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand, formatPrice } from "../brand/config";
 ---
 
 <Base
-  title="Membership — The Social Club"
-  description="Three tiers: A$5, A$20, A$50. The same belonging, different physical and human intensity."
+  title="Membership"
+  description="Three tiers. The same belonging, different physical and human intensity."
   canonicalPath="/membership/"
 >
   <section class="section">
@@ -12,40 +13,93 @@ import Base from "@layouts/Base.astro";
       <h1>Membership</h1>
       <p>
         All members are equal in belonging. Tiers differ in physical intensity and human time, not
-        in emotional worth.
+        in emotional worth. Pricing is per individual, per month, in Australian dollars.
       </p>
       <div class="tiers">
-        <article class="tier">
-          <h3>Core — A$5/month</h3>
+        <article class="tier" aria-labelledby="tier-core-h">
+          <h3 id="tier-core-h">{brand.tiers.core.name}</h3>
+          <p class="tier__price">{formatPrice(brand.tiers.core.priceAud)}<small>/month</small></p>
+          <p class="tier__tagline">{brand.tiers.core.tagline}</p>
           <ul>
-            <li>Member identity and number</li>
+            <li>Real membership record and member number</li>
+            <li>Chapter and regional identity</li>
+            <li>Digital membership card</li>
             <li>Invitations and cancellations</li>
             <li>Personalised digital correspondence</li>
             <li>Birthday and anniversary recognition</li>
-            <li>Member memory</li>
+            <li>Member memory (with member-facing controls)</li>
+            <li>Digital archive</li>
+            <li>Ceremonial titles at milestones</li>
+            <li>Occasional economical physical item where policy allows</li>
           </ul>
         </article>
-        <article class="tier">
-          <h3>Physical correspondence — A$20/month</h3>
+        <article class="tier" aria-labelledby="tier-phys-h">
+          <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
+          <p class="tier__price">
+            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
+          </p>
+          <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
           <ul>
-            <li>Welcome pack and physical card</li>
+            <li>Everything in {brand.tiers.core.name}</li>
+            <li>Physical welcome pack</li>
+            <li>Physical membership card</li>
+            <li>Quality stationery</li>
+            <li>Signed welcome letter</li>
             <li>Posted birthday card</li>
-            <li>Signed correspondence</li>
+            <li>Anniversary letter and card</li>
+            <li>Periodic signed correspondence</li>
             <li>Milestone artefacts</li>
+            <li>Selected human review of correspondence</li>
             <li>Optional manufactured commitments</li>
           </ul>
         </article>
-        <article class="tier">
-          <h3>Deluxe human — A$50/month</h3>
+        <article class="tier" aria-labelledby="tier-del-h">
+          <h3 id="tier-del-h">{brand.tiers.deluxe.name}</h3>
+          <p class="tier__price">{formatPrice(brand.tiers.deluxe.priceAud)}<small>/month</small></p>
+          <p class="tier__tagline">{brand.tiers.deluxe.tagline}</p>
           <ul>
-            <li>All of the above</li>
+            <li>Everything in {brand.tiers.correspondence.name}</li>
+            <li>Higher-quality welcome package</li>
             <li>Hand-signed personal letters</li>
             <li>Thoughtful gifts</li>
+            <li>Birthday gift and treatment according to policy</li>
+            <li>Anniversary gifts</li>
             <li>Opted-in calls</li>
+            <li>Deeper operator involvement</li>
+            <li>Premium manufactured commitments</li>
             <li>Priority handling</li>
+            <li>More substantial limited artefacts</li>
+            <li>More genuine continuity with the people behind it</li>
           </ul>
         </article>
       </div>
+
+      <h2>What is not included in any tier</h2>
+      <ul>
+        <li>Real attendance is not expected. Ordinary events are cancelled.</li>
+        <li>
+          Real-world appearance service is a separate paid service, not bundled with
+          {brand.tiers.deluxe.name}.
+        </li>
+        <li>
+          {formatPrice(brand.tiers.deluxe.priceAud)} a month is not unlimited human time. The
+          {brand.shortName} sets real, transparent budget and cadence limits.
+        </li>
+      </ul>
+
+      <h2>What every member agrees to</h2>
+      <p>
+        Before paid activation, every member acknowledges in plain language that the
+        {brand.shortName} is real, that ordinary events are constructed and intended to be cancelled,
+        that members are not expected to attend, that some {brand.shortName}
+        characters and references are fictional, that AI and automation assist personalisation, that real
+        human operators perform selected real-world tasks, and that optional services are controllable.
+      </p>
+      <p>
+        The full terms and privacy policy are versioned and recorded on acceptance. The current
+        waiting list does not create paid membership and does not require you to accept paid terms.
+      </p>
+
       <p>
         <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
       </p>

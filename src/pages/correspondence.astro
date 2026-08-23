@@ -1,0 +1,95 @@
+---
+import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
+---
+
+<Base
+  title="Correspondence"
+  description="How the Society writes to you, how often, and how the letters are produced."
+  canonicalPath="/correspondence/"
+>
+  <section class="section">
+    <div class="container">
+      <h1>Correspondence</h1>
+      <p>
+        The Society's relationship is mostly conducted by mail — physical at the higher tiers,
+        digital at every tier. Every letter is personalised within the boundaries you have set.
+      </p>
+      <p>
+        The cadence of the correspondence is real. The cadence of ordinary events is intentional,
+        and the cadence of cancellations is part of the cadence. You will receive invitations,
+        reminders, cancellations, birthday cards, anniversary recognition, and (at A$20 and A$50)
+        signed physical letters.
+      </p>
+
+      <h2>What you receive</h2>
+      <ul>
+        <li>
+          <strong>Welcome.</strong> A welcome email immediately on joining the waiting list. A welcome
+          letter and physical pack on becoming a paying member.
+        </li>
+        <li>
+          <strong>Invitations and cancellations.</strong> Pairs of letters. Invitations arrive roughly
+          within the cadence you set. Cancellations arrive before the date. The calendar message uses
+          the same UID across invitation and cancellation so your calendar app updates rather than duplicates.
+        </li>
+        <li>
+          <strong>Birthday and anniversary recognition.</strong> At every tier on the digital side. At
+          A$20 and A$50 on the physical side as well. At A$50 with calls enabled, an opt-in birthday call
+          is offered.
+        </li>
+        <li>
+          <strong>Newsletter.</strong> A short, slow, mostly-text newsletter when there is something to
+          say. The newsletter is opt-out. Essential cancellation and operational email cannot be opted
+          out of.
+        </li>
+        <li>
+          <strong>Operator tasks (your inbox at the {brand.shortName}).</strong> When the Society needs
+          to print, sign, post, call, or select a gift, the operator receives the task. Member communication
+          is not the same as operator communication.
+        </li>
+      </ul>
+
+      <h2>How letters are produced</h2>
+      <p>
+        Letter copy is written by the {brand.shortName} using a small language model. Every letter is
+        checked against the member's confirmed facts, their do-not-mention list, and the {
+          brand.shortName
+        }'s editorial voice. The {brand.shortName} never invents facts about you. If the model produces
+        a letter that mentions anything you have asked the {brand.shortName} not to mention, the letter
+        is rejected and rewritten before it is sent.
+      </p>
+      <p>
+        Physical letters are produced by a human operator. The operator signs, seals, and posts the
+        letter. The letter text is checked by the same validator as the digital letter. The
+        signature and seal are real. The wax is real. The stamp is real.
+      </p>
+
+      <h2>What the Society does not do</h2>
+      <ul>
+        <li>
+          The {brand.shortName} does not send attendance instructions. No "we can't wait to see you there"
+          copy.
+        </li>
+        <li>
+          The {brand.shortName} does not claim fictional characters, locations, or partnerships as real.
+        </li>
+        <li>
+          The {brand.shortName} does not mention the member's previous employer, ex-partner, or anything
+          else on the do-not-mention list.
+        </li>
+        <li>
+          The {brand.shortName} does not silently enrich member data from public sources.
+        </li>
+      </ul>
+
+      <h2>Opt-out behaviour</h2>
+      <p>
+        Opting out of the newsletter does not stop essential cancellation email. Opting out of
+        physical mail does not stop digital. Opting out of a single service pauses only that service
+        — the rest of the membership is unaffected. Revoking a permission cancels already-scheduled
+        future work for that permission. Other actions continue.
+      </p>
+    </div>
+  </section>
+</Base>

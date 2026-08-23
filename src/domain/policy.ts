@@ -112,14 +112,16 @@ export function canPerform(capability: Capability, context: PolicyContext): Poli
   }
   evidence.push(`membership_state=${context.membershipState}`);
 
-  // Tier entitlement.
-  if (!context.tierId || !context.tierCapabilities.has(capability)) {
+  // Tier entitlement. The capabilities set is the single source of
+  // truth; tierId is informational for audit. If the tier is
+  // unknown, the capabilities set still gates the decision.
+  if (!context.tierCapabilities.has(capability)) {
     return deny(
       ["TIER_DOES_NOT_GRANT_CAPABILITY"],
       `Tier ${context.tierId ?? "none"} does not grant capability ${capability}.`,
     );
   }
-  evidence.push(`tier=${context.tierId} grants ${capability}`);
+  evidence.push(`tier=${context.tierId ?? "unknown"} grants ${capability}`);
 
   // Service grant state. Member opt-out always wins (invariant 9).
   if (context.explicitOptOut) {

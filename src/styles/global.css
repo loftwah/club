@@ -1,6 +1,11 @@
 /* Global styles for the Social Club. Restrained, editorial, institutional.
    Avoid generic AI gradients, meme styling, cheap merch aesthetic.
-   Tone target: premium, dry, warm, slightly mysterious. */
+   Tone target: premium, dry, warm, slightly mysterious.
+
+   Brand tokens below are read from src/brand/config.ts via the Base
+   layout's inline style. They are duplicated here as the static
+   fallback so the document is still readable when JS / brand
+   config is unavailable. */
 
 :root {
   --bg: #0e1116;
@@ -10,6 +15,9 @@
   --fg-faint: #7a8392; /* raised from #6b7380 for WCAG AA contrast on --bg */
   --accent: #c8a25a;
   --accent-dim: #8a6d36;
+  --link: #d8b673; /* higher-contrast accent for in-text links (WCAG AA on bg-elev) */
+  --success: #7fc59c;
+  --error: #d97a7a;
   --line: rgba(255, 255, 255, 0.08);
   --max-width: 72rem;
   --pad: 1.25rem;
@@ -18,6 +26,8 @@
     "Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif;
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 * {
@@ -42,14 +52,17 @@ body {
 }
 
 a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 120ms ease;
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-dim);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: color 120ms ease;
 }
 a:hover,
 a:focus {
-  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration-color: var(--accent);
 }
 
 .skip-link {
@@ -91,6 +104,14 @@ a:focus {
 .wordmark {
   border: none;
   color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.wordmark__mark {
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 .wordmark__text {
   font-family: var(--font-serif);
@@ -113,6 +134,7 @@ a:focus {
   border: 1px solid var(--accent-dim);
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius);
+  text-decoration: none;
 }
 .site-header nav .cta-link:hover,
 .site-header nav .cta-link:focus {
@@ -150,6 +172,7 @@ main {
   border-radius: var(--radius);
   font-weight: 600;
   border: none;
+  text-decoration: none;
 }
 .hero__cta:hover,
 .hero__cta:focus {
@@ -281,10 +304,299 @@ main {
   text-align: center;
 }
 .form__status--success {
-  color: #7fc59c;
+  color: var(--success);
 }
 .form__status--error {
-  color: #d97a7a;
+  color: var(--error);
+}
+
+/* Public counter — large, single statement. */
+.counter {
+  padding: 5rem 0;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--bg-elev) 100%);
+}
+.counter__heading {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 1.5rem;
+  font-weight: 500;
+}
+.counter__big {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 8vw, 5.5rem);
+  color: var(--accent);
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.counter__unit {
+  font-size: 0.4em;
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+  font-style: italic;
+  font-family: var(--font-serif);
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+.counter__sub {
+  max-width: 38rem;
+  margin: 0 auto;
+  color: var(--fg-muted);
+  font-size: 1rem;
+}
+.counter__sub strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* Emotional arc — large serif block. */
+.emotional-arc {
+  font-family: var(--font-serif);
+  color: var(--fg-muted);
+  font-size: 1.1rem;
+  line-height: 1.9;
+  padding: 1.5rem 0 1.5rem 1.5rem;
+  border-left: 2px solid var(--accent-dim);
+  margin: 2rem 0;
+  white-space: pre-wrap;
+  font-style: italic;
+}
+
+/* Example invitation card. */
+.example {
+  max-width: 42rem;
+  margin: 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2rem;
+  position: relative;
+}
+.example::before {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 12px;
+  height: 12px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(200, 162, 90, 0.18);
+}
+.example h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.4rem;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.01em;
+}
+.example__meta {
+  font-size: 0.9rem;
+  color: var(--fg-faint);
+  margin: 0 0 1.5rem;
+  font-style: italic;
+}
+.example p {
+  margin: 0 0 1rem;
+}
+.example__note {
+  color: var(--accent);
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+.example__scale {
+  margin-top: 1.5rem !important;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+
+/* Tiers — refined with tagline. */
+.tier__tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--fg-faint);
+  font-size: 0.95rem;
+  margin: 0 0 1rem;
+}
+
+/* WList section accent. */
+.wlist {
+  text-align: center;
+}
+.wlist p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* FAQ list. */
+.faq-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+}
+.faq-list li {
+  border-bottom: 1px solid var(--line);
+  padding: 1.25rem 0;
+}
+.faq-list li:last-child {
+  border-bottom: 0;
+}
+.faq-q {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  margin: 0 0 0.5rem;
+  color: var(--fg);
+}
+.faq-a {
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+/* Articles (journal, lore, etc). */
+.article-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0 0;
+  display: grid;
+  gap: 1.5rem;
+}
+.article-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.article-card h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+}
+.article-card .meta {
+  color: var(--fg-faint);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.article-card p {
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+/* Chapter cards. */
+.chapter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.chapter-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+.chapter-card h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+.chapter-card .chapter-status {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 0.75rem;
+}
+.chapter-card.is-active .chapter-status {
+  color: var(--accent);
+}
+.chapter-card p {
+  color: var(--fg-muted);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Admin: pills, lists, status. */
+.admin-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 2.5rem;
+}
+.admin-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.admin-list__detail {
+  color: var(--fg-muted);
+  flex: 1;
+}
+.pill {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+.pill--danger {
+  color: var(--error);
+  border-color: var(--error);
+  background: rgba(217, 122, 122, 0.08);
+}
+.pill--warn {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(200, 162, 90, 0.08);
+}
+.pill--info {
+  color: var(--fg);
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.04);
+}
+.pill--ok {
+  color: var(--success);
+  border-color: var(--success);
+  background: rgba(127, 197, 156, 0.08);
+}
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+table.admin-table th {
+  text-align: left;
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg-faint);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+table.admin-table td {
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+table.admin-table tr:hover td {
+  background: var(--bg-elev);
 }
 
 /* Reduced motion: kill all transitions, suppress hero canvas reveal

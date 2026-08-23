@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="How the Society works">
+  <defs>
+    <radialGradient id="g" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#1b2230" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#070a0f" stop-opacity="0.7"/>
+    </radialGradient>
+  </defs>
+  <rect fill="#0e1116" width="1200" height="630"/>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <g stroke="#8a6d36" stroke-width="2" fill="none">
+    <path d="M 60 60 L 60 100 M 60 60 L 100 60"/>
+    <path d="M 1140 60 L 1140 100 M 1140 60 L 1100 60"/>
+    <path d="M 60 570 L 60 530 M 60 570 L 100 570"/>
+    <path d="M 1140 570 L 1140 530 M 1140 570 L 1100 570"/>
+  </g>
+  <g transform="translate(230, 315)">
+    <circle r="130" fill="none" stroke="#c8a25a" stroke-width="2" opacity="0.6"/>
+    <circle r="116" fill="none" stroke="#c8a25a" stroke-width="1" opacity="0.4"/>
+    <text font-family='"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif' fill="#c8a25a" text-anchor="middle" dominant-baseline="central" font-size="64" letter-spacing="2">R</text>
+    <text font-family='"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif' fill="#9aa4b1" text-anchor="middle" font-size="13" letter-spacing="6" y="60">RESERVED</text>
+  </g>
+  <g transform="translate(440, 168)">
+    <text font-family='"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif' fill="#e7ecf2" x="0" y="0" font-size="84" font-weight="400" letter-spacing="-1">How the Society works</text>
+    <text font-family='ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' fill="#9aa4b1" x="0" y="80" font-size="32" font-weight="400">Invitations. Cancellations. The relationship continues.</text>
+    <line x1="0" x2="120" y1="160" y2="160" stroke="#8a6d36" stroke-width="2"/>
+    <text font-family='"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif' fill="#c8a25a" x="0" y="220" font-size="28" letter-spacing="2">THE RESERVED SOCIETY</text>
+    <text font-family='ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' fill="#7a8392" x="0" y="260" font-size="20">You belong. You are invited. You are remembered. You do not have to show up.</text>
+  </g>
+</svg>

@@ -1,14 +1,65 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
 ---
 
-<Base title="Terms — The Social Club" description="Terms of membership." canonicalPath="/terms/">
+<Base title="Terms" description="Plain-language terms of membership." canonicalPath="/terms/">
   <section class="section">
     <div class="container">
       <h1>Terms</h1>
       <p>
-        Membership terms will be finalised before the paid launch, with appropriate
-        Australian-facing legal review. The current waiting list does not create paid membership.
+        The full membership terms will be finalised before the paid launch, with appropriate
+        Australian-facing legal review. The current waiting list does not create paid membership,
+        does not require you to accept paid terms, and does not obligate you to any future purchase.
+      </p>
+
+      <h2>Plain-language preview of the acknowledgement</h2>
+      <p>Before paid activation, every member will explicitly acknowledge that:</p>
+      <ul>
+        <li>ordinary {brand.shortName} events are constructed;</li>
+        <li>ordinary {brand.shortName} events are intended to be cancelled;</li>
+        <li>members are not expected to attend ordinary events;</li>
+        <li>
+          {brand.shortName} characters and references may be fictional; the {brand.shortName}
+          does not claim fictional characters, locations, or partnerships as real;
+        </li>
+        <li>
+          AI and automation may assist personalisation within the rules the {brand.shortName} sets;
+        </li>
+        <li>human operators perform selected real-world tasks (print, sign, post, call, gift);</li>
+        <li>optional services remain controllable and may be paused or revoked.</li>
+      </ul>
+
+      <h2>What the {brand.shortName} agrees to</h2>
+      <ul>
+        <li>
+          Cancellation will happen before the date. Cancellation is not a failure; it is the
+          product.
+        </li>
+        <li>Your data will be handled under the published privacy policy.</li>
+        <li>
+          You can leave at any time. Cancellation stops future personalisation and any
+          already-scheduled work for the cancelled services.
+        </li>
+      </ul>
+
+      <h2>What the {brand.shortName} does not do</h2>
+      <ul>
+        <li>
+          The {brand.shortName} does not claim fictional partnerships, endorsements, or real bookings.
+        </li>
+        <li>
+          The {brand.shortName} does not charge per-event, per-RSVP, or per-cancellation.
+        </li>
+        <li>
+          The {brand.shortName} does not lock you into an annual contract without explicit consent.
+        </li>
+      </ul>
+
+      <p>
+        The full terms will be published here before the paid launch. <a href="/faq/"
+          >Read the FAQ</a
+        > for the most common questions.
       </p>
     </div>
   </section>

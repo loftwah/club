@@ -205,10 +205,12 @@ export class MockD1Database {
   }
 
   private doUpdate(sql: string, binds: BindValue[]): { results: Row[]; changes: number } {
+    // Normalise whitespace.
+    const normalised = sql.replace(/\s+/g, " ").trim();
     // UPDATE table SET col1 = ?, col2 = ? WHERE ...
     // Split into SET block and optional WHERE block. The SET block can
     // contain commas; we look for the LAST " WHERE " in the string.
-    const m = sql.match(/^UPDATE\s+([A-Za-z_][A-Za-z0-9_]*)\s+SET\s+([\s\S]+)$/i);
+    const m = normalised.match(/^UPDATE\s+([A-Za-z_][A-Za-z0-9_]*)\s+SET\s+([\s\S]+)$/i);
     if (!m) throw new Error(`Bad UPDATE: ${sql}`);
     const table = m[1];
     let setBlock = m[2] ?? "";
@@ -219,7 +221,9 @@ export class MockD1Database {
       setBlock = setBlock.slice(0, whereIdx);
     }
     if (!table || !setBlock) throw new Error(`Bad UPDATE: ${sql}`);
-    const setClauses = setBlock.split(",").map((c) => c.trim());
+    // Split SET clauses by top-level commas (ignoring commas inside
+    // parens, e.g. COALESCE(a, b)).
+    const setClauses = splitTopLevel(setBlock, ",");
     const list = this.tables.get(table);
     if (!list) throw { message: `Unknown table: ${table}` } as never;
     // First N binds map to the SET clauses in order; remaining go to WHERE.
@@ -236,15 +240,19 @@ export class MockD1Database {
     whereBinds.push(...binds.slice(consumed));
 
     const newValues: Record<string, BindValue> = {};
-    setClauses.forEach((clause, i) => {
-      const eqParts = clause.split("=");
-      if (eqParts.length === 2) {
-        const col = eqParts[0]?.trim().replace(/[`"\[\]]/g, "") ?? "";
-        if (eqParts[1]?.trim() === "?") {
-          newValues[col] = setBinds[i] ?? null;
-        } else {
-          newValues[col] = stripQuotes(eqParts[1]?.trim() ?? "");
-        }
+    setClauses.forEach((clause) => {
+      const eqIdx = clause.indexOf("=");
+      if (eqIdx === -1) return;
+      const col =
+        clause
+          .slice(0, eqIdx)
+          .trim()
+          .replace(/[`"\[\]]/g, "") ?? "";
+      const rhs = clause.slice(eqIdx + 1).trim();
+      if (rhs === "?") {
+        newValues[col] = setBinds.shift() ?? null;
+      } else {
+        newValues[col] = stripQuotes(rhs);
       }
     });
 
@@ -287,17 +295,41 @@ export class MockD1Database {
   }
 
   private doSelect(sql: string, binds: BindValue[]): Row[] {
+    // Normalise: collapse whitespace, strip line breaks.
+    const normalised = sql.replace(/\s+/g, " ").trim();
     // SELECT [cols] FROM table [JOIN ...] WHERE ... [ORDER BY ...] [LIMIT n]
-    const m = sql.match(
-      /^SELECT\s+(.+?)\s+FROM\s+([A-Za-z_][A-Za-z0-9_]*)(?:\s+WHERE\s+(.+?))?(?:\s+ORDER BY\s+(.+?))?(?:\s+LIMIT\s+(\d+|\?))?$/is,
-    );
-    if (!m) throw new Error(`Bad SELECT: ${sql}`);
-    const cols = m[1];
-    const table = m[2];
-    const where = m[3];
-    const order = m[4];
-    const limit = m[5];
+    // We split the SQL manually because the regex form is brittle
+    // when WHERE/ORDER/LIMIT are all optional.
+    const tableMatch = normalised.match(/FROM\s+([A-Za-z_][A-Za-z0-9_]*)/i);
+    if (!tableMatch) throw new Error(`Bad SELECT: ${sql}`);
+    const table = tableMatch[1];
     if (!table) throw new Error(`Bad SELECT: ${sql}`);
+    const fromToken = `FROM ${table}`;
+    const fromUpper = fromToken.toUpperCase();
+    const normUpper = normalised.toUpperCase();
+    const fromIdx = normUpper.indexOf(fromUpper);
+    if (fromIdx === -1) throw new Error(`Bad SELECT: ${sql}`);
+    const afterFrom = normalised.slice(fromIdx + fromToken.length);
+    let where: string | undefined;
+    let order: string | undefined;
+    let limit: string | undefined;
+    // WHERE
+    const whereMatch = afterFrom.match(/\s+WHERE\s+(.+?)(?:\s+ORDER BY\s+|\s+LIMIT\s+|$)/i);
+    if (whereMatch) {
+      where = whereMatch[1];
+    }
+    // ORDER BY
+    const orderMatch = afterFrom.match(/\s+ORDER BY\s+(.+?)(?:\s+LIMIT\s+|$)/i);
+    if (orderMatch) {
+      order = orderMatch[1];
+    }
+    // LIMIT
+    const limitMatch = afterFrom.match(/\s+LIMIT\s+(\d+|\?)/i);
+    if (limitMatch) {
+      limit = limitMatch[1];
+    }
+    // Extract columns: everything between SELECT and FROM.
+    const colsStr = normalised.slice("SELECT ".length, fromIdx).trim();
     let rows = [...(this.tables.get(table) ?? [])];
     if (where) {
       const whereResult = evalWhere(where, binds);
@@ -323,8 +355,8 @@ export class MockD1Database {
       rows = rows.slice(0, n);
     }
     // Project columns.
-    if (cols && cols.trim() !== "*") {
-      const colList = cols.split(",").map((c) =>
+    if (colsStr && colsStr.trim() !== "*") {
+      const colList = colsStr.split(",").map((c) =>
         c
           .trim()
           .split(/\s+as\s+/i)
@@ -363,6 +395,29 @@ function stripQuotes(s: string): string {
   return s;
 }
 
+/** Split `s` by `sep` only at the top level (not inside parens). */
+function splitTopLevel(s: string, sep: string): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let buf = "";
+  for (const ch of s) {
+    if (ch === "(") {
+      depth++;
+      buf += ch;
+    } else if (ch === ")") {
+      depth--;
+      buf += ch;
+    } else if (ch === sep && depth === 0) {
+      out.push(buf);
+      buf = "";
+    } else {
+      buf += ch;
+    }
+  }
+  if (buf.length > 0) out.push(buf);
+  return out;
+}
+
 function evalWhere(where: string, binds: BindValue[]): (row: Row) => boolean {
   let bindIdx = 0;
   // Replace `?` with the corresponding bind literal.
@@ -373,13 +428,24 @@ function evalWhere(where: string, binds: BindValue[]): (row: Row) => boolean {
     if (typeof v === "boolean") return v ? "1" : "0";
     return `'${String(v).replace(/'/g, "''")}'`;
   });
+  // Translate SQL `=` to JS `===` for comparisons (preserves
+  // `==`, `===`, `!=`, `>=`, `<=`).
+  // Translate SQL `AND`/`OR`/`NOT` to JS `&&`/`||`/`!`.
+  // Translate SQL `IS NULL` / `IS NOT NULL` to JS checks.
+  const strict = literalised
+    .replace(/(?<![=!<>])=(?!=)/g, "===")
+    .replace(/\bAND\b/gi, "&&")
+    .replace(/\bOR\b/gi, "||")
+    .replace(/\bNOT\b/gi, "!")
+    .replace(/===\s*NULL/gi, "===null")
+    .replace(/!==\s*NULL/gi, "!==null");
   // Return a closure that can be evaluated on each row.
   // We use a simple expression evaluator: parse the SQL fragment as
   // a JS expression with column-name references.
   return (row) => {
     try {
       // Replace column refs that aren't keywords/strings with row[col].
-      const code = literalised.replace(/(^|[\s(])([A-Za-z_][A-Za-z0-9_]*)/g, (m, prefix, name) => {
+      const code = strict.replace(/(^|[\s(])([A-Za-z_][A-Za-z0-9_]*)/g, (m, prefix, name) => {
         const upper = name.toUpperCase();
         if (
           [
@@ -394,6 +460,8 @@ function evalWhere(where: string, binds: BindValue[]): (row: Row) => boolean {
             "BETWEEN",
             "ASC",
             "DESC",
+            "TRUE",
+            "FALSE",
           ].includes(upper)
         ) {
           return prefix + name;

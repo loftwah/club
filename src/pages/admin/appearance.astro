@@ -1,0 +1,76 @@
+---
+import Base from "@layouts/Base.astro";
+
+interface AppearanceRow {
+  id: string;
+  role: string;
+  location: string;
+  state: string;
+  quote_total_cents: number | null;
+  created_at: string;
+}
+
+const env = Astro.locals?.runtime?.env;
+const rows: AppearanceRow[] = env?.DB
+  ? await env.DB.prepare(
+      `SELECT id, role, location, state, quote_total_cents, created_at
+           FROM appearance_requests
+           ORDER BY created_at DESC LIMIT 100`,
+    )
+      .all<AppearanceRow>()
+      .then((r) => (r.results ?? []) as AppearanceRow[])
+  : [];
+---
+
+<Base
+  title="Appearance — Admin"
+  description="Appearance enquiries"
+  canonicalPath="/admin/appearance/"
+>
+  <section class="section">
+    <div class="container">
+      <p><a href="/admin/">← Back to admin</a></p>
+      <h1>Appearance enquiries</h1>
+      <p>
+        Every appearance request in D1. Disallowed use cases are rejected at the suitability-review
+        step and never reach a quote.
+      </p>
+      {
+        rows.length === 0 ? (
+          <p style="color: var(--fg-muted)">No appearance requests yet.</p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Role</th>
+                <th>Location</th>
+                <th>Quote</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr>
+                  <td>
+                    <span
+                      class={`pill ${r.state === "BOOKED" || r.state === "PERFORMED" ? "pill--ok" : r.state === "SUITABILITY_DECLINED" || r.state === "CUSTOMER_CANCELLED" || r.state === "CLUB_CANCELLED" ? "pill--warn" : "pill--info"}`}
+                    >
+                      {r.state}
+                    </span>
+                  </td>
+                  <td>{r.role}</td>
+                  <td>{r.location}</td>
+                  <td>
+                    {r.quote_total_cents ? `A$${(r.quote_total_cents / 100).toFixed(2)}` : "—"}
+                  </td>
+                  <td>{r.created_at}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+    </div>
+  </section>
+</Base>

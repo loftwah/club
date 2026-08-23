@@ -4,22 +4,31 @@
 //
 // ThreeUI is mounted as a small island in the hero; the hero degrades to
 // semantic content when JS is unavailable or prefers-reduced-motion is set.
+//
+// All copy, name, palette, and typography flow from the configurable
+// brand layer in `src/brand/config.ts` so a final brand lock is an
+// inexpensive change to a single file.
 import "../styles/global.css";
+import { brand } from "../brand/config";
 
 interface Props {
   title?: string;
   description?: string;
   canonicalPath?: string;
+  ogImagePath?: string;
 }
 
 const {
-  title = "The Social Club",
-  description = "You belong. You are invited. You are remembered. You do not have to show up.",
+  title = brand.name,
+  description = brand.seo.description,
   canonicalPath = "/",
+  ogImagePath = "/og/default.svg",
 } = Astro.props;
 
 const baseUrl = Astro.locals?.runtime?.env.APP_BASE_URL ?? "https://club.loftwah.com";
 const canonical = new URL(canonicalPath, baseUrl).toString();
+const ogImage = new URL(ogImagePath, baseUrl).toString();
+const fullTitle = title === brand.name ? title : `${title} — ${brand.name}`;
 ---
 
 <!doctype html>
@@ -27,22 +36,37 @@ const canonical = new URL(canonicalPath, baseUrl).toString();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
+    <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <meta name="robots" content="index,follow" />
-    <meta name="theme-color" content="#0e1116" />
+    <meta name="theme-color" content={brand.palette.bg} />
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to main content</a>
     <header class="site-header" role="banner">
       <div class="container">
-        <a href="/" class="wordmark" aria-label="The Social Club — home">
-          <span class="wordmark__text">The Social Club</span>
+        <a href="/" class="wordmark" aria-label={`${brand.name} — home`}>
+          <img
+            src={brand.seal.publicPath}
+            alt=""
+            aria-hidden="true"
+            class="wordmark__mark"
+            width="32"
+            height="32"
+          />
+          <span class="wordmark__text">{brand.name}</span>
         </a>
         <nav aria-label="Primary">
           <ul>
@@ -50,6 +74,8 @@ const canonical = new URL(canonicalPath, baseUrl).toString();
             <li><a href="/how-it-works/">How it works</a></li>
             <li><a href="/chapters/">Chapters</a></li>
             <li><a href="/journal/">Journal</a></li>
+            <li><a href="/correspondence/">Correspondence</a></li>
+            <li><a href="/faq/">FAQ</a></li>
             <li><a href="/waiting-list/" class="cta-link">Waiting list</a></li>
           </ul>
         </nav>
@@ -61,10 +87,15 @@ const canonical = new URL(canonicalPath, baseUrl).toString();
     <footer class="site-footer" role="contentinfo">
       <div class="container">
         <p>
-          The Social Club is a real paid membership. Ordinary events are deliberately cancelled. You
-          are not expected to attend.
+          {brand.name} is a real paid membership. Ordinary events are deliberately cancelled. You are
+          not expected to attend.
         </p>
-        <p><a href="/privacy/">Privacy</a> &middot; <a href="/terms/">Terms</a></p>
+        <p>
+          <a href="/privacy/">Privacy</a> &middot;
+          <a href="/terms/">Terms</a> &middot;
+          <a href="/faq/">FAQ</a> &middot;
+          <a href="/chapters/">Chapters</a>
+        </p>
       </div>
     </footer>
   </body>

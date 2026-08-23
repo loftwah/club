@@ -3,41 +3,84 @@
 // ThreeUI is mounted as a small island in the hero. The hero degrades
 // gracefully to a static SVG seal when JS is unavailable or
 // prefers-reduced-motion is set.
-
+//
+// Content reads from the configurable brand layer.
 import Base from "@layouts/Base.astro";
 import SocietySeal from "@components/SocietySeal.tsx";
+import { brand, formatPrice } from "../brand/config";
+import { withCounter } from "../lib/counter";
+
+const stats = await withCounter(Astro.locals?.runtime?.env);
 ---
 
 <Base
-  title="The Social Club — you belong, you are invited, you do not have to show up"
-  description="A real paid social club that takes your absence seriously. Invitations, cancellations, correspondence, gifts, calls, manufactured commitments. A$5, A$20 or A$50 a month."
+  title={brand.name}
+  description={brand.seo.description}
   canonicalPath="/"
+  ogImagePath="/og/default.svg"
 >
   <section class="hero" aria-labelledby="hero-h">
     <div class="container">
       <div class="hero__canvas" data-testid="hero-seal">
-        <div class="hero__canvas-fallback" aria-hidden="true">SC</div>
+        <div class="hero__canvas-fallback" aria-hidden="true">RS</div>
         <SocietySeal client:only="react" />
       </div>
-      <h1 id="hero-h">You belong. You are invited. You are remembered.</h1>
-      <p>You do not have to show up.</p>
-      <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
+      <h1 id="hero-h">{brand.copy.hero.headline}</h1>
+      <p>{brand.copy.hero.sub}</p>
+      <a href="/waiting-list/" class="hero__cta">{brand.copy.hero.cta}</a>
+    </div>
+  </section>
+
+  <section class="counter" aria-labelledby="counter-h">
+    <div class="container">
+      <h2 id="counter-h" class="counter__heading">So far, the Society has cancelled</h2>
+      <p class="counter__big" data-testid="public-cancelled-counter">
+        {stats.cancelledEvents}
+        <span class="counter__unit">ordinary events</span>
+      </p>
+      <p class="counter__sub">
+        — and the invitations that went with them. The estimated attendance hours avoided is
+        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>. The
+        counter is derived from real records. Cancellation is successful fulfilment.
+      </p>
     </div>
   </section>
 
   <section class="section" aria-labelledby="how-h">
     <div class="container">
-      <h2 id="how-h">How it works</h2>
-      <p>
-        You join. The Society remembers you. From time to time the Society sends you a plausible
-        invitation to a small, ordinary, deliberately constructed event. You are not expected to
-        attend. The plan feels plausible, the date approaches, and the Society cancels it. The
-        relationship continues.
-      </p>
-      <p>
-        That is the product. Everything else — letters, gifts, calls, manufactured commitments,
-        real-world Society representative services — is intensity, not belonging.
-      </p>
+      <h2 id="how-h">{brand.copy.howItWorks.headline}</h2>
+      <p>{brand.copy.howItWorks.lede}</p>
+      <pre
+        class="emotional-arc"
+        aria-label="The Society's signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
+      <p>{brand.copy.aboutClosing}</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="invite-h">
+    <div class="container">
+      <h2 id="invite-h">A short, plausible, complete example</h2>
+      <article class="example">
+        <header>
+          <h3>Tuesday, 7:30pm — the gallery on Gertrude Street</h3>
+          <p class="example__meta">An ordinary invitation. Sent to a Core member in Melbourne.</p>
+        </header>
+        <p>
+          The Society invites you to a small opening on Tuesday evening. The dress is quiet. The
+          address is plausible. The plan is plausible. The date approaches.
+        </p>
+        <p class="example__note">→ 36 hours before the event — the Society cancels it.</p>
+        <p>
+          The cancellation is the same kind of letter, the same envelope, the same wax. The
+          relationship continues. You never had to show up.
+        </p>
+        <p class="example__scale">
+          <em
+            >Scale that by every member, every month, every tier, and the membership becomes a long,
+            quiet correspondence — and the cancelled plans add up.</em
+          >
+        </p>
+      </article>
     </div>
   </section>
 
@@ -47,8 +90,9 @@ import SocietySeal from "@components/SocietySeal.tsx";
       <p>Higher tiers buy more physical and human intensity. They are not more loved.</p>
       <div class="tiers">
         <article class="tier" aria-labelledby="tier-core-h">
-          <h3 id="tier-core-h">Core</h3>
-          <p class="tier__price">A$5<small>/month</small></p>
+          <h3 id="tier-core-h">{brand.tiers.core.name}</h3>
+          <p class="tier__price">{formatPrice(brand.tiers.core.priceAud)}<small>/month</small></p>
+          <p class="tier__tagline">{brand.tiers.core.tagline}</p>
           <ul>
             <li>Member identity and number</li>
             <li>Invitations and cancellations</li>
@@ -58,8 +102,11 @@ import SocietySeal from "@components/SocietySeal.tsx";
           </ul>
         </article>
         <article class="tier" aria-labelledby="tier-phys-h">
-          <h3 id="tier-phys-h">Physical correspondence</h3>
-          <p class="tier__price">A$20<small>/month</small></p>
+          <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
+          <p class="tier__price">
+            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
+          </p>
+          <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
           <ul>
             <li>Welcome pack and physical card</li>
             <li>Posted birthday card</li>
@@ -69,8 +116,9 @@ import SocietySeal from "@components/SocietySeal.tsx";
           </ul>
         </article>
         <article class="tier" aria-labelledby="tier-del-h">
-          <h3 id="tier-del-h">Deluxe human</h3>
-          <p class="tier__price">A$50<small>/month</small></p>
+          <h3 id="tier-del-h">{brand.tiers.deluxe.name}</h3>
+          <p class="tier__price">{formatPrice(brand.tiers.deluxe.priceAud)}<small>/month</small></p>
+          <p class="tier__tagline">{brand.tiers.deluxe.tagline}</p>
           <ul>
             <li>All of the above</li>
             <li>Hand-signed personal letters</li>
@@ -80,10 +128,61 @@ import SocietySeal from "@components/SocietySeal.tsx";
           </ul>
         </article>
       </div>
+      <p>
+        Membership is a relationship, not a transaction. Pricing is per individual, not per couple,
+        household, or team. There is no per-event surcharge for being remembered.
+      </p>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="wlist-h">
+  <section class="section" aria-labelledby="memory-h">
+    <div class="container">
+      <h2 id="memory-h">Care is real</h2>
+      <p>
+        The Society remembers you within the boundaries you choose. A birthday, a preferred pen, a
+        pet called Frank, an inside joke that turned into a tradition. You decide what we keep, and
+        you can ask us to forget any of it.
+      </p>
+      <p>
+        Optional services — post, gifts, calls, manufactured commitments, the real-world appearance
+        service — are controllable. The default is no. The default is silence.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="chapters-h">
+    <div class="container">
+      <h2 id="chapters-h">Chapters</h2>
+      <p>
+        The Society opens slowly, chapter by chapter. <a href="/chapters/"
+          >See which chapters are open</a
+        >.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="lore-h">
+    <div class="container">
+      <h2 id="lore-h">From the journal</h2>
+      <p>
+        The Society publishes a journal: chapter reports, upcoming constructed engagements,
+        cancellations, correspondence extracts, Society history, etiquette, seasonal letters, and
+        artefact announcements. <a href="/journal/">Read the journal</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-h">
+    <div class="container">
+      <h2 id="faq-h">A few questions, briefly</h2>
+      <p>
+        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid membership. You
+        do not need to attend. The Society can be wrong about the weather too.
+      </p>
+    </div>
+  </section>
+
+  <section class="section wlist" aria-labelledby="wlist-h">
     <div class="container">
       <h2 id="wlist-h">The waiting list</h2>
       <p>
