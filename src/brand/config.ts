@@ -10,6 +10,18 @@
 // tagline are explicitly "ask before locking" decisions. The values
 // below are the provisional candidate set the user can later
 // approve or replace.
+//
+// PROVISIONAL IDENTITY (Round 2 of brand exploration):
+//   Name:      "Plans With You"
+//   Direction: World 1 — On Schedule
+//   Concept:   the calendar is the artefact. Cancellation is the
+//              design. Contemporary editorial register, ink on
+//              cream, single orange accent.
+//
+// Earlier (Round 1) directions (heritage, modernist, quiet modern)
+// remain in `explorations/brand/` as historical reference and are
+// NOT the current recommendation. See
+// `explorations/brand/docs/09-DECISION-PACKAGE-R2.md`.
 
 export interface BrandPalette {
   /** Background canvas. */
@@ -26,6 +38,8 @@ export interface BrandPalette {
   readonly accent: string;
   /** Dim variant of the accent (borders, hairlines). */
   readonly accentDim: string;
+  /** Secondary accent for the cancellation mark. */
+  readonly accentSecondary: string;
   /** Success / ok feedback. */
   readonly success: string;
   /** Error / failure feedback. */
@@ -39,7 +53,7 @@ export interface BrandTypography {
   readonly serif: string;
   /** UI / nav / forms. */
   readonly sans: string;
-  /** Optional monospace for seals, codes, memberships. */
+  /** Optional monospace for seals, codes, memberships, dates. */
   readonly mono: string;
 }
 
@@ -86,42 +100,52 @@ export interface Brand {
     readonly emotionalArc: ReadonlyArray<string>;
     readonly aboutClosing: string;
   };
+  readonly development: {
+    /** Marker so anyone reading the repo knows this is provisional. */
+    readonly isProvisional: true;
+    /** Round 2 of brand exploration. */
+    readonly explorationRound: 2;
+  };
 }
 
 /**
- * The current provisional brand. All values are placeholders the
- * user can lock or replace without changing application code.
+ * The current provisional brand. Round 2 — "Plans With You" / On
+ * Schedule. World 1's recurring graphic device is a calendar cell
+ * with a state. The cancellation is the same form as the invitation.
  *
- * The palette and typography are designed to read as "premium,
- * restrained, editorial, warm, slightly mysterious" — not as a
+ * The palette and typography are designed to read as "contemporary
+ * editorial — ink on cream, single orange accent" — not as a
  * heritage club. The seal is the production-ready SVG that
  * already exists at `public/explorations/brand/seals/`.
  */
 export const brand: Brand = {
-  name: "The Reserved Society",
-  shortName: "The Society",
-  legalName: "The Reserved Society Pty Ltd (provisional)",
-  tagline: "You belong. You are invited. You are remembered. You do not have to show up.",
-  proposition: "A real paid membership that takes your absence seriously.",
+  name: "Plans With You",
+  shortName: "Plans With You",
+  legalName: "Plans With You Pty Ltd (provisional)",
+  tagline: "Plans were made. Plans were unmade.",
+  proposition:
+    "A real paid membership that takes your absence seriously. Plans were made. Plans were unmade.",
   voice: {
     precision: "precise, dry",
     warmth: "warm, never sentimental",
     dry: "dry, never arch",
   },
   palette: {
-    bg: "#0e1116",
-    bgElev: "#161b22",
-    fg: "#e7ecf2",
-    fgMuted: "#9aa4b1",
-    fgFaint: "#7a8392",
-    accent: "#c8a25a",
-    accentDim: "#8a6d36",
-    success: "#7fc59c",
-    error: "#d97a7a",
-    line: "rgba(255, 255, 255, 0.08)",
+    bg: "#F5F2EA", // --paper
+    bgElev: "#E8E3D2", // --paper-2
+    fg: "#111111", // --ink
+    fgMuted: "#3A3A3A", // --ink-soft
+    fgFaint: "#9A9A9A", // --dim
+    accent: "#FF5A1F", // --signal: cancelled orange
+    accentDim: "#222222", // --rule
+    accentSecondary: "#5C1A1B", // --oxblood: secondary, for cancellation mark
+    success: "#1B6E3A",
+    error: "#A12622",
+    line: "rgba(17, 17, 17, 0.12)",
   },
   typography: {
-    serif: '"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif',
+    serif:
+      '"Iowan Old Style", "Palatino Linotype", Palatino, "Source Serif Pro", Georgia, serif',
     sans: 'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     mono: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
   },
@@ -129,58 +153,59 @@ export const brand: Brand = {
     core: {
       name: "Core",
       priceAud: 5,
-      tagline: "The relationship, the cadence, the memory.",
+      tagline: "Plans, cancellations, memory.",
     },
     correspondence: {
       name: "Correspondence",
       priceAud: 20,
-      tagline: "The Society arrives in the letterbox.",
+      tagline: "Plans arrive in the post.",
     },
     deluxe: {
-      name: "Deluxe Human",
+      name: "Deluxe",
       priceAud: 50,
       tagline: "Genuine attention from the people behind it.",
     },
   },
   seal: {
     publicPath: "/explorations/brand/seals/seal-a-modernist.svg",
-    ariaLabel: "The Reserved Society seal",
+    ariaLabel: "Plans With You seal",
   },
   seo: {
-    titleTemplate: "%s — The Reserved Society",
+    titleTemplate: "%s — Plans With You",
     description:
-      "A real paid membership that takes your absence seriously. Invitations, cancellations, correspondence, gifts, calls, manufactured commitments.",
+      "A real paid membership that takes your absence seriously. Plans were made. Plans were unmade.",
     keywords: [
-      "social club",
-      "introvert",
+      "membership",
       "low pressure",
-      "belonging without participating",
       "cancelled plans",
-      "social membership",
+      "social club",
+      "contemporary",
     ],
   },
   copy: {
     hero: {
-      headline: "You belong. You are invited. You are remembered.",
-      sub: "You do not have to show up.",
-      cta: "Join the waiting list",
+      headline: "Plans were made. Plans were unmade.",
+      sub: "You were on the list the whole time.",
+      cta: "Add your name to the list",
     },
     howItWorks: {
       headline: "How it works",
-      lede: "You join. The Society remembers you. From time to time the Society sends you a plausible invitation to a small, ordinary, deliberately constructed event. You are not expected to attend. The plan feels plausible, the date approaches, and the Society cancels it. The relationship continues.",
+      lede: "You join. The Society remembers you. From time to time the Society sends you a plausible invitation to a small, ordinary, deliberately constructed event. The plan is real. The date approaches. The Society cancels it. The relationship continues.",
     },
     emotionalArc: [
-      "I belong",
-      "I am invited",
-      "I have plans",
-      "the plan feels plausible",
-      "the date approaches",
-      "the Society cancels it",
-      "relief",
-      "the relationship continues",
+      "I was on the list",
+      "Plans were made",
+      "The plan felt plausible",
+      "The date approached",
+      "The plan was unmade",
+      "I am still on the list",
     ],
     aboutClosing:
-      "Optional services — physical mail, gifts, calls, manufactured commitments, real-world Society representative services — are intensity, not belonging.",
+      "Optional services — physical mail, gifts, calls, manufactured commitments, real-world representative services — are intensity, not belonging.",
+  },
+  development: {
+    isProvisional: true,
+    explorationRound: 2,
   },
 };
 

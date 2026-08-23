@@ -144,8 +144,23 @@ export class MembershipService {
         id,
       )
       .run();
-    await this.advance(id, "IDENTITY_COMPLETE");
     return (await this.get(id))!;
+  }
+
+  /**
+   * Advance to IDENTITY_COMPLETE. Used by the onboarding wizard
+   * after the identity form is saved.
+   */
+  async advanceIdentity(memberId: string, audit: AuditWriter): Promise<void> {
+    await this.advanceTo(memberId, "IDENTITY_COMPLETE", audit);
+  }
+
+  /**
+   * Advance to ALIGNMENT_COMPLETE after the plain-language
+   * acknowledgement is saved.
+   */
+  async advanceAlignment(memberId: string, audit: AuditWriter): Promise<void> {
+    await this.advanceTo(memberId, "ALIGNMENT_COMPLETE", audit);
   }
 
   async setChapter(id: string, chapterId: string): Promise<Member> {
@@ -413,6 +428,19 @@ export class MembershipService {
    * ignored — the row's state is unchanged.
    */
   private async advance(memberId: string, to: MembershipState): Promise<void> {
+    await this.advanceTo(memberId, to, this.deps.audit);
+  }
+
+  /**
+   * Public variant of advance() that takes an explicit audit
+   * writer. Used by the onboarding wizard so a single audit
+   * session can be reused across many step transitions.
+   */
+  async advanceTo(
+    memberId: string,
+    to: MembershipState,
+    audit: AuditWriter,
+  ): Promise<void> {
     const validFrom: Record<MembershipState, MembershipState[]> = {
       APPLICANT: ["EMAIL_VERIFIED", "ABANDONED"],
       EMAIL_VERIFIED: ["IDENTITY_COMPLETE", "ABANDONED"],
@@ -440,7 +468,7 @@ export class MembershipService {
     if (!row) return;
     const from = row.state;
     if (!validFrom[from]?.includes(to)) {
-      await this.deps.audit.record({
+      await audit.record({
         actorType: "SYSTEM",
         actorId: null,
         action: "MEMBERSHIP_TRANSITION_REJECTED",
@@ -459,7 +487,7 @@ export class MembershipService {
       .prepare(`UPDATE memberships SET state = ?, updated_at = ? WHERE member_id = ?`)
       .bind(to, now, memberId)
       .run();
-    await this.deps.audit.record({
+    await audit.record({
       actorType: "SYSTEM",
       actorId: null,
       action: "MEMBERSHIP_TRANSITION",

@@ -1,0 +1,86 @@
+// Magic-link consume endpoint.
+// /portal/auth?token=... sets a session cookie and redirects to /portal/.
+
+import type { APIRoute } from "astro";
+import { MagicLinkService, MagicLinkError, buildSessionCookie } from "@services/magic-link";
+import { D1AuditWriter } from "@infra/audit";
+import { SystemClock } from "@infra/clock";
+
+export const GET: APIRoute = async ({ url, locals, redirect }) => {
+  const env = locals.runtime.env;
+  if (!env?.DB) {
+    return new Response("Database not available.", { status: 500 });
+  }
+  const token = url.searchParams.get("token") ?? "";
+  if (!token) {
+    return new Response(renderErrorPage("missing", "The link is incomplete. Request a new one."), {
+      status: 400,
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+  }
+  const audit = new D1AuditWriter(env.DB, new SystemClock());
+  const service = new MagicLinkService({
+    db: env.DB,
+    audit,
+    clock: new SystemClock(),
+    appBaseUrl: env.APP_BASE_URL ?? "https://club.loftwah.com",
+  });
+  try {
+    const session = await service.consume(token);
+    const maxAgeSec = Math.max(
+      60,
+      Math.floor((new Date(session.expiresAt).getTime() - Date.now()) / 1000),
+    );
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "/portal/",
+        "Set-Cookie": buildSessionCookie(session.id, maxAgeSec),
+      },
+    });
+  } catch (err) {
+    if (err instanceof MagicLinkError) {
+      return new Response(renderErrorPage(err.code.toLowerCase(), err.message), {
+        status: 400,
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+    return new Response("Sign-in failed.", { status: 500 });
+  }
+};
+
+function renderErrorPage(code: string, message: string): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Sign-in failed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; background: #f5f2ea; color: #111; margin: 0; padding: 6rem 1.5rem; }
+  main { max-width: 32rem; margin: 0 auto; text-align: center; }
+  h1 { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-weight: 400; font-size: 2rem; margin: 0 0 1rem; }
+  p { color: #3a3a3a; line-height: 1.6; }
+  a { color: #c84a18; }
+  .code { font-family: ui-monospace, Menlo, monospace; background: #e8e3d2; padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sign-in failed</h1>
+  <p>${escape(message)}</p>
+  <p>Reason: <span class="code">${escape(code)}</span></p>
+  <p><a href="/portal/login">Request a new link</a></p>
+  <p><a href="/">Back to the homepage</a></p>
+</main>
+</body>
+</html>`;
+}
+
+function escape(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}

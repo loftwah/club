@@ -90,7 +90,7 @@ function fold(line: string): string {
 export function renderIcs(event: IcsEvent): string {
   const lines: string[] = [
     "BEGIN:VCALENDAR",
-    "PRODID:-//The Reserved Society//EN",
+    "PRODID:-//The Plans With You//EN",
     "VERSION:2.0",
     "CALSCALE:GREGORIAN",
     "METHOD:" + (event.status === "CANCELLED" ? "CANCEL" : "REQUEST"),

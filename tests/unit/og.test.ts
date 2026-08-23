@@ -6,7 +6,7 @@ describe("og", () => {
     const svg = renderOgSvg();
     expect(svg).toContain("<svg");
     expect(svg).toContain('viewBox="0 0 1200 630"');
-    expect(svg).toContain("The Reserved Society".toUpperCase());
+    expect(svg).toContain("Plans With You".toUpperCase());
   });
 
   it("renders each template", () => {

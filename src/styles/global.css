@@ -1,24 +1,27 @@
 /* Global styles for the Social Club. Restrained, editorial, institutional.
    Avoid generic AI gradients, meme styling, cheap merch aesthetic.
-   Tone target: premium, dry, warm, slightly mysterious.
+   Tone target: contemporary editorial — ink on cream, single orange
+   accent, no heritage register.
 
    Brand tokens below are read from src/brand/config.ts via the Base
    layout's inline style. They are duplicated here as the static
    fallback so the document is still readable when JS / brand
-   config is unavailable. */
+   config is unavailable. The Round 2 provisional identity is
+   "Plans With You" / On Schedule. */
 
 :root {
-  --bg: #0e1116;
-  --bg-elev: #161b22;
-  --fg: #e7ecf2;
-  --fg-muted: #9aa4b1;
-  --fg-faint: #7a8392; /* raised from #6b7380 for WCAG AA contrast on --bg */
-  --accent: #c8a25a;
-  --accent-dim: #8a6d36;
-  --link: #d8b673; /* higher-contrast accent for in-text links (WCAG AA on bg-elev) */
-  --success: #7fc59c;
-  --error: #d97a7a;
-  --line: rgba(255, 255, 255, 0.08);
+  --bg: #f5f2ea;
+  --bg-elev: #e8e3d2;
+  --fg: #111111;
+  --fg-muted: #3a3a3a;
+  --fg-faint: #6a6a6a; /* raised from #5a5a5a for WCAG AA on --bg */
+  --accent: #ff5a1f; /* signal orange — the cancellation */
+  --accent-dim: #8a3a1a;
+  --accent-secondary: #5c1a1b; /* oxblood, secondary */
+  --link: #c84a18; /* darker accent for in-text links (WCAG AA on --bg) */
+  --success: #1b6e3a;
+  --error: #a12622;
+  --line: rgba(17, 17, 17, 0.12);
   --max-width: 72rem;
   --pad: 1.25rem;
   --radius: 4px;
@@ -597,6 +600,80 @@ table.admin-table td {
 }
 table.admin-table tr:hover td {
   background: var(--bg-elev);
+}
+
+.onboarding-progress {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+.onboarding-progress__step {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+}
+.onboarding-progress__step.is-done {
+  color: var(--fg);
+}
+.onboarding-progress__step.is-current {
+  border-color: var(--accent);
+  background: var(--bg-elev);
+  font-weight: 600;
+}
+.onboarding-progress__num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--fg-faint);
+}
+.onboarding-blockers {
+  background: var(--bg-elev);
+  border-left: 4px solid var(--accent);
+  padding: 1.25rem 1.5rem;
+  border-radius: 3px;
+  margin: 1.5rem 0;
+}
+.onboarding-blockers h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+  color: var(--fg);
+}
+.onboarding-blockers ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--fg-muted);
+}
+.onboarding-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.onboarding-nav a {
+  color: var(--link);
+}
+.link-button {
+  background: none;
+  border: none;
+  color: var(--link);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+.link-button--danger {
+  color: var(--error);
 }
 
 /* Reduced motion: kill all transitions, suppress hero canvas reveal

@@ -84,6 +84,9 @@ describe("brand config", () => {
     expect(brand.tiers.core.priceAud).toBe(5);
     expect(brand.tiers.correspondence.priceAud).toBe(20);
     expect(brand.tiers.deluxe.priceAud).toBe(50);
+    // Provisional identity marker — every agent session should
+    // know that the brand is not locked.
+    expect(brand.development.isProvisional).toBe(true);
   });
   it("formats prices as A$N", () => {
     expect(formatPrice(5)).toBe("A$5");

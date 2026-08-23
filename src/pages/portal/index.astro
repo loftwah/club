@@ -1,45 +1,284 @@
 ---
-// Member portal landing.
-//
-// MVP: the portal is gated by an opaque session token (magic link)
-// which we will wire up in a follow-up. For Phase 3, this page
-// explains what the portal will be and how to request access.
-//
-// See MASTER_SPEC §12.4 (member auth).
+// Real member portal home.
+// Member sees: membership status, tier, member number, chapter,
+// join date, tenure, current/upcoming plans, correspondence
+// history, milestone history, artefacts/gifts.
 import Base from "@layouts/Base.astro";
+import { requireSession } from "../../lib/portal-auth";
+import { MembershipService } from "@services/membership-service";
+import { MemberMemoryService } from "@services/member-memory";
+import { SystemClock } from "@infra/clock";
+import { D1AuditWriter } from "@infra/audit";
+
+const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+if (!ctx) {
+  return Astro.redirect("/portal/login/");
+}
+
+const env = Astro.locals.runtime.env;
+const audit = new D1AuditWriter(env.DB, new SystemClock());
+const clock = new SystemClock();
+const membership = new MembershipService({ db: env.DB, audit, clock });
+const memory = new MemberMemoryService({ db: env.DB, audit, clock });
+
+const member = ctx.member;
+const membershipRow = await env.DB
+  .prepare(
+    `SELECT m.state, m.started_at, m.tier_id, t.display_name AS tier_name, t.price_cents
+       FROM memberships m
+       LEFT JOIN membership_tiers t ON t.id = m.tier_id
+       WHERE m.member_id = ?`,
+  )
+  .bind(member.id)
+  .first<{ state: string; started_at: string | null; tier_id: string | null; tier_name: string | null; price_cents: number | null }>();
+
+const chapter = member.chapterId
+  ? await env.DB
+      .prepare(`SELECT name FROM chapters WHERE id = ?`)
+      .bind(member.chapterId)
+      .first<{ name: string }>()
+  : null;
+
+const memberNumber = `PW-${member.id.slice(-6).toUpperCase()}`;
+const tenureMonths = membershipRow?.started_at
+  ? Math.floor(
+      (new Date(clock.nowIso()).getTime() - new Date(membershipRow.started_at).getTime()) /
+        (30.44 * 24 * 3600 * 1000),
+    )
+  : 0;
+
+// Current/upcoming fictional engagements.
+const upcoming = await env.DB
+  .prepare(
+    `SELECT id, title, start_at, state FROM events
+       WHERE chapter_id = ?
+         AND state IN ('SCHEDULED', 'INVITATIONS_QUEUED', 'INVITED', 'REMINDER_WINDOW')
+         AND start_at > ?
+       ORDER BY start_at ASC
+       LIMIT 5`,
+  )
+  .bind(member.chapterId, clock.nowIso())
+  .all<{ id: string; title: string; start_at: string; state: string }>();
+
+const recentCancellations = await env.DB
+  .prepare(
+    `SELECT id, title, cancelled_at FROM events
+       WHERE chapter_id = ?
+         AND state IN ('CANCELLED', 'ARCHIVED')
+         AND cancelled_at > ?
+       ORDER BY cancelled_at DESC
+       LIMIT 5`,
+  )
+  .bind(member.chapterId, new Date(Date.now() - 90 * 24 * 3600 * 1000).toISOString())
+  .all<{ id: string; title: string; cancelled_at: string | null }>();
+
+const correspondence = await env.DB
+  .prepare(
+    `SELECT id, template_key, state, sent_at, related_entity_type FROM communications
+       WHERE member_id = ?
+       ORDER BY created_at DESC LIMIT 10`,
+  )
+  .bind(member.id)
+  .all<{
+    id: string;
+    template_key: string;
+    state: string;
+    sent_at: string | null;
+    related_entity_type: string | null;
+  }>();
+
+const milestones = await env.DB
+  .prepare(
+    `SELECT id, trigger_type, triggered_on FROM member_milestones
+       WHERE member_id = ?
+       ORDER BY triggered_on DESC LIMIT 10`,
+  )
+  .bind(member.id)
+  .all<{ id: string; trigger_type: string; triggered_on: string }>();
+
+const memoryFacts = await memory.listForMember(member.id);
+const usableFacts = await memory.usableForMember(member.id);
+
+const grants = await env.DB
+  .prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
+  .bind(member.id)
+  .all<{ service: string; state: string }>();
+const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? []);
 ---
 
 <Base
   title="Member portal"
-  description="Sign in to manage your membership, preferences, and memory."
+  description="Your membership at a glance."
   canonicalPath="/portal/"
 >
   <section class="section">
     <div class="container">
-      <h1>Member portal</h1>
-      <p>
-        The portal is the place where you see and manage your membership. You can edit preferences,
-        mark facts as do-not-mention, view your timeline, and export a copy of your data.
+      <p style="color: var(--fg-faint)">
+        <a href="/portal/">Portal</a> / Home
       </p>
-      <p>
-        Sign in is by magic link. We do not use passwords. We do not require you to keep any session
-        longer than you want. We do not invent facts about you.
+      <h1>Hello, {member.preferredName ?? "member"}</h1>
+      <p style="color: var(--fg-muted)">
+        Member number <code style="font-family: var(--font-mono); background: var(--bg-elev); padding: 0.1rem 0.4rem; border-radius: 3px;">{memberNumber}</code>
       </p>
-      <h2>What you can do here</h2>
+
+      <h2>Membership</h2>
+      <table class="admin-table">
+        <tbody>
+          <tr><th>State</th><td>
+            <span class={`pill ${membershipRow?.state === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
+              {membershipRow?.state ?? "—"}
+            </span>
+          </td></tr>
+          <tr><th>Tier</th><td>
+            {membershipRow?.tier_name ?? "—"}
+            {membershipRow?.price_cents ? (
+              <span style="color: var(--fg-faint)"> · A${(membershipRow.price_cents / 100).toFixed(0)}/month</span>
+            ) : null}
+          </td></tr>
+          <tr><th>Chapter</th><td>{chapter?.name ?? "—"}</td></tr>
+          <tr><th>Joined</th><td>
+            {membershipRow?.started_at?.slice(0, 10) ?? "—"}
+            {tenureMonths > 0 ? (
+              <span style="color: var(--fg-faint)"> · {tenureMonths} months</span>
+            ) : null}
+          </td></tr>
+          <tr><th>Country</th><td>{member.country ?? "—"}</td></tr>
+          <tr><th>Timezone</th><td>{member.timezone ?? "—"}</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Current & upcoming plans</h2>
+      {
+        upcoming.results?.length === 0 ? (
+          <p style="color: var(--fg-muted)">No plans on the schedule right now. New plans arrive in your inbox when they do.</p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr><th>State</th><th>Title</th><th>When</th></tr>
+            </thead>
+            <tbody>
+              {upcoming.results?.map((e) => (
+                <tr>
+                  <td>
+                    <span class="pill pill--info">{e.state}</span>
+                  </td>
+                  <td>{e.title}</td>
+                  <td>{e.start_at.slice(0, 16).replace("T", " ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+
+      <h2>Recently unmade plans</h2>
+      {
+        recentCancellations.results?.length === 0 ? (
+          <p style="color: var(--fg-muted)">No recent unmade plans.</p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr><th>Title</th><th>Unmade on</th></tr>
+            </thead>
+            <tbody>
+              {recentCancellations.results?.map((e) => (
+                <tr>
+                  <td>{e.title}</td>
+                  <td>{e.cancelled_at?.slice(0, 10) ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+
+      <h2>Correspondence</h2>
+      {
+        correspondence.results?.length === 0 ? (
+          <p style="color: var(--fg-muted)">No correspondence yet.</p>
+        ) : (
+          <table class="admin-table">
+            <thead>
+              <tr><th>Type</th><th>State</th><th>Sent</th></tr>
+            </thead>
+            <tbody>
+              {correspondence.results?.map((c) => (
+                <tr>
+                  <td>{c.template_key}</td>
+                  <td><span class="pill pill--info">{c.state}</span></td>
+                  <td>{c.sent_at?.slice(0, 10) ?? "queued"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )
+      }
+
+      <h2>Milestones</h2>
+      {
+        milestones.results?.length === 0 ? (
+          <p style="color: var(--fg-muted)">No milestones yet.</p>
+        ) : (
+          <ul>
+            {milestones.results?.map((m) => (
+              <li>{m.trigger_type.replaceAll("_", " ")} on {m.triggered_on}</li>
+            ))}
+          </ul>
+        )
+      }
+
+      <h2>What the Society remembers about you</h2>
+      <p>
+        <a href="/portal/memory">Manage memory, do-not-mention, and provenance →</a>
+      </p>
+      {
+        usableFacts.length === 0 ? (
+          <p style="color: var(--fg-muted)">No memory yet. The Society will remember what you choose to share.</p>
+        ) : (
+          <ul>
+            {usableFacts.map((f) => (
+              <li>
+                <strong>{f.category}</strong>: {f.subject} = {typeof f.value === "string" ? f.value : JSON.stringify(f.value)}
+                <span style="color: var(--fg-faint)"> · source: {f.sourceType ?? "self"}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      <h2>Optional services</h2>
+      <p><a href="/portal/preferences">Manage preferences, optional services, and reconsents →</a></p>
       <ul>
-        <li>See <strong>what the Society remembers about you</strong> and edit or remove it.</li>
-        <li>Update your contact details, postal address, and chapter.</li>
-        <li>Choose which optional services are on (newsletter, post, gifts, calls, etc.).</li>
-        <li>Request a manufactured commitment scenario.</li>
-        <li>Request an appearance service quote.</li>
-        <li>Export a copy of your data.</li>
-        <li>Cancel at any time.</li>
+        {["NEWSLETTER", "PERSONALISED_MEMORY", "CALENDAR_MESSAGES", "PHYSICAL_CORRESPONDENCE", "GIFTS", "CALLS", "MANUFACTURED_COMMITMENTS", "APPEARANCE_INTEREST"].map((svc) => {
+          const state = grantMap.get(svc) ?? "AVAILABLE";
+          return (
+            <li>
+              <strong>{svc}</strong> —{" "}
+              <span class={`pill pill--${state === "OPTED_IN" ? "ok" : state === "OPTED_OUT" ? "warn" : "info"}`}>
+                {state}
+              </span>
+            </li>
+          );
+        })}
       </ul>
-      <p>
-        The portal is not yet open. The current waiting list is separate and does not create paid
-        membership.
+
+      <h2>Manufactured commitments</h2>
+      <p><a href="/portal/commitments">Request, view, or abort a manufactured commitment →</a></p>
+      <p style="color: var(--fg-faint)">
+        A consensual artificial social obligation. You can abort at any time.
       </p>
-      <p><a href="/waiting-list/" class="hero__cta">Join the waiting list</a></p>
+
+      <h2>Appearance service</h2>
+      <p><a href="/portal/appearance">Request a Society representative for a real-world event →</a></p>
+
+      <h2>Sign out</h2>
+      <form method="post" action="/api/portal/logout">
+        <button type="submit">Sign out this device</button>
+      </form>
+      <p>
+        <a href="/portal/account/delete">Request account deletion</a> · closes future
+        personalisation and triggers the data-removal workflow.
+      </p>
     </div>
   </section>
 </Base>

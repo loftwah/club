@@ -22,7 +22,7 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
   <section class="hero" aria-labelledby="hero-h">
     <div class="container">
       <div class="hero__canvas" data-testid="hero-seal">
-        <div class="hero__canvas-fallback" aria-hidden="true">RS</div>
+        <div class="hero__canvas-fallback" aria-hidden="true">PW</div>
         <SocietySeal client:only="react" />
       </div>
       <h1 id="hero-h">{brand.copy.hero.headline}</h1>
@@ -33,15 +33,14 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
 
   <section class="counter" aria-labelledby="counter-h">
     <div class="container">
-      <h2 id="counter-h" class="counter__heading">So far, the Society has cancelled</h2>
+      <h2 id="counter-h" class="counter__heading">So far, the plans that have been unmade</h2>
       <p class="counter__big" data-testid="public-cancelled-counter">
-        {stats.cancelledEvents}
-        <span class="counter__unit">ordinary events</span>
+        {stats.cancelledEvents} <span class="counter__unit">plans</span>
       </p>
       <p class="counter__sub">
         — and the invitations that went with them. The estimated attendance hours avoided is
-        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>. The
-        counter is derived from real records. Cancellation is successful fulfilment.
+        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>.
+        The counter is derived from real records. An unmade plan is successful fulfilment.
       </p>
     </div>
   </section>
@@ -52,7 +51,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
       <p>{brand.copy.howItWorks.lede}</p>
       <pre
         class="emotional-arc"
-        aria-label="The Society's signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
+        aria-label="The signature emotional arc"
+      >{brand.copy.emotionalArc.join("\n→ ")}</pre>
       <p>{brand.copy.aboutClosing}</p>
     </div>
   </section>
@@ -66,19 +66,18 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
           <p class="example__meta">An ordinary invitation. Sent to a Core member in Melbourne.</p>
         </header>
         <p>
-          The Society invites you to a small opening on Tuesday evening. The dress is quiet. The
-          address is plausible. The plan is plausible. The date approaches.
+          The Society sends a small, plausible invitation to a small, ordinary, deliberately
+          constructed event. The dress is quiet. The address is plausible. The plan is plausible.
+          The date approaches.
         </p>
-        <p class="example__note">→ 36 hours before the event — the Society cancels it.</p>
+        <p class="example__note">→ 36 hours before the event — the plan is unmade.</p>
         <p>
-          The cancellation is the same kind of letter, the same envelope, the same wax. The
-          relationship continues. You never had to show up.
+          The cancellation is the same form as the invitation. The relationship continues. The
+          member never had to show up.
         </p>
         <p class="example__scale">
-          <em
-            >Scale that by every member, every month, every tier, and the membership becomes a long,
-            quiet correspondence — and the cancelled plans add up.</em
-          >
+          <em>Scale that by every member, every month, every tier, and the membership becomes a
+          long, quiet correspondence — and the unmade plans add up.</em>
         </p>
       </article>
     </div>
@@ -94,18 +93,16 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
           <p class="tier__price">{formatPrice(brand.tiers.core.priceAud)}<small>/month</small></p>
           <p class="tier__tagline">{brand.tiers.core.tagline}</p>
           <ul>
-            <li>Member identity and number</li>
-            <li>Invitations and cancellations</li>
+            <li>Identity and member number</li>
+            <li>Invitations and unmade plans</li>
             <li>Personalised digital correspondence</li>
             <li>Birthday and anniversary recognition</li>
-            <li>Member memory</li>
+            <li>Memory of the things you choose to share</li>
           </ul>
         </article>
         <article class="tier" aria-labelledby="tier-phys-h">
           <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
-          <p class="tier__price">
-            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
-          </p>
+          <p class="tier__price">{formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small></p>
           <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
           <ul>
             <li>Welcome pack and physical card</li>
@@ -129,8 +126,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
         </article>
       </div>
       <p>
-        Membership is a relationship, not a transaction. Pricing is per individual, not per couple,
-        household, or team. There is no per-event surcharge for being remembered.
+        Membership is a relationship, not a transaction. Pricing is per individual, per month.
+        There is no per-event surcharge for being remembered.
       </p>
     </div>
   </section>
@@ -139,13 +136,13 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="memory-h">Care is real</h2>
       <p>
-        The Society remembers you within the boundaries you choose. A birthday, a preferred pen, a
-        pet called Frank, an inside joke that turned into a tradition. You decide what we keep, and
-        you can ask us to forget any of it.
+        The Society remembers what you choose to share. A birthday, a preferred pen, a pet
+        called Frank, an inside joke that became a tradition. You decide what the Society
+        keeps, and you can ask it to forget any of it.
       </p>
       <p>
-        Optional services — post, gifts, calls, manufactured commitments, the real-world appearance
-        service — are controllable. The default is no. The default is silence.
+        Optional services — post, gifts, calls, manufactured commitments, the real-world
+        appearance service — are controllable. The default is off. The default is silence.
       </p>
     </div>
   </section>
@@ -154,9 +151,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="chapters-h">Chapters</h2>
       <p>
-        The Society opens slowly, chapter by chapter. <a href="/chapters/"
-          >See which chapters are open</a
-        >.
+        The Society opens slowly, chapter by chapter. <a href="/chapters/">See which chapters are
+        open</a>.
       </p>
     </div>
   </section>
@@ -165,8 +161,8 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="lore-h">From the journal</h2>
       <p>
-        The Society publishes a journal: chapter reports, upcoming constructed engagements,
-        cancellations, correspondence extracts, Society history, etiquette, seasonal letters, and
+        The Society publishes a journal: chapter reports, upcoming plans, unmade plans,
+        correspondence extracts, Society history, etiquette, seasonal letters, and
         artefact announcements. <a href="/journal/">Read the journal</a>.
       </p>
     </div>
@@ -176,21 +172,22 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
     <div class="container">
       <h2 id="faq-h">A few questions, briefly</h2>
       <p>
-        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid membership. You
-        do not need to attend. The Society can be wrong about the weather too.
+        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid
+        membership. You do not need to attend. The Society can be wrong about the weather
+        too.
       </p>
     </div>
   </section>
 
   <section class="section wlist" aria-labelledby="wlist-h">
     <div class="container">
-      <h2 id="wlist-h">The waiting list</h2>
+      <h2 id="wlist-h">The list</h2>
       <p>
-        We are opening slowly. Leave your email and we will be in touch when the Society is ready
-        for you.
+        We are opening slowly. Add your name to the list and the Society will be in touch when
+        it is ready for you.
       </p>
       <p>
-        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
+        <a href="/waiting-list/" class="hero__cta">Add your name to the list</a>
       </p>
     </div>
   </section>

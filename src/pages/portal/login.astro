@@ -1,0 +1,98 @@
+---
+import Base from "@layouts/Base.astro";
+---
+
+<Base
+  title="Sign in"
+  description="Sign in to the member portal. We use magic links, not passwords."
+  canonicalPath="/portal/login/"
+>
+  <section class="section">
+    <div class="container">
+      <h1>Sign in</h1>
+      <p>
+        We use <strong>magic links</strong>, not passwords. Enter the email address on your
+        membership and the Society will send you a one-time link. The link is single-use
+        and expires in 15 minutes.
+      </p>
+      <p style="color: var(--fg-muted)">
+        For the provisional build, the form is wired to the local dev backend. In production
+        it sends via Resend.
+      </p>
+      <form class="form" id="login-form" novalidate aria-describedby="login-status">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          placeholder="you@example.com"
+        />
+        <button type="submit" id="login-submit">Send me a sign-in link</button>
+        <p id="login-status" class="form__status" role="status" aria-live="polite"></p>
+      </form>
+      <p style="margin-top: 2rem; color: var(--fg-faint)">
+        Not on the list? <a href="/waiting-list/">Add your name</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.getElementById("login-form") as HTMLFormElement | null;
+  const status = document.getElementById("login-status") as HTMLElement | null;
+  const submit = document.getElementById("login-submit") as HTMLButtonElement | null;
+  if (form && status && submit) {
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      status.className = "form__status";
+      status.textContent = "Sending sign-in link…";
+      submit.disabled = true;
+      const data = new FormData(form);
+      const email = String(data.get("email") ?? "").trim();
+      if (!email) {
+        status.className = "form__status form__status--error";
+        status.textContent = "Enter your email address.";
+        submit.disabled = false;
+        return;
+      }
+      try {
+        const res = await fetch("/api/portal/login", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const body = (await res.json().catch(() => ({}))) as { error?: string; devUrl?: string };
+        if (!res.ok) {
+          status.className = "form__status form__status--error";
+          status.textContent = body.error ?? `Request failed (${res.status})`;
+          submit.disabled = false;
+          return;
+        }
+        status.className = "form__status form__status--success";
+        status.textContent =
+          "If the email is on a member record, a sign-in link is on its way. Check your inbox.";
+        if (body.devUrl) {
+          // Local dev convenience: surface the magic link so the
+          // developer can use it without setting up Resend.
+          const a = document.createElement("a");
+          a.href = body.devUrl;
+          a.textContent = "Open the link (dev only)";
+          a.style.display = "block";
+          a.style.marginTop = "0.5rem";
+          a.style.color = "var(--accent)";
+          a.style.textDecoration = "underline";
+          status.appendChild(a);
+        }
+        form.reset();
+        submit.disabled = false;
+      } catch {
+        status.className = "form__status form__status--error";
+        status.textContent = "Network error. Please try again.";
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

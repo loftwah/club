@@ -1,0 +1,107 @@
+---
+import Base from "@layouts/Base.astro";
+import { requireSession } from "../../lib/portal-auth";
+import { CommitmentService } from "@services/commitment-service";
+import { D1AuditWriter } from "@infra/audit";
+import { SystemClock } from "@infra/clock";
+
+const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+if (!ctx) return Astro.redirect("/portal/login/");
+
+const env = Astro.locals.runtime.env;
+const audit = new D1AuditWriter(env.DB, new SystemClock());
+const clock = new SystemClock();
+const cs = new CommitmentService({ db: env.DB, audit, clock });
+
+const existing = (await env.DB
+  .prepare(
+    `SELECT id, goal, scenario_text, state, confirmed_at, completed_at, created_at
+       FROM commitment_scenarios
+       WHERE member_id = ?
+       ORDER BY created_at DESC
+       LIMIT 10`,
+  )
+  .bind(ctx.member.id)
+  .all<{
+    id: string;
+    goal: string | null;
+    scenario_text: string | null;
+    state: string;
+    confirmed_at: string | null;
+    completed_at: string | null;
+    created_at: string;
+  }>()).results;
+---
+
+<Base
+  title="Manufactured commitments"
+  description="Consensual artificial social obligations. The Society can construct a plausible visitor."
+  canonicalPath="/portal/commitments/"
+>
+  <section class="section">
+    <div class="container">
+      <p style="color: var(--fg-faint)">
+        <a href="/portal/">Portal</a> / Commitments
+      </p>
+      <h1>Manufactured commitments</h1>
+      <p>
+        A manufactured commitment is a consensual artificial social obligation. You tell
+        the Society a goal (clean the apartment, finish the admin, write the report). The
+        Society proposes a plausible scenario. You confirm. The Society creates useful
+        pressure and then explicitly cancels. The fictional visitor never really
+        travelled.
+      </p>
+      <p>
+        <strong>You can abort at any time.</strong> The fictional visitor will be
+        cancelled and all future reminders will be cleared. Nothing dangles.
+      </p>
+
+      <h2>Request a new one</h2>
+      <form class="form" method="post" action="/api/portal/commitments/request">
+        <label for="goal">Your goal</label>
+        <input id="goal" name="goal" type="text" required maxlength="200" placeholder="Clean the apartment before Friday" />
+        <label for="scenario">Your proposed scenario (optional)</label>
+        <textarea id="scenario" name="scenario" rows="3" maxlength="600" placeholder="A friend from out of town is visiting on Saturday and will need a clean apartment. You will be ready."></textarea>
+        <button type="submit">Request a manufactured commitment</button>
+      </form>
+
+      <h2>Active & past</h2>
+      {
+        existing.length === 0 ? (
+          <p style="color: var(--fg-muted)">None yet.</p>
+        ) : (
+          <ul>
+            {existing.map((c) => (
+              <li>
+                <p>
+                  <strong>{c.goal ?? "(no goal)"}</strong>{" "}
+                  <span class={`pill ${
+                    c.state === "COMPLETED" ? "pill--ok" :
+                    c.state === "ABORTED" || c.state === "DECLINED" ? "pill--warn" :
+                    "pill--info"
+                  }`}>
+                    {c.state}
+                  </span>
+                </p>
+                {c.scenario_text ? <p style="color: var(--fg-muted)">Scenario: {c.scenario_text}</p> : null}
+                <p style="color: var(--fg-faint); font-size: 0.9rem;">
+                  Created {c.created_at.slice(0, 10)}
+                  {c.confirmed_at ? ` · confirmed ${c.confirmed_at.slice(0, 10)}` : ""}
+                  {c.completed_at ? ` · closed ${c.completed_at.slice(0, 10)}` : ""}
+                </p>
+                {
+                  c.state !== "COMPLETED" && c.state !== "ABORTED" && c.state !== "DECLINED" ? (
+                    <form method="post" action="/api/portal/commitments/abort" style="display: inline;">
+                      <input type="hidden" name="id" value={c.id} />
+                      <button type="submit" class="link-button link-button--danger">Abort</button>
+                    </form>
+                  ) : null
+                }
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</Base>

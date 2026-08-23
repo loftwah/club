@@ -143,3 +143,68 @@ CREATE TABLE IF NOT EXISTS billing_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_billing_events_type ON billing_events(event_type);
+
+-- Member auth tables.
+-- We store only SHA-256(token), not the token itself. The token is
+-- shown once when issued and never again.
+CREATE TABLE IF NOT EXISTS magic_links (
+  id TEXT PRIMARY KEY,
+  member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  consumed_at TEXT,
+  revoked_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_magic_links_member ON magic_links(member_id);
+CREATE INDEX IF NOT EXISTS idx_magic_links_expires ON magic_links(expires_at);
+
+CREATE TABLE IF NOT EXISTS member_sessions (
+  id TEXT PRIMARY KEY,
+  member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_member_sessions_member ON member_sessions(member_id);
+CREATE INDEX IF NOT EXISTS idx_member_sessions_expires ON member_sessions(expires_at);
+
+-- Account deletion requests.
+CREATE TABLE IF NOT EXISTS deletion_requests (
+  id TEXT PRIMARY KEY,
+  member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  requested_at TEXT NOT NULL,
+  confirmed_at TEXT,
+  completed_at TEXT,
+  state TEXT NOT NULL CHECK (state IN (
+    'PENDING_CONFIRM',
+    'CONFIRMED',
+    'ACTIVITY_SUSPENDED',
+    'FUTURE_JOBS_CANCELLED',
+    'PERSONAL_DATA_DELETION',
+    'RETENTION_SEPARATED',
+    'DELETED',
+    'CANCELLED'
+  ))
+);
+
+CREATE INDEX IF NOT EXISTS idx_deletion_requests_member ON deletion_requests(member_id);
+CREATE INDEX IF NOT EXISTS idx_deletion_requests_state ON deletion_requests(state);
+
+-- Onboarding wizard tables.
+CREATE TABLE IF NOT EXISTS onboarding_progress (
+  member_id TEXT PRIMARY KEY REFERENCES members(id) ON DELETE CASCADE,
+  step TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS onboarding_step_data (
+  member_id TEXT NOT NULL REFERENCES members(id) ON DELETE CASCADE,
+  step TEXT NOT NULL,
+  data_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (member_id, step)
+);
