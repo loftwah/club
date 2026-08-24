@@ -16,9 +16,31 @@ export interface PortalContext {
   readonly member: Member;
 }
 
+export interface OperatorContext extends PortalContext {
+  readonly operatorEmail: string;
+}
+
+export interface OnboardingContext extends PortalContext {
+  readonly membershipState:
+    | "APPLICANT"
+    | "EMAIL_VERIFIED"
+    | "IDENTITY_COMPLETE"
+    | "CHAPTER_RESOLUTION"
+    | "TIER_SELECTED"
+    | "PREFERENCES_COMPLETE"
+    | "SERVICES_SELECTED"
+    | "ALIGNMENT_COMPLETE"
+    | "CONSENTS_COMPLETE"
+    | "TERMS_ACCEPTED"
+    | "PAYMENT_PENDING";
+}
+
+type PortalAuthEnv =
+  { DB?: D1Database; APP_BASE_URL?: string; OPERATOR_EMAIL?: string } | undefined;
+
 export async function requireSession(
   request: Request,
-  env: { DB?: D1Database; APP_BASE_URL?: string } | undefined,
+  env: PortalAuthEnv,
 ): Promise<PortalContext | null> {
   if (!env?.DB) return null;
   const cookieHeader = request.headers.get("cookie") ?? "";
@@ -49,13 +71,86 @@ export async function requireSession(
   };
 }
 
+/**
+ * Central operator boundary. Operator access is granted only to the
+ * configured operator email after that mailbox has completed the normal
+ * magic-link flow. A browser-supplied email or role is never trusted.
+ */
+export async function requireOperator(
+  request: Request,
+  env: PortalAuthEnv,
+): Promise<OperatorContext | null> {
+  const configuredEmail = normalizeEmail(env?.OPERATOR_EMAIL);
+  if (!configuredEmail) return null;
+  const ctx = await requireSession(request, env);
+  if (!ctx || normalizeEmail(ctx.member.email) !== configuredEmail) return null;
+  return { ...ctx, operatorEmail: configuredEmail };
+}
+
+const ONBOARDING_STATES = new Set<OnboardingContext["membershipState"]>([
+  "APPLICANT",
+  "EMAIL_VERIFIED",
+  "IDENTITY_COMPLETE",
+  "CHAPTER_RESOLUTION",
+  "TIER_SELECTED",
+  "PREFERENCES_COMPLETE",
+  "SERVICES_SELECTED",
+  "ALIGNMENT_COMPLETE",
+  "CONSENTS_COMPLETE",
+  "TERMS_ACCEPTED",
+  "PAYMENT_PENDING",
+]);
+
+/**
+ * Bind onboarding to the authenticated member's own membership row. This is
+ * deliberately not a "latest applicant" lookup: ownership comes from the
+ * cryptographically-random, server-backed session established by magic link.
+ */
+export async function requireOnboardingSession(
+  request: Request,
+  env: PortalAuthEnv,
+): Promise<OnboardingContext | null> {
+  if (!env?.DB) return null;
+  const ctx = await requireSession(request, env);
+  if (!ctx) return null;
+  const membership = await env.DB.prepare(
+    `SELECT state FROM memberships WHERE member_id = ? ORDER BY created_at DESC LIMIT 1`,
+  )
+    .bind(ctx.member.id)
+    .first<{ state: string }>();
+  if (
+    !membership ||
+    !ONBOARDING_STATES.has(membership.state as OnboardingContext["membershipState"])
+  ) {
+    return null;
+  }
+  return {
+    ...ctx,
+    membershipState: membership.state as OnboardingContext["membershipState"],
+  };
+}
+
 function readSessionCookie(header: string): string | null {
   const parts = header.split(/;\s*/);
   for (const p of parts) {
-    const [k, v] = p.split("=");
-    if (k === SESSION_COOKIE && v) return decodeURIComponent(v);
+    const separator = p.indexOf("=");
+    if (separator < 0) continue;
+    const k = p.slice(0, separator).trim();
+    const v = p.slice(separator + 1);
+    if (k === SESSION_COOKIE && v) {
+      try {
+        return decodeURIComponent(v);
+      } catch {
+        return null;
+      }
+    }
   }
   return null;
+}
+
+function normalizeEmail(email: string | null | undefined): string | null {
+  const normalized = email?.trim().toLowerCase();
+  return normalized || null;
 }
 
 function rowToMember(r: Record<string, unknown>): Member {

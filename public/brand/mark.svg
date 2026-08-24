@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Plans With You mark">
+  <defs>
+    <style>
+      .stroke { fill: none; stroke: #B23A12; stroke-width: 3; }
+      .stroke-soft { fill: none; stroke: #B23A12; stroke-width: 1; opacity: 0.45; }
+      .num { font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; font-size: 30px; font-weight: 500; fill: #111111; text-anchor: middle; dominant-baseline: central; }
+      .meta { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; font-size: 6.5px; letter-spacing: 1.4px; fill: #B23A12; text-anchor: middle; }
+      .rule { stroke: #B23A12; stroke-width: 1; opacity: 0.5; }
+    </style>
+  </defs>
+  <rect class="stroke" x="6" y="6" width="52" height="52" rx="3"/>
+  <rect class="stroke-soft" x="13" y="13" width="38" height="38" rx="2"/>
+  <text class="meta" x="32" y="20">PLAN</text>
+  <line class="rule" x1="20" x2="44" y1="23" y2="23"/>
+  <text class="num" x="32" y="36">21</text>
+  <line class="rule" x1="18" x2="46" y1="46" y2="46" stroke-width="1.5"/>
+  <text class="meta" x="32" y="53">CANCELLED</text>
+</svg>

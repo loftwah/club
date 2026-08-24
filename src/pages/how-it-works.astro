@@ -5,59 +5,356 @@ import { brand } from "../brand/config";
 
 <Base
   title="How it works"
-  description="Invitations, cancellations, correspondence, gifts, calls, manufactured commitments."
+  description={`A clear look at the plans, cancellations, correspondence and optional care at ${brand.name}.`}
   canonicalPath="/how-it-works/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>How it works</h1>
-      <p>
-        You join. The {brand.shortName} remembers you. From time to time the {brand.shortName}
-        sends you a plausible invitation to a small, ordinary, deliberately constructed event. You are
-        not expected to attend. The plan feels plausible, the date approaches, and the
-        {brand.shortName} cancels it. The relationship continues.
-      </p>
-      <p>
-        Cancellation is successful fulfilment, not failure. The {brand.shortName}'s signature
-        emotional arc is:
-      </p>
-      <pre
-        class="emotional-arc"
-        aria-label="The signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
-      <p>
-        Optional services — physical mail, gifts, calls, manufactured commitments, real-world
-        {brand.shortName} representative services — are intensity, not belonging.
-      </p>
+  <section class="pwy-page pwy-how" aria-labelledby="how-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <p class="pwy-kicker">The arrangement / 01</p>
+        <div class="pwy-hero__grid">
+          <h1 id="how-heading">How it works</h1>
+          <p class="pwy-hero__lede">{brand.copy.howItWorks.lede}</p>
+        </div>
+        <div class="pwy-hero__meta" aria-label="Current membership status">
+          <span class="pwy-stamp">On schedule</span>
+          <span>Waitlist open</span>
+          <span>Paid membership closed</span>
+        </div>
+      </header>
 
-      <h2>The cadence</h2>
-      <p>
-        Each member sets their own event-frequency preset — "occasional", "about monthly", "a couple
-        per month", or "Society discretion". The {brand.shortName} keeps the chosen cadence more or less
-        accurately. You can change the preset at any time.
-      </p>
+      <section class="pwy-lifecycle" aria-labelledby="lifecycle-heading">
+        <div class="pwy-section-heading">
+          <p class="pwy-kicker">A plan, completed</p>
+          <h2 id="lifecycle-heading">The cancellation is the point.</h2>
+          <p>
+            Every ordinary plan is deliberately constructed, allowed to gather a little
+            anticipation, then deliberately cancelled. You are not expected to attend. Nothing has
+            gone wrong.
+          </p>
+        </div>
+        <ol class="pwy-lifecycle__rail">
+          {
+            brand.copy.emotionalArc.map((_step, index) => (
+              <li class={`pwy-lifecycle__step${index === 4 ? " pwy-lifecycle__step--signal" : ""}`}>
+                <span class="pwy-step-number">0{index + 1}</span>
+                <span>
+                  {index === 0
+                    ? "Listed"
+                    : index === 1
+                      ? "Made"
+                      : index === 2
+                        ? "Plausible"
+                        : index === 3
+                          ? "Approaching"
+                          : index === 4
+                            ? "Unmade"
+                            : "Still listed"}
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="pwy-arc-summary">{brand.copy.emotionalArc.join(" → ")}</p>
+        <p class="pwy-caption">
+          The same record can carry the invitation and the cancellation. The relationship carries on
+          after the status changes.
+        </p>
+      </section>
 
-      <h2>What gets remembered</h2>
-      <p>
-        The {brand.shortName} remembers what you choose to share. Birthday (so a card can be sent), preferred
-        first name, postal address (if you opt into physical mail), interests and pets and inside jokes
-        (if you want them remembered), do-not-mention list. Nothing else. You can see, edit, and remove
-        anything the {brand.shortName} knows about you.
-      </p>
+      <section class="pwy-schedule" aria-labelledby="schedule-heading">
+        <div class="pwy-section-heading">
+          <p class="pwy-kicker">The operating rhythm</p>
+          <h2 id="schedule-heading">Made with a date. Finished with care.</h2>
+        </div>
+        <div class="pwy-schedule__grid">
+          <article class="pwy-schedule__card">
+            <p class="pwy-card-code">01 / cadence</p>
+            <h3>You choose the tempo.</h3>
+            <p>
+              Choose occasional, about monthly, a couple per month, or let us use our discretion.
+              The cadence is approximate and can be changed at any time.
+            </p>
+          </article>
+          <article class="pwy-schedule__card pwy-schedule__card--signal">
+            <p class="pwy-card-code">02 / status</p>
+            <h3>We send the cancellation.</h3>
+            <p>
+              Invitations generally arrive 7–21 days before the constructed date. Cancellations
+              generally arrive 12–36 hours before it. The windows vary naturally; the outcome does
+              not.
+            </p>
+          </article>
+          <article class="pwy-schedule__card">
+            <p class="pwy-card-code">03 / continuity</p>
+            <h3>You remain on the list.</h3>
+            <p>
+              A silent member is a successful member. You do not need to reply, attend, network,
+              post, log in frequently, or perform a version of sociability for us.
+            </p>
+          </article>
+        </div>
+      </section>
 
-      <h2>What gets produced</h2>
-      <p>
-        The {brand.shortName} produces, in order of frequency: cancellations, invitations, birthday and
-        anniversary recognitions, chapter letters, occasional artefacts, and (when appropriate) gifts
-        and calls. Each of these has its own cadence, its own entitlement, its own opt-in.
-      </p>
+      <section class="pwy-two-column" aria-labelledby="memory-heading">
+        <div>
+          <p class="pwy-kicker">The record / 02</p>
+          <h2 id="memory-heading">Remembered, with permission.</h2>
+        </div>
+        <div class="pwy-prose">
+          <p>
+            We remember what you choose to share: a preferred name, a birthday, an address when you
+            opt into physical mail, interests, pets, inside jokes and a do-not-mention list. You can
+            see, edit and remove what we hold. Confirmed facts have provenance; a suggestion is
+            never quietly promoted into your record.
+          </p>
+          <p>
+            Physical mail, gifts, calls and manufactured commitments are separate, optional
+            services. They require entitlement, permission and the right prerequisites. Revoking
+            permission affects already-scheduled future work for that service.
+          </p>
+        </div>
+      </section>
 
-      <h2>What the human operator does</h2>
-      <p>
-        A small number of real human operators run the {brand.shortName}. They print, sign, and post
-        letters. They select gifts within a budget. They make calls at the agreed window. They
-        review inbound email. They handle the rare critical cancellation when automation needs a
-        person.
-      </p>
+      <section class="pwy-operator" aria-labelledby="operator-heading">
+        <div>
+          <p class="pwy-kicker">The human hand / 03</p>
+          <h2 id="operator-heading">The system keeps the record. People keep the promise.</h2>
+        </div>
+        <p>
+          Real operators review selected correspondence, print and post letters, choose gifts within
+          a budget, make opted-in calls and handle the rare cancellation that needs human
+          escalation. Each action has a state and an audit trail. Nothing is left in a silent,
+          indefinite pending state.
+        </p>
+      </section>
+
+      <footer class="pwy-page-footer">
+        <p>Want the next notice when membership opens?</p>
+        <a class="pwy-button" href="/waiting-list/"
+          >Join the waitlist <span aria-hidden="true">↗</span></a
+        >
+      </footer>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker,
+  .pwy-card-code {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    margin: 0;
+    font: 400 clamp(3.2rem, 9vw, 8rem)/0.86 var(--font-serif);
+    letter-spacing: -0.055em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-section-heading {
+    max-width: 44rem;
+  }
+  .pwy-section-heading h2,
+  .pwy-two-column h2,
+  .pwy-operator h2 {
+    margin: 0 0 1rem;
+    font: 400 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+  .pwy-section-heading > p:last-child,
+  .pwy-prose p,
+  .pwy-operator > p {
+    color: var(--fg-muted);
+    max-width: 42rem;
+  }
+  .pwy-lifecycle,
+  .pwy-schedule,
+  .pwy-two-column,
+  .pwy-operator {
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-lifecycle__rail {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(8rem, 1fr));
+    gap: 0;
+    margin: 3rem 0 1rem;
+    padding: 0;
+    border-top: 1px solid var(--fg);
+  }
+  .pwy-lifecycle__step {
+    position: relative;
+    display: grid;
+    gap: 1.2rem;
+    min-height: 7rem;
+    padding: 1rem 0.8rem 0 0;
+    color: var(--fg-muted);
+    font: 0.9rem/1.3 var(--font-serif);
+  }
+  .pwy-lifecycle__step::before {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    margin-top: -0.32rem;
+    background: var(--bg);
+    border: 1px solid var(--fg);
+    border-radius: 50%;
+  }
+  .pwy-lifecycle__step--signal {
+    color: var(--accent);
+  }
+  .pwy-lifecycle__step--signal::before {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .pwy-step-number {
+    color: var(--fg-faint);
+    font: 0.68rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+  }
+  .pwy-arc-summary {
+    max-width: 52rem;
+    margin: 1.2rem 0 0;
+    color: var(--fg-muted);
+    font: italic 1rem/1.45 var(--font-serif);
+  }
+  .pwy-caption {
+    margin: 1.5rem 0 0;
+    color: var(--fg-faint);
+    font-size: 0.88rem;
+  }
+  .pwy-schedule__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 3rem;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .pwy-schedule__card {
+    min-height: 16rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--bg);
+  }
+  .pwy-schedule__card--signal .pwy-card-code {
+    color: var(--accent-secondary);
+  }
+  .pwy-schedule__card--signal {
+    background: var(--accent-soft);
+  }
+  .pwy-schedule__card h3 {
+    margin: 0 0 0.8rem;
+    font: 400 clamp(1.35rem, 2.5vw, 2rem)/1 var(--font-serif);
+  }
+  .pwy-schedule__card p:last-child {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-two-column,
+  .pwy-operator {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 10vw, 10rem);
+  }
+  .pwy-prose p {
+    margin: 0 0 1.25rem;
+  }
+  .pwy-prose p:last-child {
+    margin-bottom: 0;
+  }
+  .pwy-operator {
+    align-items: start;
+    background: linear-gradient(90deg, transparent, var(--bg-elev));
+  }
+  .pwy-operator > p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .pwy-page-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0 4rem;
+  }
+  .pwy-page-footer p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  @media (max-width: 760px) {
+    .pwy-hero__grid,
+    .pwy-two-column,
+    .pwy-operator {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .pwy-lifecycle__rail {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      border-top: 0;
+    }
+    .pwy-lifecycle__step {
+      border-top: 1px solid var(--line);
+    }
+    .pwy-schedule__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

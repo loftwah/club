@@ -5,18 +5,83 @@ export const prerender = false;
 ---
 
 <Base
-  title="Not found — The Social Club"
-  description="That page is not on the schedule."
+  title="Not found"
+  description="That page is not on the Plans With You schedule."
   canonicalPath="/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>Not on the schedule</h1>
-      <p>
-        That page has been — perhaps generously — cancelled. Try the
-        <a href="/">homepage</a> or
-        <a href="/waiting-list/">join the waiting list</a>.
-      </p>
+  <section class="pwy-page pwy-not-found" aria-labelledby="not-found-heading">
+    <div class="pwy-shell">
+      <div class="pwy-not-found__mark" aria-hidden="true">404</div>
+      <p class="pwy-kicker">Schedule exception</p>
+      <h1 id="not-found-heading">Not on the schedule.</h1>
+      <p>That page has been cancelled, or it was never made. The useful record is still here.</p>
+      <div class="pwy-not-found__actions">
+        <a class="pwy-button" href="/">Return to the schedule <span aria-hidden="true">↗</span></a>
+        <a href="/waiting-list/">Join the waitlist</a>
+      </div>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-not-found {
+    min-height: 65vh;
+    display: grid;
+    align-items: center;
+    padding: 4rem 0;
+  }
+  .pwy-not-found__mark {
+    margin-bottom: 2rem;
+    color: var(--accent);
+    font: 0.8rem/1 var(--font-mono);
+    letter-spacing: 0.18em;
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-not-found h1 {
+    max-width: 10ch;
+    margin: 0 0 1.2rem;
+    font: 400 clamp(3.5rem, 10vw, 9rem)/0.83 var(--font-serif);
+    letter-spacing: -0.06em;
+  }
+  .pwy-not-found p:not(.pwy-kicker) {
+    max-width: 34rem;
+    margin: 0 0 2rem;
+    color: var(--fg-muted);
+    font-size: 1.2rem;
+  }
+  .pwy-not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+</style>

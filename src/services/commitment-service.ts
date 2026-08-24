@@ -20,7 +20,8 @@ import {
 } from "../domain/machines/manufactured-commitment.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
-import { canPerform, type PolicyContext } from "../domain/policy.js";
+import { canPerform } from "../domain/policy.js";
+import { loadPolicyContext } from "../domain/policy-context.js";
 
 export interface RequestCommitmentInput {
   readonly memberId: string;
@@ -45,6 +46,13 @@ export interface CommitmentServiceDeps {
   readonly clock: Clock;
 }
 
+export class CommitmentOwnershipError extends Error {
+  constructor() {
+    super("Member does not own this commitment.");
+    this.name = "CommitmentOwnershipError";
+  }
+}
+
 export class CommitmentService {
   constructor(private readonly deps: CommitmentServiceDeps) {}
 
@@ -53,19 +61,10 @@ export class CommitmentService {
    * automatically checks entitlement + permission + opt-in.
    */
   async request(input: RequestCommitmentInput): Promise<Commitment> {
-    const decision = canPerform("MANUFACTURED_COMMITMENTS", {
-      membershipState: "ACTIVE",
-      tierId: null,
-      tierCapabilities: new Set(["MANUFACTURED_COMMITMENTS"]),
-      serviceGrantState: "OPTED_IN",
-      explicitOptOut: false,
-      consentCurrent: true,
-      termsCurrent: true,
-      billingActive: true,
-      chapterSupported: true,
-      safetyBlocked: false,
-      duplicate: false,
-    } satisfies PolicyContext);
+    const decision = canPerform(
+      "MANUFACTURED_COMMITMENTS",
+      await loadPolicyContext(this.deps.db, input.memberId, "MANUFACTURED_COMMITMENTS"),
+    );
     if (!decision.allowed) {
       throw new Error(`Commitment not allowed: ${decision.reason}`);
     }
@@ -142,9 +141,10 @@ export class CommitmentService {
    * Member aborts at any pre-completion state. All future
    * scheduled work for the scenario is cancelled.
    */
-  async abort(id: string, reason: string): Promise<Commitment> {
+  async abort(id: string, reason: string, memberId?: string): Promise<Commitment> {
     const c = await this.get(id);
     if (!c) throw new Error(`Unknown commitment: ${id}`);
+    if (memberId !== undefined && c.memberId !== memberId) throw new CommitmentOwnershipError();
     if (c.state === "COMPLETED" || c.state === "ABORTED" || c.state === "DECLINED") {
       return c;
     }

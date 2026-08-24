@@ -2,13 +2,16 @@
 // brand-explorer, and the dynamic OG endpoint.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 
 export const GET: APIRoute = async ({ locals }) => {
-  const base = locals?.runtime?.env.APP_BASE_URL ?? "https://club.loftwah.com";
+  const base = getRuntimeEnv(locals).APP_BASE_URL ?? "https://club.loftwah.com";
   const body = `User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /portal/
+Disallow: /onboarding/
+Disallow: /internal/
 Disallow: /brand-explorer/
 Disallow: /brand-r2/
 Disallow: /api/

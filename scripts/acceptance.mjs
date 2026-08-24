@@ -16,12 +16,13 @@
 //   5. integration tests (in-memory D1 mock with the real schema)
 //   6. static schema check (parity, forbidden states, env naming)
 //   7. production build
-//   8. wrangler config dry-run validation
-//   9. real Cloudflare local D1 fresh-migration proof
+//   8. browser bundle performance budgets
+//   9. wrangler config dry-run validation
+//  10. real Cloudflare local D1 fresh-migration proof
 //      (wipes .wrangler/state, applies migrations via Wrangler CLI,
 //       verifies schema + constraints, then proves the forbidden
 //       event states are rejected at the real local D1 layer)
-//  10. browser E2E (Playwright) against a live wrangler dev process
+//  11. browser E2E (Playwright) against a live wrangler dev process
 //      (covers public routes, form submission, mobile viewport,
 //       reduced motion, axe accessibility, ThreeUI fallback path)
 //
@@ -45,7 +46,7 @@ const steps = [
   },
   {
     name: "typecheck (astro check)",
-    cmd: ["node", "node_modules/astro/astro.js", "check"],
+    cmd: ["node", "node_modules/astro/bin/astro.mjs", "check"],
   },
   {
     name: "typecheck (tsc)",
@@ -64,16 +65,20 @@ const steps = [
     cmd: ["node", "scripts/check-fresh-state.mjs"],
   },
   {
-    name: "production build (astro build)",
-    cmd: ["node", "node_modules/astro/astro.js", "build"],
+    name: "clean generated build output",
+    cmd: ["node", "scripts/clean-build-output.mjs"],
   },
   {
-    name: "copy client assets to public/ for wrangler dev",
-    cmd: ["node", "scripts/copy-assets.mjs"],
+    name: "production build (astro build)",
+    cmd: ["node", "node_modules/astro/bin/astro.mjs", "build"],
   },
   {
     name: "generate canonical OG / social SVG images",
     cmd: ["node", "scripts/og-generate.mjs"],
+  },
+  {
+    name: "browser bundle performance budgets",
+    cmd: ["node", "scripts/performance/check-bundle-budget.mjs"],
   },
   {
     name: "wrangler config validation (dry-run)",
@@ -110,7 +115,8 @@ if (exit !== 0) {
   process.exit(exit);
 }
 
-// Browser E2E requires a running wrangler dev process. We start it,
+// Browser E2E requires a running wrangler dev process. The current Cloudflare
+// adapter serves dist/client through its generated ASSETS configuration. We start it,
 // wait for readiness, run Playwright, then stop it.
 console.info(`\n→ start wrangler dev for browser E2E`);
 const dev = spawn("node", ["scripts/wrangler-dev.mjs"], {

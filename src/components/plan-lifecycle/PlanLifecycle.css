@@ -1,0 +1,408 @@
+/*
+ * PlanLifecycle is intentionally self-contained. Import this file once at
+ * the Astro integration point; the component itself has no CSS side effect.
+ * The DOM remains complete and legible when this file or JavaScript is absent.
+ */
+
+.plan-lifecycle {
+  --plan-lifecycle-paper: #f5f2ea;
+  --plan-lifecycle-paper-raised: #fbf9f3;
+  --plan-lifecycle-ink: #171612;
+  --plan-lifecycle-muted: #69645a;
+  --plan-lifecycle-line: rgba(23, 22, 18, 0.18);
+  --plan-lifecycle-line-soft: rgba(23, 22, 18, 0.1);
+  --plan-lifecycle-signal: #b23a12;
+  --plan-lifecycle-signal-soft: #f1d9c9;
+  --plan-lifecycle-success: #2f6742;
+  --plan-lifecycle-width: min(100%, 66rem);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: var(--plan-lifecycle-width);
+  overflow: hidden;
+  color: var(--plan-lifecycle-ink);
+  background: var(--plan-lifecycle-paper);
+  border: 1px solid var(--plan-lifecycle-line);
+  border-radius: 0.45rem;
+  box-shadow: 0 1.2rem 3rem rgba(28, 21, 14, 0.08);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+.plan-lifecycle__wash {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 93% 0%, rgba(178, 58, 18, 0.1), transparent 28%),
+    linear-gradient(
+      125deg,
+      transparent 0 48%,
+      rgba(255, 255, 255, 0.32) 48.1% 48.3%,
+      transparent 48.4%
+    );
+}
+
+.plan-lifecycle__header,
+.plan-lifecycle__facts,
+.plan-lifecycle__timeline-wrap,
+.plan-lifecycle__footer {
+  position: relative;
+  z-index: 1;
+  padding-inline: clamp(1.15rem, 4vw, 3rem);
+}
+
+.plan-lifecycle__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-top: clamp(1.45rem, 4vw, 3rem);
+  padding-bottom: clamp(1.2rem, 3vw, 2.1rem);
+}
+
+.plan-lifecycle__heading {
+  max-width: 42rem;
+}
+
+.plan-lifecycle__kicker,
+.plan-lifecycle__timeline-label,
+.plan-lifecycle__current-label {
+  margin: 0;
+  color: var(--plan-lifecycle-muted);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.plan-lifecycle__title {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: clamp(1.8rem, 5vw, 3.7rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.plan-lifecycle__detail {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: var(--plan-lifecycle-muted);
+  font-size: 0.98rem;
+  line-height: 1.5;
+}
+
+.plan-lifecycle__current {
+  display: grid;
+  flex: 0 0 auto;
+  justify-items: end;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  color: var(--plan-lifecycle-signal);
+  border: 1px solid rgba(178, 58, 18, 0.33);
+  border-radius: 999px;
+  text-align: right;
+}
+
+.plan-lifecycle__current strong {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.plan-lifecycle__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  border-top: 1px solid var(--plan-lifecycle-line-soft);
+  border-bottom: 1px solid var(--plan-lifecycle-line-soft);
+}
+
+.plan-lifecycle__fact {
+  min-width: 0;
+}
+
+.plan-lifecycle__fact dt {
+  margin-bottom: 0.3rem;
+  color: var(--plan-lifecycle-muted);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.plan-lifecycle__fact dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.plan-lifecycle__timeline-wrap {
+  padding-top: clamp(1.4rem, 4vw, 2.25rem);
+  padding-bottom: clamp(1.4rem, 4vw, 2.25rem);
+}
+
+.plan-lifecycle__timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-lifecycle__timeline::before,
+.plan-lifecycle__timeline::after {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.55rem;
+  height: 1px;
+  content: "";
+}
+
+.plan-lifecycle__timeline::before {
+  right: 0.55rem;
+  background: var(--plan-lifecycle-line);
+}
+
+.plan-lifecycle__timeline::after {
+  right: auto;
+  width: var(--plan-lifecycle-progress);
+  background: var(--plan-lifecycle-signal);
+  transition: width 460ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.plan-lifecycle__step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+  padding-right: 0.8rem;
+}
+
+.plan-lifecycle__marker {
+  display: grid;
+  place-items: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-bottom: 0.85rem;
+  border: 1px solid var(--plan-lifecycle-line);
+  border-radius: 50%;
+  background: var(--plan-lifecycle-paper);
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease;
+}
+
+.plan-lifecycle__marker span {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: transparent;
+  transition: background-color 220ms ease;
+}
+
+.plan-lifecycle__step--complete .plan-lifecycle__marker {
+  border-color: var(--plan-lifecycle-signal);
+}
+
+.plan-lifecycle__step--complete .plan-lifecycle__marker span {
+  background: var(--plan-lifecycle-signal);
+}
+
+.plan-lifecycle__step--current .plan-lifecycle__marker {
+  transform: scale(1.22);
+}
+
+.plan-lifecycle__step--current .plan-lifecycle__marker span {
+  background: var(--plan-lifecycle-signal);
+}
+
+.plan-lifecycle__step-copy {
+  display: grid;
+  gap: 0.28rem;
+  min-width: 0;
+}
+
+.plan-lifecycle__step-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.plan-lifecycle__step-description {
+  max-width: 12rem;
+  color: var(--plan-lifecycle-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.plan-lifecycle__step-current {
+  color: var(--plan-lifecycle-signal);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.plan-lifecycle__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1.3rem;
+  background: rgba(255, 255, 255, 0.22);
+  border-top: 1px solid var(--plan-lifecycle-line-soft);
+}
+
+.plan-lifecycle__message {
+  margin: 0;
+  color: var(--plan-lifecycle-muted);
+  font-size: 0.88rem;
+}
+
+.plan-lifecycle__advance {
+  flex: 0 0 auto;
+  padding: 0.65rem 0.85rem;
+  color: var(--plan-lifecycle-paper-raised);
+  background: var(--plan-lifecycle-ink);
+  border: 1px solid var(--plan-lifecycle-ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.plan-lifecycle__advance:hover {
+  color: var(--plan-lifecycle-ink);
+  background: transparent;
+  transform: translateY(-1px);
+}
+
+.plan-lifecycle__advance:focus-visible {
+  outline: 3px solid var(--plan-lifecycle-signal-soft);
+  outline-offset: 3px;
+}
+
+.plan-lifecycle[data-state="cancelled"] .plan-lifecycle__current,
+.plan-lifecycle[data-state="archived"] .plan-lifecycle__current {
+  color: var(--plan-lifecycle-success);
+  border-color: rgba(47, 103, 66, 0.35);
+}
+
+.plan-lifecycle[data-state="cancelled"] .plan-lifecycle__timeline::after,
+.plan-lifecycle[data-state="archived"] .plan-lifecycle__timeline::after {
+  background: var(--plan-lifecycle-success);
+}
+
+.plan-lifecycle[data-static="true"] .plan-lifecycle__timeline::after,
+.plan-lifecycle[data-static="true"] .plan-lifecycle__marker,
+.plan-lifecycle[data-static="true"] .plan-lifecycle__marker span,
+.plan-lifecycle[data-static="true"] .plan-lifecycle__advance {
+  transition: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 48rem) {
+  .plan-lifecycle__header {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .plan-lifecycle__current {
+    justify-self: start;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .plan-lifecycle__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1rem;
+  }
+
+  .plan-lifecycle__timeline {
+    grid-template-columns: 1fr;
+    gap: 1.05rem;
+    padding-left: 0.1rem;
+  }
+
+  .plan-lifecycle__timeline::before,
+  .plan-lifecycle__timeline::after {
+    top: 0.45rem;
+    bottom: 0.45rem;
+    left: 0.55rem;
+    width: 1px;
+    height: auto;
+    right: auto;
+  }
+
+  .plan-lifecycle__timeline::after {
+    bottom: auto;
+    top: 0.45rem;
+    width: 1px;
+    height: var(--plan-lifecycle-progress);
+  }
+
+  .plan-lifecycle__step {
+    grid-template-columns: 0.9rem 1fr;
+    column-gap: 0.9rem;
+    padding-right: 0;
+  }
+
+  .plan-lifecycle__marker {
+    grid-row: span 2;
+    margin: 0;
+  }
+
+  .plan-lifecycle__step-copy {
+    gap: 0.2rem;
+  }
+
+  .plan-lifecycle__footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-lifecycle *,
+  .plan-lifecycle *::before,
+  .plan-lifecycle *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

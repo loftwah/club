@@ -24,7 +24,13 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: /webkit\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "webkit-targeted",
+      testMatch: /webkit\.spec\.ts/,
+      use: { ...devices["iPhone 13"], browserName: "webkit" },
     },
   ],
 });

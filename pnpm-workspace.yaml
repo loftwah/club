@@ -1,11 +1,43 @@
 allowBuilds:
-  esbuild: set this to true or false
-  sharp: set this to true or false
-  workerd: set this to true or false
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
-  - workerd
-  - unrs-resolver
-  - "@playwright/test"
-  - playwright
+  esbuild: true
+  sharp: true
+  workerd: true
+  unrs-resolver: true
+  "@playwright/test": true
+  playwright: true
+minimumReleaseAgeExclude:
+  - "@types/react-dom@19.2.5"
+  - "@remotion/bundler@4.0.516"
+  - "@remotion/captions@4.0.516"
+  - "@remotion/cli@4.0.516"
+  - "@remotion/compositor-darwin-arm64@4.0.516"
+  - "@remotion/compositor-darwin-x64@4.0.516"
+  - "@remotion/compositor-linux-arm64-gnu@4.0.516"
+  - "@remotion/compositor-linux-arm64-musl@4.0.516"
+  - "@remotion/compositor-linux-x64-gnu@4.0.516"
+  - "@remotion/compositor-linux-x64-musl@4.0.516"
+  - "@remotion/compositor-win32-x64-msvc@4.0.516"
+  - "@remotion/fonts@4.0.516"
+  - "@remotion/layout-utils@4.0.516"
+  - "@remotion/licensing@4.0.516"
+  - "@remotion/media-parser@4.0.516"
+  - "@remotion/media-utils@4.0.516"
+  - "@remotion/media@4.0.516"
+  - "@remotion/motion-blur@4.0.516"
+  - "@remotion/noise@4.0.516"
+  - "@remotion/paths@4.0.516"
+  - "@remotion/player@4.0.516"
+  - "@remotion/renderer@4.0.516"
+  - "@remotion/shapes@4.0.516"
+  - "@remotion/streaming@4.0.516"
+  - "@remotion/studio-codemods@4.0.516"
+  - "@remotion/studio-protocol@4.0.516"
+  - "@remotion/studio-server@4.0.516"
+  - "@remotion/studio-shared@4.0.516"
+  - "@remotion/studio@4.0.516"
+  - "@remotion/tailwind-v4@4.0.516"
+  - "@remotion/timeline-utils@4.0.516"
+  - "@remotion/transitions@4.0.516"
+  - "@remotion/web-renderer@4.0.516"
+  - "@remotion/zod-types@4.0.516"
+  - remotion@4.0.516

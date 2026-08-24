@@ -2,64 +2,30 @@
 
 ## Product invariants
 
-1. Ordinary club events are not attended.
-2. There is no ordinary event `ATTENDED`, `CHECKED_IN` or `NO_SHOW` state.
-3. Event cancellation is intentional successful fulfilment.
-4. A member does not need to engage to remain a successful member.
-5. Higher tiers add physical/human intensity, not greater belonging.
-6. AI may not invent member facts.
-7. AI may not override consent, entitlements, legal gates, budgets, safety rules or state machines.
-8. Optional services require entitlement + permission + prerequisites.
-9. Permission revocation affects already-scheduled future work.
-10. Every important workflow reaches a terminal state or explicit human escalation.
-11. No silent indefinite `PENDING`.
-12. Critical event-cancellation failures escalate.
-13. Side effects are idempotent.
-14. Do not falsely claim venue partnerships, endorsements or real bookings.
-15. Fictional lore does not inflate real member/business statistics.
-16. D1/runtime owns truth; AI memory does not.
-17. Agents use API/MCP capabilities, not arbitrary database mutation.
-18. Important actions are auditable.
-19. Paid membership cannot activate before required onboarding/alignment/terms.
-20. Do not introduce real attended club events unless the user explicitly changes the invariant.
+- Ordinary events are not attended and have no `ATTENDED`, `CHECKED_IN`, or `NO_SHOW` state. Cancellation is successful fulfilment.
+- Silence is successful membership. Higher tiers add physical/human intensity, never greater belonging.
+- AI may not invent facts or override consent, entitlements, legal gates, budgets, safety, or state machines. D1/runtime owns truth. Optional services require entitlement, permission, and prerequisites; revocation affects future work.
+- Workflows terminate or escalate; no silent indefinite `PENDING`. Critical cancellation failures escalate. Side effects are idempotent and auditable.
+- Never imply real partnerships, bookings, statistics, or lore as fact.
+- Paid membership requires alignment and onboarding. Real payments need approval.
 
-## Locked technical facts
+## Locked facts and gates
 
-- URL: `https://club.loftwah.com`
-- Resend webhook: `POST /api/webhooks/resend`
-- Initial Resend event: `email.received`
-- Correct variables: `RESEND_WEBHOOK_ID`, `RESEND_WEBHOOK_SIGNING_SECRET`
-- Do not use `RESEND_WEBHOOK_SECRET`.
-- Do not add `APP_ENV`.
-- MiniMax may be used for development agents and bounded runtime generation.
-- ThreeUI means the current Meng To / Design+Code project and official `@designcodeio/threeui` package, not old unrelated similarly named packages.
+- Name: **Plans With You**. Tiers/pricing: **Member A$5**, **Corresponding Member A$20**, **Deluxe Member A$50**.
+- URL: `https://club.loftwah.com`. Resend: `POST /api/webhooks/resend`, initially `email.received`; use `RESEND_WEBHOOK_ID` and `RESEND_WEBHOOK_SIGNING_SECRET`. Never use `RESEND_WEBHOOK_SECRET` or add `APP_ENV`.
+- Cadence policy lives in `src/brand/cadence.ts`; no production Cron Trigger is deployed. Policy is not scheduling.
+- ThreeUI means official `@designcodeio/threeui`. Product/design detail is delegated.
+- Ask before payments, final legal wording, irreversible purchases, ambiguous destructive migrations, sensitive-data expansion, or undecided commercial pricing.
 
-## Ask before locking
+## Long-running execution
 
-- final club name;
-- final tier names;
-- final logo/crest;
-- palette/fonts;
-- tagline;
-- exact event cadence/cancellation windows;
-- gift budgets;
-- call allowances;
-- annual billing discounts;
-- appearance-service pricing;
-- final legal wording;
-- destructive ambiguous migrations;
-- expansion into sensitive personal data.
-
-## Engineering direction
-
-Prefer TypeScript, pnpm, modular monolith, Cloudflare Workers, D1, R2, Queues, Cron, Wrangler, explicit state machines, provider adapters, idempotency, audit events, deterministic policy, fakes for normal CI and local-first testing.
-
-Avoid microservices without need, raw SQL MCP tools, hidden LLM state, duplicated CI logic in GitHub Actions, direct provider calls from UI, and AI writes directly to confirmed member truth.
+- Work in large coherent batches; integrate, then validate. Use focused checks only to prevent substantial rework.
+- Fix root causes together; avoid fix-one/full-suite loops and routine narration.
+- Persist decisions. Parallelise independent work, coordinate overlaps, and use adversarial review near completion.
+- Inspect rendered pixels. Passing tests or rendering successfully is not commercial acceptance.
+- Keep approved 16:9 and 9:16 evergreen creative current; source in Git, heavy outputs in artefact storage.
+- Use current Remotion skills/docs. Continue until a true gate.
 
 ## Canonical acceptance
 
-```sh
-mise run acceptance
-```
-
-Before claiming done, report PASS/FAIL, tests, migrations, provider contracts, manual checks, open questions and limitations. FAIL is not complete.
+Run `mise run acceptance`. Report PASS/FAIL, tests, migrations, provider contracts, manual checks, open questions, and limitations. FAIL is incomplete.

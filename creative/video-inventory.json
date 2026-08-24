@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": null,
+  "assets": [
+    {
+      "id": "the-plan-landscape",
+      "campaign": "The Plan",
+      "composition": "ThePlan-Landscape",
+      "aspect": "16:9",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "safeZoneProfile": "landscape-editorial-v1",
+      "approvalState": "missing"
+    },
+    {
+      "id": "the-plan-vertical",
+      "campaign": "The Plan",
+      "composition": "ThePlan-Vertical",
+      "aspect": "9:16",
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "safeZoneProfile": "social-ui-variable-v1",
+      "approvalState": "missing"
+    },
+    {
+      "id": "the-relationship-landscape",
+      "campaign": "The Relationship",
+      "composition": "TheRelationship-Landscape",
+      "aspect": "16:9",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "safeZoneProfile": "landscape-editorial-v1",
+      "approvalState": "missing"
+    },
+    {
+      "id": "the-relationship-vertical",
+      "campaign": "The Relationship",
+      "composition": "TheRelationship-Vertical",
+      "aspect": "9:16",
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "safeZoneProfile": "social-ui-variable-v1",
+      "approvalState": "missing"
+    }
+  ]
+}

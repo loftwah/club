@@ -1,5 +1,6 @@
 ---
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 ---
 
 <Base
@@ -7,35 +8,40 @@ import Base from "@layouts/Base.astro";
   description="Sign in to the member portal. We use magic links, not passwords."
   canonicalPath="/portal/login/"
 >
-  <section class="section">
+  <section class="section app-surface app-login">
     <div class="container">
-      <h1>Sign in</h1>
-      <p>
-        We use <strong>magic links</strong>, not passwords. Enter the email address on your
-        membership and the Society will send you a one-time link. The link is single-use and expires
-        in 15 minutes.
-      </p>
-      <p style="color: var(--fg-muted)">
-        For the provisional build, the form is wired to the local dev backend. In production it
-        sends via Resend.
-      </p>
-      <form class="form" id="login-form" novalidate aria-describedby="login-status">
-        <label for="email">Email address</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autocomplete="email"
-          inputmode="email"
-          placeholder="you@example.com"
-        />
-        <button type="submit" id="login-submit">Send me a sign-in link</button>
-        <p id="login-status" class="form__status" role="status" aria-live="polite"></p>
-      </form>
-      <p style="margin-top: 2rem; color: var(--fg-faint)">
-        Not on the list? <a href="/waiting-list/">Add your name</a>.
-      </p>
+      <div class="app-card">
+        <p class="app-breadcrumb"><a href="/">Plans With You</a> / Member portal</p>
+        <p class="app-kicker">Private correspondence desk</p>
+        <h1>Sign in</h1>
+        <p class="app-lede">
+          We use <strong>magic links</strong>, not passwords. Enter the email address on your
+          membership and we will send a one-time link. It expires in 15 minutes.
+        </p>
+        <form class="form app-form" id="login-form" novalidate aria-describedby="login-status">
+          <div class="app-form__field">
+            <label for="email">Email address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              inputmode="email"
+              placeholder="you@example.com"
+            />
+          </div>
+          <div class="app-form__actions">
+            <button class="app-action" type="submit" id="login-submit"
+              >Send me a sign-in link <span aria-hidden="true">→</span></button
+            >
+          </div>
+          <p id="login-status" class="form__status" role="status" aria-live="polite"></p>
+        </form>
+        <p class="app-note">
+          Not on the list? <a href="/waiting-list/">Add your name to the global waitlist</a>.
+        </p>
+      </div>
     </div>
   </section>
 </Base>
@@ -52,6 +58,7 @@ import Base from "@layouts/Base.astro";
       submit.disabled = true;
       const data = new FormData(form);
       const email = String(data.get("email") ?? "").trim();
+      const next = new URLSearchParams(window.location.search).get("next");
       if (!email) {
         status.className = "form__status form__status--error";
         status.textContent = "Enter your email address.";
@@ -62,7 +69,7 @@ import Base from "@layouts/Base.astro";
         const res = await fetch("/api/portal/login", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email }),
+          body: JSON.stringify({ email, next }),
         });
         const body = (await res.json().catch(() => ({}))) as { error?: string; devUrl?: string };
         if (!res.ok) {

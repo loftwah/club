@@ -16,28 +16,28 @@ const articles: ReadonlyArray<Article> = [
     title: "Etiquette of being remembered",
     category: "Etiquette",
     date: "Volume I, Issue 1",
-    dek: "A short, dry guide to what the Society remembers, how it remembers, and how to ask it to forget.",
+    dek: "A short, dry guide to what we remember, how we remember, and how to ask us to forget.",
   },
   {
     slug: "a-short-history-of-the-cancelled-engagement",
     title: "A short history of the cancelled engagement",
-    category: "Society history",
+    category: "Notes",
     date: "Volume I, Issue 1",
-    dek: "The institution of the cancelled plan is older than the Society, and the Society takes it seriously.",
+    dek: "The institution of the cancelled plan is older than us, and we take it seriously.",
   },
   {
     slug: "chapter-letters-melbourne",
     title: "Chapter letters: Melbourne",
     category: "Chapter report",
     date: "Volume I, Issue 1",
-    dek: "Notes from the opening chapter. The weather. The locations. The wax.",
+    dek: "Notes from the opening chapter. The weather. The locations. The envelopes.",
   },
   {
-    slug: "the-society-seal",
-    title: "The Society seal",
-    category: "Etiquette",
+    slug: "what-an-invitation-actually-looks-like",
+    title: "What an invitation actually looks like",
+    category: "Correspondence",
     date: "Volume I, Issue 1",
-    dek: "The seal is a quiet commitment: a letter, a member, a record. A note on the design.",
+    dek: "A walk-through of one ordinary invitation and its matching cancellation. The same form, twice.",
   },
   {
     slug: "manufactured-commitments-explained",
@@ -47,44 +47,255 @@ const articles: ReadonlyArray<Article> = [
     dek: "What it is. What it isn't. Why the cancellation is part of the work.",
   },
   {
-    slug: "gifts-and-surprises",
-    title: "Gifts and surprises",
+    slug: "gifts-and-the-question-of-surprise",
+    title: "Gifts and the question of surprise",
     category: "Optional services",
     date: "Volume I, Issue 1",
-    dek: "On the difference between a thoughtful gift and a surprise that someone had to guess about.",
+    dek: "On the difference between a thoughtful gift and a surprise someone had to guess about.",
   },
 ];
 ---
 
 <Base
   title="Journal"
-  description="Chapter reports, upcoming constructed engagements, cancellations, correspondence extracts, Society history."
+  description={`Notes on plans, cancellations, correspondence and care from ${brand.name}.`}
   canonicalPath="/journal/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>Journal</h1>
-      <p>
-        The {brand.shortName} publishes an institutional journal, not a company blog. Future editions
-        will include chapter reports, upcoming constructed engagements, cancellations, archive pieces,
-        correspondence extracts, Society history, etiquette, seasonal letters, and artefact announcements.
-      </p>
-      <p>
-        The first issue is a curated selection of short pieces. New issues are published slowly.
-      </p>
-      <ul class="article-list">
-        {
-          articles.map((a) => (
-            <li class="article-card">
-              <p class="meta">
-                {a.category} &middot; {a.date}
-              </p>
-              <h3>{a.title}</h3>
-              <p>{a.dek}</p>
-            </li>
-          ))
-        }
-      </ul>
+  <section class="pwy-page pwy-journal" aria-labelledby="journal-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <p class="pwy-kicker">The journal / issue 01</p>
+        <div class="pwy-hero__grid">
+          <h1 id="journal-heading">Notes from the schedule.</h1>
+          <p class="pwy-hero__lede">
+            A slow publication about the practice of making plans, unmaking them, writing properly
+            and keeping a record without pretending to have more history than we do.
+          </p>
+        </div>
+        <div class="pwy-hero__meta">
+          <span class="pwy-stamp">Volume I / Issue 1</span>
+          <span>Editorial notes</span>
+          <span>No member record is published here</span>
+        </div>
+      </header>
+
+      <section class="pwy-journal-intro" aria-labelledby="intro-heading">
+        <p class="pwy-kicker">The editorial desk</p>
+        <h2 id="intro-heading">Not a company blog.</h2>
+        <p>
+          The journal is a public shelf for short pieces: chapter reports, correspondence extracts,
+          etiquette, archive notes and explanations of optional services. It is not a feed of
+          invented member stories, operating statistics or endorsements. New issues arrive slowly,
+          when there is something worth putting on paper.
+        </p>
+      </section>
+
+      <section class="pwy-journal-list" aria-labelledby="issue-heading">
+        <div class="pwy-list-heading">
+          <p class="pwy-kicker">Issue 01 / contents</p>
+          <h2 id="issue-heading">The first dispatches.</h2>
+        </div>
+        <div class="pwy-article-grid">
+          {
+            articles.map((article, index) => (
+              <article class="pwy-article-card">
+                <div class="pwy-article-card__topline">
+                  <span>0{index + 1}</span>
+                  <span>{article.category}</span>
+                </div>
+                <p class="pwy-article-card__date">{article.date}</p>
+                <h3>{article.title}</h3>
+                <p>{article.dek}</p>
+                <span class="pwy-article-card__status">Editorial note / prepared</span>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="pwy-journal-footer" aria-labelledby="journal-footer-heading">
+        <div>
+          <p class="pwy-kicker">The next issue</p>
+          <h2 id="journal-footer-heading">Keep the address.</h2>
+        </div>
+        <div>
+          <p>Membership correspondence is private. Public journal notes are a different thing.</p>
+          <a class="pwy-button" href="/waiting-list/"
+            >Join the waitlist <span aria-hidden="true">↗</span></a
+          >
+        </div>
+      </section>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    max-width: 12ch;
+    margin: 0;
+    font: 400 clamp(3rem, 8vw, 7rem)/0.88 var(--font-serif);
+    letter-spacing: -0.055em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-journal-intro {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.6fr) minmax(0, 1.4fr);
+    gap: 2rem;
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-journal-intro h2,
+  .pwy-list-heading h2,
+  .pwy-journal-footer h2 {
+    margin: 0 0 1rem;
+    font: 400 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+  .pwy-journal-intro p:last-child {
+    max-width: 44rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 1.1rem;
+  }
+  .pwy-journal-list {
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-list-heading {
+    max-width: 44rem;
+  }
+  .pwy-article-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 3rem;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .pwy-article-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 18rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--bg);
+  }
+  .pwy-article-card:nth-child(3n + 2) {
+    background: var(--bg-elev);
+  }
+  .pwy-article-card__topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    color: var(--accent);
+    font: 0.68rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-article-card__date {
+    margin: 2rem 0 0.8rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-article-card h3 {
+    margin: 0 0 0.8rem;
+    font: 400 clamp(1.35rem, 2.5vw, 2rem)/1 var(--font-serif);
+  }
+  .pwy-article-card > p:not(.pwy-article-card__date) {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-article-card__status {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    color: var(--fg-faint);
+    font-size: 0.78rem;
+  }
+  .pwy-journal-footer {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr);
+    gap: 2rem;
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0 5rem;
+  }
+  .pwy-journal-footer p {
+    max-width: 36rem;
+    margin: 0 0 1.5rem;
+    color: var(--fg-muted);
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  @media (max-width: 820px) {
+    .pwy-article-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 680px) {
+    .pwy-hero__grid,
+    .pwy-journal-intro,
+    .pwy-journal-footer {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .pwy-article-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

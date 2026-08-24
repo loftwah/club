@@ -89,7 +89,10 @@ async function textGeneration() {
 }
 
 async function imageGeneration() {
-  const res = await fetch(`${BASE}/image/generations`, {
+  // Verified against mmx-cli v1.0.22 (https://api.minimax.io/v1/image_generation).
+  // Request body: { model, prompt, aspect_ratio | (width & height), n }
+  // Response body: { data: { image_urls: string[] } | { image_base64: string[] }, base_resp }
+  const res = await fetch(`${BASE}/image_generation`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -97,19 +100,23 @@ async function imageGeneration() {
     },
     body: JSON.stringify({
       model: "image-01",
-      prompt: "warm cream paper, no text, photograph",
-      width: 512,
-      height: 512,
+      prompt: "warm cream paper, soft natural light, neutral desk, photograph, no text, no labels",
+      aspect_ratio: "1:1",
+      n: 1,
     }),
   });
   if (!res.ok)
     return { ok: false, detail: `image: ${res.status} ${redact(await res.text()).slice(0, 200)}` };
   const json = await res.json();
-  const first = json.data?.[0];
-  const url = first?.url ?? first?.b64_json ?? "";
+  const data = json?.data ?? {};
+  const urls = Array.isArray(data.image_urls) ? data.image_urls : [];
+  const b64s = Array.isArray(data.image_base64) ? data.image_base64 : [];
+  const first = urls[0] ?? b64s[0] ?? "";
   return {
-    ok: typeof url === "string" && url.length > 0,
-    detail: `image: ${typeof url} (${url.length} chars)`,
+    ok: typeof first === "string" && first.length > 0,
+    detail: `image: ${typeof first} (${first.length} chars, base_resp=${
+      json?.base_resp?.status_code ?? "n/a"
+    })`,
   };
 }
 

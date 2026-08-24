@@ -3,7 +3,6 @@
 // information architecture. Will be deleted once the user locks a name
 // and direction. Does not replace any production page or layout.
 import Base from "@layouts/Base.astro";
-import ThreeUISealPrototype from "@components/ThreeUISealPrototype.tsx";
 import "../styles/brand-explorer.css";
 ---
 
@@ -312,17 +311,17 @@ import "../styles/brand-explorer.css";
 
   <section id="threeui-check" class="bx-section">
     <div class="bx-container">
-      <p class="bx-eyebrow">ThreeUI verification</p>
-      <h2>Does the engraved certificate actually mount?</h2>
+      <p class="bx-eyebrow">ThreeUI decision record</p>
+      <h2>No production scene is currently warranted.</h2>
       <p>
-        Phase 1 imports the ThreeUI package and renders an empty canvas as a progressive-enhancement
-        placeholder. This prototype mounts the real
-        <code>EngravedCertificate</code> component to verify it works on the current stack, in light mode,
-        with the static SVG fallback behind it.
+        The package review found no ThreeUI scene that expresses the core plan lifecycle better than
+        semantic HTML and CSS. The previous certificate experiment mounted a nested React root,
+        produced an empty canvas, and pulled a multi-megabyte client chunk into the build. It has
+        been retired from this route.
       </p>
       <div class="bx-threeui-row">
         <div class="bx-threeui-cell">
-          <p class="bx-threeui-label">Static SVG fallback (always works)</p>
+          <p class="bx-threeui-label">Retained principle: static first</p>
           <svg
             viewBox="0 0 200 200"
             width="200"
@@ -362,21 +361,20 @@ import "../styles/brand-explorer.css";
           </svg>
         </div>
         <div class="bx-threeui-cell">
-          <p class="bx-threeui-label">EngravedCertificate (light mode)</p>
-          <ThreeUISealPrototype client:only="react" mode="light" />
+          <p class="bx-threeui-label">Current signature primitive</p>
+          <p>PlanLifecycle: semantic state machine, responsive CSS, zero client JavaScript.</p>
         </div>
         <div class="bx-threeui-cell">
-          <p class="bx-threeui-label">EngravedCertificate (dark mode)</p>
-          <ThreeUISealPrototype client:only="react" mode="dark" />
+          <p class="bx-threeui-label">Future admission rule</p>
+          <p>
+            A scene must materially explain a product mechanic and pass accessibility and bundle
+            budgets.
+          </p>
         </div>
       </div>
       <p class="bx-threeui-note">
-        Note: the current static <code>SocietySeal</code> import in
-        <code>Base.astro</code> is a no-op shell. The new design uses
-        <code>EngravedCertificate</code> in light mode for the hero seal, falling back to the SVG above
-        when JS is unavailable, when
-        <code>prefers-reduced-motion</code> is set, or when the GPU is weak. The same pattern applies
-        to the medallion scene if Direction B is chosen.
+        ThreeUI remains pinned for isolated research. It is not imported by any production-facing
+        route, and it is not a default visual-effects layer.
       </p>
     </div>
   </section>

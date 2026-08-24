@@ -77,8 +77,8 @@ export class MilestoneService {
     // Every tier: EMAIL.
     actions.push({
       channel: "EMAIL",
-      subject: `Your ${labelForTrigger(trigger)} from the ${shortBrand()}`,
-      detail: "A personalised digital note from the Society.",
+      subject: `Your ${labelForTrigger(trigger)} from ${shortBrand()}`,
+      detail: `A personalised digital note from ${shortBrand()}.`,
     });
 
     // A$20+: POSTAL if PHYSICAL_CORRESPONDENCE is OPTED_IN.
@@ -245,7 +245,7 @@ export class MilestoneService {
 }
 
 function shortBrand(): string {
-  return "Society";
+  return "Plans With You";
 }
 
 function labelForTrigger(t: MilestoneTriggerType): string {

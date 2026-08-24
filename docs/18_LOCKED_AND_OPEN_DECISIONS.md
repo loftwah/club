@@ -5,6 +5,10 @@
 - product premise;
 - no ordinary attendance;
 - A$5/A$20/A$50 target pricing;
+- public name: Plans With You;
+- tier names: Member, Corresponding Member, Deluxe Member;
+- production visual system and tagline in `src/brand/config.ts`;
+- product cadence policy in `src/brand/cadence.ts`;
 - waiting-list-first;
 - Cloudflare Workers;
 - D1;
@@ -32,30 +36,13 @@
 
 ## Open — ask before locking
 
-### Brand
-
-- final club name;
-- final tier names;
-- logo/crest;
-- colours;
-- fonts;
-- tagline.
-
 ### Production scheduling
 
-- exact cron cadence for ordinary-event discovery + safety monitor;
-- exact cancellation windows per event type;
-- exact event cadence.
+- exact runtime Cron Trigger frequency for ordinary-event discovery and the safety monitor. No production trigger is currently deployed; runtime scheduling must not be inferred from the locked product cadence policy.
 
 ### Launch geography
 
 - Melbourne only vs five metros vs broader waitlist.
-
-### Events
-
-- exact cadence;
-- exact cancellation windows;
-- cancellation-style timings.
 
 ### Physical economics
 

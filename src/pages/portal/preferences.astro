@@ -1,17 +1,13 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { requireSession } from "../../lib/portal-auth";
-import { MembershipService } from "@services/membership-service";
-import { SystemClock } from "@infra/clock";
-import { D1AuditWriter } from "@infra/audit";
 
-const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+const ctx = await requireSession(Astro.request, runtimeEnv);
 if (!ctx) return Astro.redirect("/portal/login/");
 
-const env = Astro.locals.runtime.env;
-const audit = new D1AuditWriter(env.DB, new SystemClock());
-const clock = new SystemClock();
-
+const env = runtimeEnv;
 const grants = await env.DB.prepare(`SELECT service, state FROM service_grants WHERE member_id = ?`)
   .bind(ctx.member.id)
   .all<{ service: string; state: string }>();
@@ -55,176 +51,222 @@ const memberPrefs = await env.DB.prepare(
   description="Manage your membership preferences."
   canonicalPath="/portal/preferences/"
 >
-  <section class="section">
+  <section class="section app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/portal/">Portal</a> / Preferences
-      </p>
-      <h1>Preferences</h1>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Preferences</p>
+          <p class="app-kicker">Your controls</p>
+          <h1>Preferences</h1>
+          <p class="app-lede">
+            Keep your identity, optional services, and accepted documents accurate. These controls
+            belong to you.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Core membership</dt><dd>Unaffected by optional permissions</dd><dt>Future work</dt><dd
+          >
+            Revocation applies to scheduled work
+          </dd>
+        </dl>
+      </header>
 
-      <h2>Identity</h2>
-      <form class="form" method="post" action="/api/portal/preferences/identity">
-        <label for="preferredName">Preferred first name</label>
-        <input
-          id="preferredName"
-          name="preferredName"
-          type="text"
-          maxlength="120"
-          value={memberPrefs?.preferred_name ?? ""}
-        />
-        <label for="postalName">Postal name (for letters)</label>
-        <input
-          id="postalName"
-          name="postalName"
-          type="text"
-          maxlength="200"
-          value={memberPrefs?.postal_name ?? ""}
-        />
-        <label for="country">Country</label>
-        <input
-          id="country"
-          name="country"
-          type="text"
-          maxlength="60"
-          value={memberPrefs?.country ?? ""}
-        />
-        <label for="metroArea">Metro / chapter area</label>
-        <input
-          id="metroArea"
-          name="metroArea"
-          type="text"
-          maxlength="120"
-          value={memberPrefs?.metro_area ?? ""}
-        />
-        <label for="birthday">Birthday (MM-DD or YYYY-MM-DD)</label>
-        <input
-          id="birthday"
-          name="birthday"
-          type="text"
-          maxlength="10"
-          value={memberPrefs?.birthday ?? ""}
-          placeholder="MM-DD or YYYY-MM-DD"
-        />
-        <label for="timezone">Timezone</label>
-        <input
-          id="timezone"
-          name="timezone"
-          type="text"
-          maxlength="60"
-          value={memberPrefs?.timezone ?? "Australia/Melbourne"}
-        />
-        <button type="submit">Save identity</button>
-      </form>
+      <section class="app-section" aria-labelledby="identity-heading">
+        <div class="app-section__head">
+          <h2 id="identity-heading">Identity and correspondence</h2><p>Editable details</p>
+        </div>
+        <form class="form app-form" method="post" action="/api/portal/preferences/identity">
+          <div class="app-form__grid">
+            <div class="app-form__field">
+              <label for="preferredName">Preferred first name</label><input
+                id="preferredName"
+                name="preferredName"
+                type="text"
+                maxlength="120"
+                value={memberPrefs?.preferred_name ?? ""}
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="postalName">Postal name (for letters)</label><input
+                id="postalName"
+                name="postalName"
+                type="text"
+                maxlength="200"
+                value={memberPrefs?.postal_name ?? ""}
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="country">Country</label><input
+                id="country"
+                name="country"
+                type="text"
+                maxlength="60"
+                value={memberPrefs?.country ?? ""}
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="metroArea">Metro / chapter area</label><input
+                id="metroArea"
+                name="metroArea"
+                type="text"
+                maxlength="120"
+                value={memberPrefs?.metro_area ?? ""}
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="birthday">Birthday (MM-DD or YYYY-MM-DD)</label><input
+                id="birthday"
+                name="birthday"
+                type="text"
+                maxlength="10"
+                value={memberPrefs?.birthday ?? ""}
+                placeholder="MM-DD or YYYY-MM-DD"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="timezone">Timezone</label><input
+                id="timezone"
+                name="timezone"
+                type="text"
+                maxlength="60"
+                value={memberPrefs?.timezone ?? "Australia/Melbourne"}
+              />
+            </div>
+          </div>
+          <div class="app-form__actions">
+            <button class="app-action" type="submit"
+              >Save identity <span aria-hidden="true">→</span></button
+            >
+          </div>
+        </form>
+      </section>
 
-      <h2>Optional services</h2>
-      <p>
-        Each service is an independent opt-in. Revoking a service cancels already-scheduled future
-        work for that service; other actions continue. Tier may grant the _capability_; the service
-        grant is the on/off switch.
-      </p>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Service</th>
-            <th>Current state</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            [
-              { key: "NEWSLETTER", label: "Newsletter" },
-              { key: "PERSONALISED_MEMORY", label: "Personalised memory" },
-              { key: "CALENDAR_MESSAGES", label: "Calendar messages" },
-              { key: "PHYSICAL_CORRESPONDENCE", label: "Physical correspondence" },
-              { key: "GIFTS", label: "Gifts" },
-              { key: "CALLS", label: "Calls" },
-              { key: "MANUFACTURED_COMMITMENTS", label: "Manufactured commitments" },
-              { key: "APPEARANCE_INTEREST", label: "Appearance service interest" },
-            ].map((svc) => {
-              const current = grantMap.get(svc.key) ?? "AVAILABLE";
-              return (
-                <tr>
-                  <td>{svc.label}</td>
-                  <td>
-                    <span
-                      class={`pill pill--${current === "OPTED_IN" ? "ok" : current === "OPTED_OUT" ? "warn" : "info"}`}
-                    >
-                      {current}
-                    </span>
-                  </td>
-                  <td>
-                    <form
-                      method="post"
-                      action="/api/portal/preferences/grant"
-                      style="display: inline;"
-                    >
-                      <input type="hidden" name="service" value={svc.key} />
-                      <input type="hidden" name="state" value="OPTED_IN" />
-                      <button type="submit" disabled={current === "OPTED_IN"} class="link-button">
-                        Opt in
-                      </button>
-                    </form>
-                    <form
-                      method="post"
-                      action="/api/portal/preferences/grant"
-                      style="display: inline;"
-                    >
-                      <input type="hidden" name="service" value={svc.key} />
-                      <input type="hidden" name="state" value="OPTED_OUT" />
-                      <button type="submit" disabled={current === "OPTED_OUT"} class="link-button">
-                        Opt out
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              );
-            })
-          }
-        </tbody>
-      </table>
-
-      <h2>Currently accepted documents</h2>
-      {
-        acceptances.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">No accepted documents on record.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <>
-                  <th>Document</th>
-                  <th>Version</th>
-                  <th>Effective</th>
-                  <th>Accepted at</th>
-                  <th>Hash</th>
-                </>
-              </tr>
-            </thead>
+      <section class="app-section" aria-labelledby="services-heading">
+        <div class="app-section__head">
+          <h2 id="services-heading">Optional services</h2><p>Permission by permission</p>
+        </div>
+        <p class="app-note">
+          Each service is an independent opt-in. A tier may grant the capability; this service grant
+          is the on/off switch. Revoking a service cancels already-scheduled future work for that
+          service.
+        </p>
+        <div class="app-table-wrap">
+          <table class="admin-table app-table app-table--cards">
+            <thead><tr><th>Service</th><th>Current state</th><th>Action</th></tr></thead>
             <tbody>
-              {acceptances.results?.map((a) => (
-                <tr>
-                  <td>{a.doc_type}</td>
-                  <td>
-                    <code style="font-family: var(--font-mono);">{a.version}</code>
-                  </td>
-                  <td>{a.effective_at?.slice(0, 10) ?? "—"}</td>
-                  <td>{a.accepted_at?.slice(0, 10) ?? "—"}</td>
-                  <td>
-                    <code style="font-family: var(--font-mono); font-size: 0.8em;">
-                      {a.content_hash.slice(0, 12)}…
-                    </code>
-                  </td>
-                </tr>
-              ))}
+              {
+                [
+                  { key: "NEWSLETTER", label: "Newsletter" },
+                  { key: "PERSONALISED_MEMORY", label: "Personalised memory" },
+                  { key: "CALENDAR_MESSAGES", label: "Calendar messages" },
+                  { key: "PHYSICAL_CORRESPONDENCE", label: "Physical correspondence" },
+                  { key: "GIFTS", label: "Gifts" },
+                  { key: "CALLS", label: "Calls" },
+                  { key: "MANUFACTURED_COMMITMENTS", label: "Manufactured commitments" },
+                  { key: "APPEARANCE_INTEREST", label: "Appearance service interest" },
+                ].map((svc) => {
+                  const current = grantMap.get(svc.key) ?? "AVAILABLE";
+                  return (
+                    <tr>
+                      <td data-label="Service">{svc.label}</td>
+                      <td data-label="Current state">
+                        <span
+                          class={`pill pill--${current === "OPTED_IN" ? "ok" : current === "OPTED_OUT" ? "warn" : "info"}`}
+                        >
+                          {current}
+                        </span>
+                      </td>
+                      <td data-label="Action">
+                        <span class="app-actions">
+                          <form method="post" action="/api/portal/preferences/grant">
+                            <>
+                              <input type="hidden" name="service" value={svc.key} />
+                              <input type="hidden" name="state" value="OPTED_IN" />
+                              <button
+                                type="submit"
+                                disabled={current === "OPTED_IN"}
+                                class="app-action app-action--quiet"
+                              >
+                                Opt in
+                              </button>
+                            </>
+                          </form>
+                          <form method="post" action="/api/portal/preferences/grant">
+                            <>
+                              <input type="hidden" name="service" value={svc.key} />
+                              <input type="hidden" name="state" value="OPTED_OUT" />
+                              <button
+                                type="submit"
+                                disabled={current === "OPTED_OUT"}
+                                class="app-action app-action--danger"
+                              >
+                                Opt out
+                              </button>
+                            </>
+                          </form>
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              }
             </tbody>
           </table>
-        )
-      }
-      <p style="color: var(--fg-muted)">
-        A change to a required document version pauses the affected optional service until you
-        accept the new version. Your core membership is unaffected.
-      </p>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="documents-heading">
+        <div class="app-section__head">
+          <h2 id="documents-heading">Accepted documents</h2><p>Versioned record</p>
+        </div>
+        {
+          acceptances.results?.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No accepted documents on record</strong>
+                <span>Required documents will appear here when accepted.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>Document</th>
+                        <th>Version</th>
+                        <th>Effective</th>
+                        <th>Accepted at</th>
+                        <th>Hash</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {acceptances.results?.map((a) => (
+                      <tr>
+                        <td data-label="Document">{a.doc_type}</td>
+                        <td data-label="Version">
+                          <code>{a.version}</code>
+                        </td>
+                        <td data-label="Effective">{a.effective_at?.slice(0, 10) ?? "—"}</td>
+                        <td data-label="Accepted at">{a.accepted_at?.slice(0, 10) ?? "—"}</td>
+                        <td data-label="Hash">
+                          <code>{a.content_hash.slice(0, 12)}…</code>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              </table>
+            </div>
+          )
+        }
+        <p class="app-note">
+          A change to a required document version pauses the affected optional service until you
+          accept the new version. Your core membership is unaffected.
+        </p>
+      </section>
     </div>
   </section>
 </Base>

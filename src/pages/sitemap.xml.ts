@@ -2,6 +2,7 @@
 // member portal, brand-explorer, and the dynamic OG endpoint.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 
 const PUBLIC_PATHS = [
   "/",
@@ -17,7 +18,7 @@ const PUBLIC_PATHS = [
 ];
 
 export const GET: APIRoute = async ({ locals }) => {
-  const base = locals?.runtime?.env.APP_BASE_URL ?? "https://club.loftwah.com";
+  const base = getRuntimeEnv(locals).APP_BASE_URL ?? "https://club.loftwah.com";
   const now = new Date().toISOString().slice(0, 10);
   const entries = PUBLIC_PATHS.map(
     (p) => `  <url>

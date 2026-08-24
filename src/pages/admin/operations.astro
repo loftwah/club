@@ -1,62 +1,115 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { dailyOperations } from "../../lib/admin-data";
-const ops = await dailyOperations(Astro.locals?.runtime?.env);
+const ops = await dailyOperations(runtimeEnv);
 ---
 
 <Base title="Operations — Admin" description="Operator digest" canonicalPath="/admin/operations/">
-  <section class="section">
+  <section class="section app-surface app-operator">
     <div class="container">
-      <p><a href="/admin/">← Back to admin</a></p>
-      <h1>Operations digest</h1>
-      <p>Same data as the MCP <code>club.get_daily_operations</code> tool.</p>
-
-      <h2>Counts</h2>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>Metric</th>
-            <th>Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Dangerous uncancelled events</td><td>{ops.dangerousEvents}</td></tr>
-          <tr><td>Retried emails</td><td>{ops.retriedEmails}</td></tr>
-          <tr><td>Overdue fulfilments</td><td>{ops.overdueFulfilments}</td></tr>
-          <tr><td>Dead-letter jobs</td><td>{ops.deadLetters}</td></tr>
-          <tr><td>Inbound messages requiring review</td><td>{ops.inboundReview}</td></tr>
-        </tbody>
-      </table>
-
-      <h2>Tasks requiring attention</h2>
-      {
-        ops.todayCount === 0 ? (
-          <p style="color: var(--success)">
-            <strong>No intervention required.</strong>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/admin/">Operator desk</a> / Operations</p>
+          <p class="app-kicker">Daily digest</p>
+          <h1>Operations digest</h1>
+          <p class="app-lede">
+            The same bounded operational view exposed to the <code>club.get_daily_operations</code> tool.
           </p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Urgency</th>
-                <th>Label</th>
-                <th>Detail</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ops.today.map((t) => (
-                <tr>
-                  <td>
-                    <span class={`pill pill--${t.urgency}`}>{t.urgency}</span>
-                  </td>
-                  <td>{t.label}</td>
-                  <td>{t.detail}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Intervention queue</dt><dd>
+            {ops.todayCount} item{ops.todayCount === 1 ? "" : "s"}
+          </dd><dt>Review rule</dt><dd>Resolve, retry, or escalate</dd>
+        </dl>
+      </header>
+
+      <section class="app-section" aria-labelledby="counts-heading">
+        <div class="app-section__head">
+          <h2 id="counts-heading">Counts</h2><p>System snapshot</p>
+        </div>
+        <div class="app-summary-grid">
+          <article
+            class={`app-card ${ops.dangerousEvents > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.dangerousEvents}</span><span class="app-card__label"
+              >dangerous uncancelled events</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.retriedEmails > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.retriedEmails}</span><span class="app-card__label"
+              >retried emails</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.overdueFulfilments > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.overdueFulfilments}</span><span
+              class="app-card__label">overdue fulfilments</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.deadLetters > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.deadLetters}</span><span class="app-card__label"
+              >dead-letter jobs</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.inboundReview > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.inboundReview}</span><span class="app-card__label"
+              >inbound review items</span
+            >
+          </article>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="attention-heading">
+        <div class="app-section__head">
+          <h2 id="attention-heading">Tasks requiring attention</h2><p>{ops.todayCount} in queue</p>
+        </div>
+        {
+          ops.todayCount === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No intervention required</strong>
+                <span>The daily queue is clear.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>Urgency</th>
+                        <th>Label</th>
+                        <th>Detail</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ops.today.map((t) => (
+                      <tr>
+                        <td data-label="Urgency">
+                          <span class={`pill pill--${t.urgency}`}>{t.urgency}</span>
+                        </td>
+                        <td data-label="Label">{t.label}</td>
+                        <td data-label="Detail">{t.detail}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              </table>
+            </div>
+          )
+        }
+      </section>
     </div>
   </section>
 </Base>

@@ -5,91 +5,361 @@ import { brand } from "../brand/config";
 
 <Base
   title="Correspondence"
-  description="How the Society writes to you, how often, and how the letters are produced."
+  description={`The email, letters and physical attention that make up ${brand.name} correspondence.`}
   canonicalPath="/correspondence/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>Correspondence</h1>
-      <p>
-        The Society's relationship is mostly conducted by mail — physical at the higher tiers,
-        digital at every tier. Every letter is personalised within the boundaries you have set.
-      </p>
-      <p>
-        The cadence of the correspondence is real. The cadence of ordinary events is intentional,
-        and the cadence of cancellations is part of the cadence. You will receive invitations,
-        reminders, cancellations, birthday cards, anniversary recognition, and (at A$20 and A$50)
-        signed physical letters.
-      </p>
+  <section class="pwy-page pwy-correspondence" aria-labelledby="correspondence-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <p class="pwy-kicker">In the post / 03</p>
+        <div class="pwy-hero__grid">
+          <h1 id="correspondence-heading">Correspondence, properly kept.</h1>
+          <div>
+            <p class="pwy-hero__lede">{brand.copy.correspondence.lede}</p>
+            <p class="pwy-hero__note">
+              Digital first. Physical when entitled, permitted and genuinely useful.
+            </p>
+          </div>
+        </div>
+        <div class="pwy-hero__meta" aria-label="Current membership status">
+          <span class="pwy-stamp">The post / human attention</span>
+          <span>Waitlist open</span>
+          <span>Paid membership closed</span>
+        </div>
+      </header>
 
-      <h2>What you receive</h2>
-      <ul>
-        <li>
-          <strong>Welcome.</strong> A welcome email immediately on joining the waiting list. A welcome
-          letter and physical pack on becoming a paying member.
-        </li>
-        <li>
-          <strong>Invitations and cancellations.</strong> Pairs of letters. Invitations arrive roughly
-          within the cadence you set. Cancellations arrive before the date. The calendar message uses
-          the same UID across invitation and cancellation so your calendar app updates rather than duplicates.
-        </li>
-        <li>
-          <strong>Birthday and anniversary recognition.</strong> At every tier on the digital side. At
-          A$20 and A$50 on the physical side as well. At A$50 with calls enabled, an opt-in birthday call
-          is offered.
-        </li>
-        <li>
-          <strong>Newsletter.</strong> A short, slow, mostly-text newsletter when there is something to
-          say. The newsletter is opt-out. Essential cancellation and operational email cannot be opted
-          out of.
-        </li>
-        <li>
-          <strong>Operator tasks (your inbox at the {brand.shortName}).</strong> When the Society needs
-          to print, sign, post, call, or select a gift, the operator receives the task. Member communication
-          is not the same as operator communication.
-        </li>
-      </ul>
+      <section class="pwy-letter-flow" aria-labelledby="flow-heading">
+        <div class="pwy-section-heading">
+          <p class="pwy-kicker">The paired record</p>
+          <h2 id="flow-heading">An invitation has a second half.</h2>
+          <p>
+            A plan enters the schedule as an invitation, then leaves it as a cancellation. The two
+            messages use the same calendar identity, so your record is updated rather than
+            duplicated.
+          </p>
+        </div>
+        <div class="pwy-letter-flow__grid">
+          <article class="pwy-letter pwy-letter--invitation">
+            <p class="pwy-letter__label">Message 01 / invitation</p>
+            <p class="pwy-letter__date">THU 14 · 18:30</p>
+            <h3>A small plan has been made.</h3>
+            <p>
+              A plausible ordinary plan is placed on your calendar. You are not expected to attend.
+            </p>
+          </article>
+          <div class="pwy-letter-flow__connector" aria-hidden="true">→</div>
+          <article class="pwy-letter pwy-letter--cancelled">
+            <p class="pwy-letter__label">Message 02 / cancellation</p>
+            <p class="pwy-letter__date">WED 13 · 18:30</p>
+            <h3>It has been unmade.</h3>
+            <p>The plan is cancelled before its date. Cancellation is successful fulfilment.</p>
+          </article>
+        </div>
+      </section>
 
-      <h2>How letters are produced</h2>
-      <p>
-        Letter copy is written by the {brand.shortName} using a small language model. Every letter is
-        checked against the member's confirmed facts, their do-not-mention list, and the {
-          brand.shortName
-        }'s editorial voice. The {brand.shortName} never invents facts about you. If the model produces
-        a letter that mentions anything you have asked the {brand.shortName} not to mention, the letter
-        is rejected and rewritten before it is sent.
-      </p>
-      <p>
-        Physical letters are produced by a human operator. The operator signs, seals, and posts the
-        letter. The letter text is checked by the same validator as the digital letter. The
-        signature and seal are real. The wax is real. The stamp is real.
-      </p>
+      <section class="pwy-contents" aria-labelledby="contents-heading">
+        <div>
+          <p class="pwy-kicker">What arrives</p>
+          <h2 id="contents-heading">A record with a human cadence.</h2>
+        </div>
+        <div class="pwy-contents__list">
+          <article>
+            <span>01</span>
+            <div>
+              <h3>Invitations and cancellations</h3><p>
+                Pairs that make the schedule legible, with no RSVP or attendance instruction.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <h3>Recognition</h3><p>
+                Birthday and anniversary notes at every tier digitally; physical notes when your
+                tier and permissions allow.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <h3>Letters in the post</h3><p>
+                Corresponding Member and Deluxe Member can include signed physical letters, welcome
+                material and milestone artefacts.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>04</span>
+            <div>
+              <h3>A slow newsletter</h3><p>
+                Occasional, mostly text, and optional. Essential cancellation and operational email
+                remains essential.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
 
-      <h2>What the Society does not do</h2>
-      <ul>
-        <li>
-          The {brand.shortName} does not send attendance instructions. No "we can't wait to see you there"
-          copy.
-        </li>
-        <li>
-          The {brand.shortName} does not claim fictional characters, locations, or partnerships as real.
-        </li>
-        <li>
-          The {brand.shortName} does not mention the member's previous employer, ex-partner, or anything
-          else on the do-not-mention list.
-        </li>
-        <li>
-          The {brand.shortName} does not silently enrich member data from public sources.
-        </li>
-      </ul>
+      <section class="pwy-production" aria-labelledby="production-heading">
+        <div class="pwy-production__intro">
+          <p class="pwy-kicker">The making</p>
+          <h2 id="production-heading">Warmth lives in the hand, not in a costume.</h2>
+        </div>
+        <div class="pwy-production__copy">
+          <p>
+            Copy is drafted against confirmed facts, permissions and the do-not-mention list. A
+            model may assist with a draft; it cannot invent member truth. The validator rejects
+            unsafe or attendance-like language before a message is sent.
+          </p>
+          <p>
+            When physical fulfilment is entitled and opted in, an operator prints, checks, signs and
+            posts it. Gifts and calls follow their own budgets, permissions and prerequisites. If a
+            permission is revoked, scheduled future work is cancelled and recorded.
+          </p>
+        </div>
+      </section>
 
-      <h2>Opt-out behaviour</h2>
-      <p>
-        Opting out of the newsletter does not stop essential cancellation email. Opting out of
-        physical mail does not stop digital. Opting out of a single service pauses only that service
-        — the rest of the membership is unaffected. Revoking a permission cancels already-scheduled
-        future work for that permission. Other actions continue.
-      </p>
+      <section class="pwy-controls" aria-labelledby="controls-heading">
+        <p class="pwy-kicker">Your controls</p>
+        <h2 id="controls-heading">Nothing hidden in the envelope.</h2>
+        <div class="pwy-controls__grid">
+          <p><strong>Newsletter off?</strong><br />Essential cancellation email continues.</p>
+          <p><strong>Physical mail off?</strong><br />Digital correspondence continues.</p>
+          <p>
+            <strong>Permission revoked?</strong><br />Future scheduled work is cancelled for that
+            service.
+          </p>
+        </div>
+      </section>
+
+      <footer class="pwy-page-footer">
+        <p>Membership has not opened for payment yet.</p>
+        <a class="pwy-button" href="/waiting-list/"
+          >Join the waitlist <span aria-hidden="true">↗</span></a
+        >
+      </footer>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker,
+  .pwy-letter__label {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    max-width: 12ch;
+    margin: 0;
+    font: 400 clamp(3rem, 8vw, 7rem)/0.88 var(--font-serif);
+    letter-spacing: -0.055em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__note {
+    margin: 1.5rem 0 0;
+    color: var(--fg-faint);
+    font-size: 0.9rem;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-letter-flow,
+  .pwy-contents,
+  .pwy-production,
+  .pwy-controls {
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-section-heading {
+    max-width: 44rem;
+  }
+  .pwy-section-heading h2,
+  .pwy-contents h2,
+  .pwy-production h2,
+  .pwy-controls h2 {
+    margin: 0 0 1rem;
+    font: 400 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+  .pwy-section-heading > p:last-child {
+    color: var(--fg-muted);
+    max-width: 42rem;
+  }
+  .pwy-letter-flow__grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: clamp(1rem, 4vw, 3rem);
+    align-items: center;
+    margin-top: 3rem;
+  }
+  .pwy-letter {
+    min-height: 17rem;
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+  }
+  .pwy-letter--cancelled {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .pwy-letter--cancelled .pwy-letter__label,
+  .pwy-letter--cancelled .pwy-letter__date {
+    color: var(--accent-secondary);
+  }
+  .pwy-letter__date {
+    margin: 1.7rem 0 1.5rem;
+    color: var(--fg-faint);
+    font: 0.78rem/1 var(--font-mono);
+    letter-spacing: 0.12em;
+  }
+  .pwy-letter h3 {
+    margin: 0 0 0.8rem;
+    font: 400 clamp(1.5rem, 3vw, 2.3rem)/1 var(--font-serif);
+  }
+  .pwy-letter > p:last-child {
+    max-width: 27rem;
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-letter-flow__connector {
+    color: var(--accent);
+    font-size: 2rem;
+  }
+  .pwy-contents,
+  .pwy-production {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 10vw, 10rem);
+  }
+  .pwy-contents__list {
+    border-top: 1px solid var(--line);
+  }
+  .pwy-contents__list article {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-contents__list article > span {
+    color: var(--accent);
+    font: 0.72rem/1.2 var(--font-mono);
+  }
+  .pwy-contents h3 {
+    margin: 0 0 0.3rem;
+    font: 400 1.3rem/1.1 var(--font-serif);
+  }
+  .pwy-contents p,
+  .pwy-production__copy p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-production {
+    background: linear-gradient(90deg, transparent, var(--bg-elev));
+  }
+  .pwy-production__copy {
+    max-width: 42rem;
+  }
+  .pwy-production__copy p {
+    margin: 0 0 1.25rem;
+    font-size: 1.05rem;
+  }
+  .pwy-controls__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  .pwy-controls__grid p {
+    margin: 0;
+    padding: 1.2rem;
+    border-top: 2px solid var(--fg);
+    color: var(--fg-muted);
+  }
+  .pwy-controls__grid strong {
+    color: var(--fg);
+  }
+  .pwy-page-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0 4rem;
+  }
+  .pwy-page-footer p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  @media (max-width: 760px) {
+    .pwy-hero__grid,
+    .pwy-contents,
+    .pwy-production {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .pwy-letter-flow__grid {
+      grid-template-columns: 1fr;
+    }
+    .pwy-letter-flow__connector {
+      transform: rotate(90deg);
+      justify-self: center;
+    }
+    .pwy-controls__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

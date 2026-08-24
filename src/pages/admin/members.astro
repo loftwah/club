@@ -1,5 +1,7 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 
 interface MemberRow {
   id: string;
@@ -10,7 +12,7 @@ interface MemberRow {
   created_at: string;
 }
 
-const env = Astro.locals?.runtime?.env;
+const env = runtimeEnv;
 const members: MemberRow[] = env?.DB
   ? await env.DB.prepare(
       `SELECT m.id, m.email, m.preferred_name, m.chapter_id, ms.state, m.created_at
@@ -24,48 +26,72 @@ const members: MemberRow[] = env?.DB
 ---
 
 <Base title="Members — Admin" description="Member directory" canonicalPath="/admin/members/">
-  <section class="section">
+  <section class="section app-surface app-operator">
     <div class="container">
-      <p><a href="/admin/">← Back to admin</a></p>
-      <h1>Members</h1>
-      <p>
-        Every member record in D1. Only the columns needed for the operator are shown — full details
-        are accessible through the member portal (operator-only).
-      </p>
-      {
-        members.length === 0 ? (
-          <p style="color: var(--fg-muted)">No members yet.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Chapter</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((m) => (
-                <tr>
-                  <td>
-                    <span
-                      class={`pill ${m.state === "ACTIVE" ? "pill--ok" : m.state === "CANCELLED" ? "pill--warn" : "pill--info"}`}
-                    >
-                      {m.state ?? "—"}
-                    </span>
-                  </td>
-                  <td>{m.preferred_name ?? "—"}</td>
-                  <td>{m.email}</td>
-                  <td>{m.chapter_id ?? "—"}</td>
-                  <td>{m.created_at}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/admin/">Operator desk</a> / Members</p>
+          <p class="app-kicker">Member directory</p>
+          <h1>Members</h1>
+          <p class="app-lede">
+            A narrow operational view of the member record. Keep personal truth in the portal and
+            use bounded operator tools for deeper work.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Rows shown</dt><dd>{members.length}</dd><dt>Sort</dt><dd>Newest record first</dd>
+        </dl>
+      </header>
+      <section class="app-section" aria-labelledby="members-heading">
+        <div class="app-section__head">
+          <h2 id="members-heading">Member records</h2><p>Operational minimum</p>
+        </div>
+        {
+          members.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No members yet</strong>
+                <span>There are no member records to review.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>State</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Chapter</th>
+                        <th>Created</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {members.map((m) => (
+                      <tr>
+                        <td data-label="State">
+                          <span
+                            class={`pill ${m.state === "ACTIVE" ? "pill--ok" : m.state === "CANCELLED" ? "pill--warn" : "pill--info"}`}
+                          >
+                            {m.state ?? "—"}
+                          </span>
+                        </td>
+                        <td data-label="Name">{m.preferred_name ?? "—"}</td>
+                        <td data-label="Email">{m.email}</td>
+                        <td data-label="Chapter">{m.chapter_id ?? "—"}</td>
+                        <td data-label="Created">{m.created_at}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              </table>
+            </div>
+          )
+        }
+      </section>
     </div>
   </section>
 </Base>

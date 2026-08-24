@@ -44,21 +44,21 @@ function setupMember(db: MockD1Database, opts: { tier: "core" | "correspondence"
   db.insert("membership_tiers", {
     id: tierMap.correspondence,
     slug: "correspondence",
-    display_name: "Correspondence",
+    display_name: "Corresponding Member",
     price_cents: 2000,
     currency: "AUD",
   });
   db.insert("membership_tiers", {
     id: tierMap.deluxe,
     slug: "deluxe",
-    display_name: "Deluxe",
+    display_name: "Deluxe Member",
     price_cents: 5000,
     currency: "AUD",
   });
   db.insert("membership_tiers", {
     id: tierMap.core,
     slug: "core",
-    display_name: "Core",
+    display_name: "Member",
     price_cents: 500,
     currency: "AUD",
   });

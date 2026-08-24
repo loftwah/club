@@ -5,9 +5,9 @@
 # It must operate from a clean local state.
 # See docs/14_ACCEPTANCE_CONTRACT.md and docs/17_ADR_ARCHITECTURE.md (ADR-002).
 
-[env]
-NODE_VERSION = "22.23.1"
-PNPM_VERSION = "11.22.0"
+[tools]
+node = "24.19.0"
+pnpm = "11.23.0"
 
 [tasks.dev]
 description = "Run the local Astro dev server backed by workerd (wrangler dev under the hood)."
@@ -22,7 +22,7 @@ run = """
 set -euo pipefail
 node node_modules/prettier/bin/prettier.cjs --check .
 node node_modules/eslint/bin/eslint.js . --max-warnings=0
-node node_modules/astro/astro.js check
+node node_modules/astro/bin/astro.mjs check
 node node_modules/typescript/bin/tsc --noEmit
 node node_modules/vitest/vitest.mjs run tests/unit
 """
@@ -43,11 +43,11 @@ node scripts/acceptance.mjs
 """
 
 [tasks.deploy-staging]
-description = "Run acceptance, then deploy to a staging Cloudflare environment."
+description = "Refuse deployment until an isolated staging Worker and resources are configured."
 run = """
 set -euo pipefail
-mise run acceptance
-node node_modules/wrangler/bin/wrangler.js deploy --env staging
+echo "No isolated staging environment is configured; refusing to target production resources." >&2
+exit 1
 """
 
 [tasks.deploy-production]
@@ -55,7 +55,7 @@ description = "Run acceptance, then deploy to production."
 run = """
 set -euo pipefail
 mise run acceptance
-node node_modules/wrangler/bin/wrangler.js deploy --env production
+node node_modules/wrangler/bin/wrangler.js deploy
 """
 
 [tasks.reset-local]
@@ -67,15 +67,43 @@ node node_modules/wrangler/bin/wrangler.js d1 migrations apply social-club --loc
 """
 
 [tasks.contracts]
-description = "CREDENTIALLED provider contract tests. Requires real Resend credentials in env. NOT part of default acceptance."
+description = "CREDENTIALLED provider contract tests. Loads .env via node --env-file=.env. NOT part of default acceptance."
 run = """
 set -euo pipefail
-node scripts/resend-contract.mjs
+node --env-file=.env scripts/resend-contract.mjs
 """
 
 [tasks."contracts:minimax"]
-description = "CREDENTIALLED MiniMax contract verification. Requires MINIMAX_API_KEY. NOT part of default acceptance."
+description = "CREDENTIALLED MiniMax contract verification. Loads .env via node --env-file=.env. NOT part of default acceptance."
 run = """
 set -euo pipefail
-node scripts/minimax-contract.mjs
+node --env-file=.env scripts/minimax-contract.mjs
 """
+
+[tasks."video:studio"]
+description = "Open the Plans With You motion-design lab in Remotion Studio."
+run = "pnpm video:studio"
+
+[tasks."video:status"]
+description = "Report CURRENT, STALE or MISSING for the four canonical commercial videos."
+run = "pnpm video:status"
+
+[tasks."video:render"]
+description = "Render one canonical composition by id, or all when no id is supplied."
+run = "node scripts/video/render.mjs"
+
+[tasks."video:render:all"]
+description = "Render delivery, master and poster files for all canonical commercial videos."
+run = "pnpm video:render:all"
+
+[tasks."video:storyboard"]
+description = "Build contact sheets for all canonical delivery renders."
+run = "pnpm video:storyboard"
+
+[tasks."video:qc"]
+description = "Run deterministic technical QC against all canonical delivery renders."
+run = "pnpm video:qc"
+
+[tasks."video:publish"]
+description = "Publish approved canonical creative and inventory to versioned R2 prefixes."
+run = "pnpm video:publish"

@@ -1,0 +1,130 @@
+[
+  {
+    "id": "home-envelope",
+    "prompt": "warm cream envelope on walnut desk, soft natural light, no text, photograph",
+    "destination": "public/brand/homepage-envelope.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Homepage supporting scene. Cream envelope on warm wood. No readable text."
+  },
+  {
+    "id": "home-eucalyptus",
+    "prompt": "stack of cream envelopes beside a small sprig of eucalyptus on neutral linen, no text, photograph",
+    "destination": "public/brand/homepage-eucalyptus.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Homepage supporting scene. Eucalyptus sprig adds warmth. No readable text."
+  },
+  {
+    "id": "correspondence-fan",
+    "prompt": "three cream envelopes fanned on a neutral desk, soft window light, no text, photograph",
+    "destination": "public/brand/correspondence-fan.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Correspondence section. Three envelopes fanned. No readable text."
+  },
+  {
+    "id": "correspondence-letter",
+    "prompt": "folded cream letter next to a brass letter opener on a wooden desk, no text, photograph",
+    "destination": "public/brand/correspondence-letter.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Correspondence section. Folded letter and brass opener. No readable text."
+  },
+  {
+    "id": "birthday-card",
+    "prompt": "simple cream birthday card on a linen surface beside a tea cup, no text, photograph",
+    "destination": "public/brand/birthday-card.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Birthday section. Warm card beside teacup. No readable text."
+  },
+  {
+    "id": "birthday-warm",
+    "prompt": "warm cream card on a linen surface, soft natural light, no text, photograph",
+    "destination": "public/brand/birthday-warm.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Birthday section. Alternate warm card. No readable text."
+  },
+  {
+    "id": "membership-card",
+    "prompt": "small cream membership card on linen beside a sprig of rosemary, no text, photograph",
+    "destination": "public/brand/membership-card.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Physical membership section. Card with rosemary. No readable text."
+  },
+  {
+    "id": "membership-invitation",
+    "prompt": "cream paper invitation with a single red wax seal on walnut desk, no text, photograph",
+    "destination": "public/brand/membership-invitation.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Physical membership section. Invitation with wax seal. No readable text."
+  },
+  {
+    "id": "journal-stack",
+    "prompt": "stack of cream journals on a wooden surface, warm light, no text, photograph",
+    "destination": "public/brand/journal-stack.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Journal supporting imagery. Stack of cream journals. No readable text."
+  },
+  {
+    "id": "journal-leaf",
+    "prompt": "opened cream journal page with a single pressed leaf, no text, photograph",
+    "destination": "public/brand/journal-leaf.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Journal supporting imagery. Open page with pressed leaf. No readable text."
+  },
+  {
+    "id": "commitment-list",
+    "prompt": "a quiet to-do list on cream paper on a clean desk, no text, photograph",
+    "destination": "public/brand/commitment-list.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Manufactured commitments supporting visual. To-do list on cream paper. No readable text."
+  },
+  {
+    "id": "commitment-note",
+    "prompt": "a folded note beside a teacup on a clean wooden desk, no text, photograph",
+    "destination": "public/brand/commitment-note.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Manufactured commitments supporting visual. Folded note beside teacup. No readable text."
+  },
+  {
+    "id": "gift-package",
+    "prompt": "cream paper-wrapped package with twine on a wooden surface, no text, photograph",
+    "destination": "public/brand/gift-package.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Gifts / packaging. Twine-wrapped package. No readable text."
+  },
+  {
+    "id": "gift-envelope",
+    "prompt": "small cream envelope containing a sprig of dried rosemary, no text, photograph",
+    "destination": "public/brand/gift-envelope.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Gifts / packaging. Envelope with rosemary. No readable text."
+  },
+  {
+    "id": "chapter-cafe",
+    "prompt": "morning cafe table with a single coffee cup, no text, photograph",
+    "destination": "public/brand/chapter-cafe.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Chapter editorial supporting imagery. Single cup on cafe table. No readable text."
+  },
+  {
+    "id": "chapter-gallery",
+    "prompt": "empty wooden gallery bench beside a tall window, no text, photograph",
+    "destination": "public/brand/chapter-gallery.jpg",
+    "width": 1024,
+    "height": 1024,
+    "notes": "Chapter editorial supporting imagery. Empty gallery bench. No readable text."
+  }
+]

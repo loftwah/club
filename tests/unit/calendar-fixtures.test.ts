@@ -14,12 +14,12 @@ describe("calendar / iCalendar — fixture invariants", () => {
   const base = {
     uid: "event-abc123@club.loftwah.com",
     summary: "A small opening at Gertrude Contemporary",
-    description: "Plausible invitation. The Society will cancel before the date.",
+    description: "Plausible invitation. We will cancel before the date.",
     location: "Gertrude Contemporary, 21-31 High Street, Fitzroy VIC",
     startUtc: "2026-09-12T11:00:00.000Z",
     endUtc: "2026-09-12T13:00:00.000Z",
     stampUtc: "2026-08-23T05:00:00.000Z",
-    organizer: { name: "The Reserved Society", email: "hello@club.loftwah.com" },
+    organizer: { name: "Plans With You", email: "hello@club.loftwah.com" },
     attendees: [{ name: "Test Member", email: "member@example.com" }],
   };
 
@@ -64,7 +64,7 @@ describe("calendar / iCalendar — fixture invariants", () => {
 
   it("organizer and attendee are formatted as mailto", () => {
     const ics = renderIcs({ ...base, sequence: 1, status: "CONFIRMED" });
-    expect(ics).toContain("ORGANIZER;CN=The Reserved Society:mailto:hello@club.loftwah.com");
+    expect(ics).toContain("ORGANIZER;CN=Plans With You:mailto:hello@club.loftwah.com");
     expect(ics).toContain("ATTENDEE;CN=Test Member;RSVP=FALSE:mailto:member@example.com");
   });
 

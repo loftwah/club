@@ -11,7 +11,8 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { newCallId, newFulfilmentId } from "../infra/ids.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
-import { canPerform, type PolicyContext } from "../domain/policy.js";
+import { canPerform } from "../domain/policy.js";
+import { loadPolicyContext } from "../domain/policy-context.js";
 
 export type CallState =
   | "PROPOSED"
@@ -61,19 +62,10 @@ export class CallService {
       .bind(id, input.memberId, input.purpose, input.windowStart, input.windowEnd, now)
       .run();
     // Policy check.
-    const decision = canPerform("CALLS", {
-      membershipState: "ACTIVE",
-      tierId: null,
-      tierCapabilities: new Set(["CALLS"]),
-      serviceGrantState: "OPTED_IN",
-      explicitOptOut: false,
-      consentCurrent: true,
-      termsCurrent: true,
-      billingActive: true,
-      chapterSupported: true,
-      safetyBlocked: false,
-      duplicate: false,
-    } satisfies PolicyContext);
+    const decision = canPerform(
+      "CALLS",
+      await loadPolicyContext(this.deps.db, input.memberId, "CALLS"),
+    );
     if (!decision.allowed) {
       await this.deps.db
         .prepare(`UPDATE calls SET state = 'POLICY_DENIED' WHERE id = ?`)

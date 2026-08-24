@@ -66,7 +66,7 @@ export class MagicLinkService {
    * URL fragment after `#token=`) which the caller delivers by
    * email. We persist only the hash. The token is shown ONCE.
    */
-  async request(input: { memberId: string; email: string }): Promise<{
+  async request(input: { memberId: string; email: string; continuePath?: string | null }): Promise<{
     token: string;
     url: string;
     expiresAt: string;
@@ -103,7 +103,10 @@ export class MagicLinkService {
       correlationId: null,
       metadata: null,
     });
-    const url = `${this.deps.appBaseUrl}/portal/auth?token=${encodeURIComponent(token)}`;
+    const query = new URLSearchParams({ token });
+    const continuePath = safeInternalPath(input.continuePath);
+    if (continuePath) query.set("next", continuePath);
+    const url = `${this.deps.appBaseUrl}/portal/auth?${query.toString()}`;
     return { token, url, expiresAt };
   }
 
@@ -155,10 +158,15 @@ export class MagicLinkService {
       throw new MagicLinkError("EXPIRED", "Token has expired.");
     }
     const now = this.deps.clock.now();
-    await this.deps.db
-      .prepare(`UPDATE magic_links SET consumed_at = ? WHERE id = ?`)
+    const consumed = await this.deps.db
+      .prepare(`UPDATE magic_links SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL`)
       .bind(now.toISOString(), row.id)
       .run();
+    // The read above and this conditional update can race across requests.
+    // Only the request that changes an unconsumed row may mint a session.
+    if ((consumed.meta.changes ?? 0) !== 1) {
+      throw new MagicLinkError("ALREADY_CONSUMED", "Token already used.");
+    }
     // Issue a session.
     const session = await this.issueSession(row.member_id);
     await this.deps.audit.record({
@@ -305,24 +313,42 @@ async function sha256B64(input: string): Promise<string> {
 }
 
 /**
- * Cookie helpers. Used by the portal routes to set the
- * session cookie. Secure HttpOnly, SameSite=Lax.
+ * Cookie helpers. Used by the portal and onboarding routes to set the
+ * session cookie. Secure HttpOnly, SameSite=Lax. The root path is required
+ * because authenticated applicants continue onboarding at /onboarding/.
  */
 export const SESSION_COOKIE = "society_session";
+
+/** Accept only same-origin relative paths for post-authentication handoff. */
+export function safeInternalPath(value: string | null | undefined): string | null {
+  const candidate = value?.trim();
+  if (!candidate || !candidate.startsWith("/") || candidate.startsWith("//")) return null;
+  if (candidate.includes("\\") || /[\u0000-\u001f\u007f]/.test(candidate)) return null;
+  try {
+    const decoded = decodeURIComponent(candidate);
+    if (decoded.startsWith("//")) return null;
+    const parsed = new URL(candidate, "https://club.loftwah.invalid");
+    if (parsed.origin !== "https://club.loftwah.invalid") return null;
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return null;
+  }
+}
+
 export function buildSessionCookie(sessionId: string, maxAgeSec: number): string {
   return [
     `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}`,
-    "Path=/portal",
+    "Path=/",
     "HttpOnly",
     "Secure",
     "SameSite=Lax",
     `Max-Age=${maxAgeSec}`,
   ].join("; ");
 }
-export function buildClearSessionCookie(): string {
+export function buildClearSessionCookie(path = "/"): string {
   return [
     `${SESSION_COOKIE}=`,
-    "Path=/portal",
+    `Path=${path}`,
     "HttpOnly",
     "Secure",
     "SameSite=Lax",

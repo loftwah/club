@@ -95,19 +95,30 @@ export async function applyBillingEvent(
     )
     .run();
   let action = "IGNORED";
-  switch (event.type) {
-    case "invoice.payment_succeeded":
-      action = await onPaymentSucceeded(deps, event);
-      break;
-    case "invoice.payment_failed":
-      action = await onPaymentFailed(deps, event);
-      break;
-    case "customer.subscription.deleted":
-      action = await onSubscriptionCancelled(deps, event);
-      break;
-    case "customer.subscription.updated":
-      action = await onSubscriptionUpdated(deps, event);
-      break;
+  try {
+    switch (event.type) {
+      case "invoice.payment_succeeded":
+        action = await onPaymentSucceeded(deps, event);
+        break;
+      case "invoice.payment_failed":
+        action = await onPaymentFailed(deps, event);
+        break;
+      case "customer.subscription.deleted":
+        action = await onSubscriptionCancelled(deps, event);
+        break;
+      case "customer.subscription.updated":
+        action = await onSubscriptionUpdated(deps, event);
+        break;
+    }
+  } catch (error) {
+    // A rejected activation must be retryable after the member completes the
+    // missing gate. Do not leave a dedupe record that turns a later provider
+    // retry into a silent no-op.
+    await deps.db
+      .prepare(`DELETE FROM billing_events WHERE provider_event_id = ?`)
+      .bind(event.id)
+      .run();
+    throw error;
   }
   return { duplicate: false, action };
 }
@@ -123,12 +134,35 @@ async function onPaymentSucceeded(
     .first<Record<string, unknown>>();
   if (!sub) return "UNKNOWN_CUSTOMER";
   const memberId = sub.member_id as string;
+  if (!event.subscriptionId || event.subscriptionId !== (sub.provider_subscription_id as string)) {
+    throw new Error("Billing activation blocked: subscription_mismatch");
+  }
+  // Check every non-billing gate before changing subscription state. This
+  // prevents an invoice event from turning a partial applicant into a paid
+  // member and makes an invalid event safely retryable.
+  const preflightBlockers = await deps.membership.getActivationBlockers(memberId, {
+    requireActiveBilling: false,
+    expectedSubscriptionId: event.subscriptionId,
+  });
+  if (preflightBlockers.length > 0) {
+    throw new Error(`Billing activation blocked: ${preflightBlockers.join(", ")}`);
+  }
+  const previousStatus = sub.status as string;
   await deps.db
     .prepare(`UPDATE subscriptions SET status = 'ACTIVE', updated_at = ? WHERE id = ?`)
     .bind(deps.clock.nowIso(), sub.id as string)
     .run();
-  // Activate the membership.
-  await deps.membership.activate(memberId);
+  try {
+    // Membership activation re-reads D1 and verifies the now-active
+    // subscription, closing the race between preflight and the write.
+    await deps.membership.activate(memberId);
+  } catch (error) {
+    await deps.db
+      .prepare(`UPDATE subscriptions SET status = ?, updated_at = ? WHERE id = ?`)
+      .bind(previousStatus, deps.clock.nowIso(), sub.id as string)
+      .run();
+    throw error;
+  }
   await deps.audit.record({
     actorType: "SYSTEM",
     actorId: null,

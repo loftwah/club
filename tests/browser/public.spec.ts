@@ -25,11 +25,12 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
     );
     // The value proposition paragraph exists in the DOM.
     await expect(page.getByText(/You were on the list/i)).toBeVisible();
-    // Tier preview is rendered. Use anchored regexes to avoid the
-    // A$5/A$50 prefix collision.
-    await expect(page.getByText(/A\$5\/month/)).toBeVisible();
-    await expect(page.getByText(/A\$20\/month/)).toBeVisible();
-    await expect(page.getByText(/A\$50\/month/)).toBeVisible();
+    // Tier preview is rendered, including the AUD/month qualifier.
+    const prices = page.locator(".tier__price");
+    await expect(prices).toHaveCount(3);
+    await expect(prices.nth(0)).toContainText(/A\$5\s*AUD \/ month/);
+    await expect(prices.nth(1)).toContainText(/A\$20\s*AUD \/ month/);
+    await expect(prices.nth(2)).toContainText(/A\$50\s*AUD \/ month/);
     // SEO meta.
     const title = await page.title();
     expect(title.length).toBeGreaterThan(0);
@@ -49,27 +50,58 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
     await expect(page.locator("form#wl-form")).toBeVisible();
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
+    // The submit button must NOT mention payment, charge, or subscribe
+    // (the waitlist is free).
+    const submit = page.locator("#wl-submit");
+    await expect(submit).not.toContainText(/pay|charge|subscribe|checkout/i);
   });
 
   test("GET /membership renders the tier preview", async ({ page }) => {
     const response = await page.goto("/membership/");
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { name: "Core", level: 3 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Correspondence", level: 3 })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Deluxe", level: 3 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Member", level: 3, exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Corresponding Member", level: 3, exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Deluxe Member", level: 3, exact: true }),
+    ).toBeVisible();
+  });
+
+  test("GET /membership tier CTAs route into the waitlist with the right tier", async ({
+    page,
+  }) => {
+    await page.goto("/membership/");
+    const member = page.getByTestId("tier-cta-member");
+    const corresponding = page.getByTestId("tier-cta-corresponding");
+    const deluxe = page.getByTestId("tier-cta-deluxe");
+    await expect(member).toHaveAttribute("href", "/waiting-list/?tier=member");
+    await expect(corresponding).toHaveAttribute("href", "/waiting-list/?tier=corresponding");
+    await expect(deluxe).toHaveAttribute("href", "/waiting-list/?tier=deluxe");
+  });
+
+  test("GET /waiting-list/?tier=corresponding acknowledges the tier interest", async ({ page }) => {
+    await page.goto("/waiting-list/?tier=corresponding");
+    await expect(page.getByText(/Corresponding Member/).first()).toBeVisible();
+    // The hidden field should be populated so the submission carries
+    // the chosen tier.
+    const tierField = page.locator("#interested-tier");
+    await expect(tierField).toHaveValue("Corresponding Member");
   });
 
   test("GET /how-it-works renders the canonical arc", async ({ page }) => {
     const response = await page.goto("/how-it-works/");
     expect(response?.status()).toBe(200);
     await expect(page.getByText(/I was on the list|Plans were made/)).toBeVisible();
-    await expect(page.getByText(/cancels it/)).toBeVisible();
+    await expect(page.getByText(/cancel(s|ed)? it/)).toBeVisible();
   });
 
   test("GET /chapters renders the chapter list", async ({ page }) => {
     const response = await page.goto("/chapters/");
     expect(response?.status()).toBe(200);
-    await expect(page.getByText(/Melbourne/)).toBeVisible();
+    await expect(page.getByRole("link", { name: "Melbourne", exact: true })).toBeVisible();
   });
 
   test("GET /unknown returns 404", async ({ page }) => {
@@ -109,7 +141,7 @@ test.describe("mobile viewport", () => {
     // Headings, nav, and CTAs are reachable.
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.locator(".site-header")).toBeVisible();
-    await expect(page.getByRole("link", { name: /Waiting list/ })).toBeVisible();
+    await expect(page.locator(".hero__cta").first()).toBeVisible();
   });
 });
 
@@ -129,7 +161,7 @@ test.describe("reduced motion", () => {
     await expect(page.getByText(/You were on the list/i)).toBeVisible();
     // The ThreeUI canvas (or its fallback) is in the DOM but does not
     // hide the form links.
-    await expect(page.getByRole("link", { name: /Waiting list/ })).toBeVisible();
+    await expect(page.locator(".hero__cta").first()).toBeVisible();
     // Waiting-list form is usable.
     await page.goto("/waiting-list/");
     await expect(page.locator('input[type="email"]')).toBeVisible();
@@ -208,12 +240,12 @@ test.describe("ThreeUI fallback path", () => {
     // The entire canonical proposition is in the raw HTML, not
     // generated by client-side JS.
     const html = await page.content();
-    expect(html).toContain("Plans were made");
+    expect(html).toContain("Plans are made");
     expect(html).toContain("A$5");
     expect(html).toContain("A$20");
     expect(html).toContain("A$50");
-    // The static "SC" fallback seal is visible.
-    await expect(page.getByText("SC")).toBeVisible();
+    // The static wordmark remains visible without JavaScript.
+    await expect(page.getByRole("link", { name: "Plans With You — home" })).toBeVisible();
     await context.close();
   });
 });

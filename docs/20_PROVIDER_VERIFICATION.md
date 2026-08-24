@@ -1,6 +1,49 @@
 # 20. Provider Verification Snapshot
 
-Snapshot: **2026/08/23 15:16 AEST (UTC+10) / 2026/08/23 05:16 UTC**.
+Snapshot: **2026/08/24 12:43 AEST (UTC+10) / 2026/08/24 02:43 UTC**.
+
+## MiniMax image endpoint (404 root-cause + fix)
+
+The project's direct adapter and the credentialled contract test
+previously called `POST /v1/image/generations` against
+`https://api.minimax.io/v1` and got a `404 404 page not found`.
+
+Root cause: the canonical MiniMax image endpoint is
+`POST /v1/image_generation` (single underscore, no trailing `s`),
+not `/v1/image/generations`. The CLI (`mmx`) uses the correct path
+(see `~/.cache/npm/global/lib/node_modules/mmx-cli/dist/sdk.mjs`,
+`imageEndpoint(baseUrl)`). The auth and text paths (`/v1/models`,
+`/v1/chat/completions`) were always correct.
+
+Request body shape used by both the CLI and the corrected adapter:
+
+```json
+{ "model": "image-01", "prompt": "…", "aspect_ratio": "1:1", "n": 1 }
+```
+
+(Or `{ width, height }` instead of `aspect_ratio` when explicit
+dimensions are required.)
+
+Response body shape:
+
+```json
+{
+  "data": { "image_urls": ["…"] } | { "image_base64": ["…"] },
+  "base_resp": { "status_code": 0, "status_msg": "success" },
+  "model": "image-01",
+  "id": "…"
+}
+```
+
+Sources of truth:
+
+- `mmx image generate --help` (live CLI)
+- mmx-cli SDK source: `imageEndpoint()` returns `${baseUrl}/v1/image_generation`
+- Direct adapter: `src/adapters/minimax-real.ts`
+- Contract: `scripts/minimax-contract.mjs`
+
+Verified by `mise run contracts:minimax`:
+`auth`, `text-generation`, `image-generation`, `error-behaviour` — all PASS.
 
 ## Cloudflare
 
@@ -86,13 +129,17 @@ Snapshot: **2026/08/23 (AEST)**.
 
 The `@designcodeio/threeui` package (v0.3.0, the current stable at install time) bundles some older shader files that import `sRGBEncoding` and `LinearEncoding` from three.js. These constants were removed in three.js r152. With three.js 0.165.0 (the version resolved in the lockfile), Vite emits a build-time warning for every import of those names.
 
-Investigation:
+Historical investigation:
 
 - The warnings come from `node_modules/@designcodeio/threeui/lib-dist/shaders/gallery/Gallery.js` and `.../temple-night/templeNightRenderer.js`. They are bundled by the package's main `index.js` barrel.
 - None of the individual components in `package-components/` (the public API) import these constants directly. In particular `EngravedCertificate`, `BookshelfScene`, `KageLandingPage`, `BestsellersBookShowcase`, `SylvaHero`, etc. are clean.
-- The build succeeds; the warnings are build-time noise. The components we use (the `SocietySeal` island, based on the `EngravedCertificate` family) do not exercise the offending code paths at runtime.
+- The build succeeds. The current protected bakeoff uses direct component
+  subpath imports, so the stale barrel shaders are not part of a public route.
 
-Decision (Phase 1): ship the current ThreeUI version with the build-time warnings noted. The warnings are non-blocking in practice. If we later use a ThreeUI component that does exercise the broken shader files at runtime, we will:
+Current decision: ship no ThreeUI scene publicly. Semantic HTML/CSS is the
+production winner; `WovenCloth` remains an internal research lead only. If a
+future candidate is independently admitted, it must use a direct import and
+prove its runtime against the then-current Three.js version. We will:
 
 - either pin a newer three.js / `@designcodeio/threeui` that has been updated for current three.js,
 - or work around via a small Vite plugin that aliases the removed constants to the new color-space strings.
@@ -105,7 +152,14 @@ The credentialled Resend contract test (`scripts/resend-contract.mjs`) verifies 
 
 1. Authentication — `GET /domains` succeeds with the configured API key.
 2. Webhook signature round-trip — the configured signing secret produces a signature that the documented Svix algorithm accepts.
-3. Received email metadata shape — `GET /emails/receiving/{id}` returns the documented fields (id/from/to/subject).
-4. Received email body shape — same call returns `html` and/or `text`.
+3. Received email metadata shape — `GET /emails/receiving/{id}` returns the documented fields (id/from/to/subject) when `RESEND_EMAIL_ID` identifies a real received message.
+4. Received email body shape — the same call returns `html` and/or `text` when that fixture is available.
 
 It is NOT part of the default `mise run acceptance` run. It is invoked via `mise run contracts` when `RESEND_API_KEY` and `RESEND_WEBHOOK_SIGNING_SECRET` are present. Normal acceptance continues to use the `FakeResend` adapter; this script never prints secret values.
+
+Live result on 2026-08-24: authentication and webhook-signature verification
+passed. Metadata/body retrieval was **SKIPPED**, not passed, because neither the
+environment nor production D1 contained a safe real received-message ID. To
+complete it without inventing evidence, receive a controlled message through
+the configured Resend inbound route, set `RESEND_EMAIL_ID` to that message ID,
+then run `mise run contracts` and retain the redacted PASS output.

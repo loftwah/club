@@ -37,12 +37,17 @@ async function setupFixture(): Promise<DevFixture> {
     name: "Melbourne",
     status: "ACTIVE",
   });
+  const tierNames: Record<string, string> = {
+    core: "Member",
+    correspondence: "Corresponding Member",
+    deluxe: "Deluxe Member",
+  };
   for (const t of ["core", "correspondence", "deluxe"]) {
     const prices = { core: 500, correspondence: 2000, deluxe: 5000 };
     db.insert("membership_tiers", {
       id: `tier_${t}`,
       slug: t,
-      display_name: t.charAt(0).toUpperCase() + t.slice(1),
+      display_name: tierNames[t] ?? t,
       price_cents: prices[t as keyof typeof prices],
       currency: "AUD",
     });
@@ -57,10 +62,24 @@ async function setupFixture(): Promise<DevFixture> {
       db.insert("tier_capabilities", { tier_id: `tier_${t}`, capability: cap, enabled: 1 });
     }
     if (t !== "core") {
-      for (const cap of ["GIFTS", "CALLS"]) {
+      for (const cap of ["GIFTS", "CALLS", "MANUFACTURED_COMMITMENTS"]) {
         db.insert("tier_capabilities", { tier_id: `tier_${t}`, capability: cap, enabled: 1 });
       }
     }
+  }
+  for (const [id, docType] of [
+    ["doc_terms", "TERMS"],
+    ["doc_privacy", "PRIVACY_POLICY"],
+    ["doc_theatrical", "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT"],
+  ]) {
+    db.insert("legal_documents", {
+      id,
+      doc_type: docType,
+      version: "1.0.0",
+      effective_at: "2026-01-01T00:00:00.000Z",
+      content_hash: `hash_${id}`,
+      body: null,
+    });
   }
 
   const location = new LocationService({ db: db as unknown as D1Database, audit, clock });
@@ -121,7 +140,36 @@ async function seedMember(
     started_at: "2026-01-01T00:00:00.000Z",
     ended_at: null,
   });
-  for (const svc of ["PHYSICAL_CORRESPONDENCE", "GIFTS", "CALLS"]) {
+  db.insert("subscriptions", {
+    id: `sub_${opts.id}`,
+    member_id: opts.id,
+    provider: "fake",
+    provider_customer_id: `cus_${opts.id}`,
+    provider_subscription_id: `provider_sub_${opts.id}`,
+    tier_id: `tier_${opts.tier}`,
+    status: "ACTIVE",
+    current_period_end: null,
+  });
+  db.insert("billing_customers", {
+    id: `bc_${opts.id}`,
+    member_id: opts.id,
+    provider: "fake",
+    provider_customer_id: `cus_${opts.id}`,
+  });
+  for (const [id, documentId] of [
+    ["acc_terms", "doc_terms"],
+    ["acc_privacy", "doc_privacy"],
+    ["acc_theatrical", "doc_theatrical"],
+  ] as const) {
+    db.insert("member_acceptances", {
+      id: `${id}_${opts.id}`,
+      member_id: opts.id,
+      document_id: documentId,
+      accepted_at: "2026-01-01T00:00:00.000Z",
+      method: "WEB",
+    });
+  }
+  for (const svc of ["PHYSICAL_CORRESPONDENCE", "GIFTS", "CALLS", "MANUFACTURED_COMMITMENTS"]) {
     db.insert("service_grants", {
       id: `sg_${opts.id}_${svc}`,
       member_id: opts.id,
@@ -208,7 +256,7 @@ describe("dev fixture end-to-end", () => {
 
     // 5. Manufactured commitment.
     const c = await fx.commitments.request({
-      memberId: "mem_alice",
+      memberId: "mem_bob",
       goal: "Clean the apartment",
       scenarioText: "An old friend is visiting on Saturday.",
     });

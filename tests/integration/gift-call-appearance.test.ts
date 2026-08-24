@@ -49,7 +49,7 @@ function setupMember(db: MockD1Database) {
   db.insert("membership_tiers", {
     id: "tier_deluxe",
     slug: "deluxe",
-    display_name: "Deluxe",
+    display_name: "Deluxe Member",
     price_cents: 5000,
     currency: "AUD",
   });
@@ -81,6 +81,60 @@ function setupMember(db: MockD1Database) {
     document_id: "doc_terms",
     accepted_at: "2026-01-01T00:00:00.000Z",
     method: "WEB",
+  });
+  db.insert("legal_documents", {
+    id: "doc_terms",
+    doc_type: "TERMS",
+    version: "1.0.0",
+    effective_at: "2025-01-01T00:00:00.000Z",
+    content_hash: "hash_terms",
+    body: null,
+  });
+  db.insert("legal_documents", {
+    id: "doc_privacy",
+    doc_type: "PRIVACY_POLICY",
+    version: "1.0.0",
+    effective_at: "2025-01-01T00:00:00.000Z",
+    content_hash: "hash_privacy",
+    body: null,
+  });
+  db.insert("legal_documents", {
+    id: "doc_theatrical",
+    doc_type: "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT",
+    version: "1.0.0",
+    effective_at: "2025-01-01T00:00:00.000Z",
+    content_hash: "hash_theatrical",
+    body: null,
+  });
+  db.insert("member_acceptances", {
+    id: "acc_privacy",
+    member_id: "mem_1",
+    document_id: "doc_privacy",
+    accepted_at: "2025-01-01T00:00:00.000Z",
+    method: "WEB",
+  });
+  db.insert("member_acceptances", {
+    id: "acc_theatrical",
+    member_id: "mem_1",
+    document_id: "doc_theatrical",
+    accepted_at: "2025-01-01T00:00:00.000Z",
+    method: "WEB",
+  });
+  db.insert("subscriptions", {
+    id: "sub_1",
+    member_id: "mem_1",
+    provider: "fake",
+    provider_customer_id: "cus_1",
+    provider_subscription_id: "provider_sub_1",
+    tier_id: "tier_deluxe",
+    status: "ACTIVE",
+    current_period_end: null,
+  });
+  db.insert("billing_customers", {
+    id: "bc_1",
+    member_id: "mem_1",
+    provider: "fake",
+    provider_customer_id: "cus_1",
   });
 }
 

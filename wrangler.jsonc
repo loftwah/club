@@ -1,23 +1,24 @@
-// Wrangler configuration for the Social Club Worker.
+// Wrangler configuration for the Plans With You Worker.
 //
-// This file declares the bindings for ALL environments. The cron schedule
-// here is the explicit "test cadence" used by `wrangler dev` and the
-// local acceptance run. The exact production cadence and cancellation
-// windows are explicitly OPEN per AGENTS.md "Ask before locking" and
-// docs/18_LOCKED_AND_OPEN_DECISIONS.md — they are NOT to be set here
-// without explicit user approval. The acceptance script and CI must run
-// against this file with the placeholder schedule; production deploys
-// must override `triggers.crons` via a per-environment Wrangler config
-// (or be left empty until the user signs off on a cadence).
+// Product cadence is locked in src/brand/cadence.ts. Runtime scheduling is a
+// separate operational decision: no Cron Trigger is configured here, and
+// local/acceptance checks invoke protected cron routes directly.
 //
 // Local development uses simulated D1/R2/Queues via workerd/Miniflare.
 
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "social-club",
-  "main": "./dist/_worker.js/index.js",
+  "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-08-15",
   "compatibility_flags": ["nodejs_compat"],
+
+  "routes": [
+    {
+      "pattern": "club.loftwah.com/*",
+      "zone_name": "loftwah.com",
+    },
+  ],
 
   "vars": {
     "APP_BASE_URL": "https://club.loftwah.com",
@@ -27,7 +28,7 @@
     {
       "binding": "DB",
       "database_name": "social-club",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "22850c0b-b1ac-4f9e-950b-8e8392e02d90",
       "migrations_dir": "migrations",
     },
   ],
@@ -39,37 +40,32 @@
     },
   ],
 
-  // ASSETS binding for the @astrojs/cloudflare adapter's static-asset
-  // and 404 fallback handler. The adapter calls env.ASSETS.fetch()
-  // when no route matches; without this binding the 404 path 500s.
-  // We point it at ./public (an Astro-emitted directory for static
-  // files) so production behaviour is identical to local.
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./public",
-  },
+  "ratelimits": [
+    {
+      "name": "WAITLIST_RATE_LIMITER",
+      "namespace_id": "8162401",
+      "simple": { "limit": 3, "period": 60 },
+    },
+    {
+      "name": "MAGIC_LINK_RATE_LIMITER",
+      "namespace_id": "8162402",
+      "simple": { "limit": 3, "period": 60 },
+    },
+  ],
 
-  "queues": {
-    "producers": [
-      {
-        "binding": "JOBS",
-        "queue": "social-club-jobs",
-      },
-    ],
-    "consumers": [
-      {
-        "queue": "social-club-jobs",
-        "max_batch_size": 10,
-        "max_batch_timeout": 30,
-      },
-    ],
-  },
+  // The Astro Cloudflare adapter generates its ASSETS binding from
+  // dist/client. Do not point Wrangler at the source public/ directory.
 
-  // LOCAL / TEST cadence only. See the comment at the top of this file.
-  // Production cadence is OPEN and must be approved before deploy.
-  "triggers": {
-    "crons": ["*/5 * * * *"],
-  },
+  // The job queue is not yet bound — no producer in the runtime
+  // sends to it, and no consumer handler is exported. We keep the
+  // queue resource name reserved in the wrangler config for when
+  // durable jobs are introduced, but commented out so wrangler does
+  // not require a handler.
+  //
+  // "queues": {
+  //   "producers": [{ "binding": "JOBS", "queue": "social-club-jobs" }],
+  //   "consumers": [{ "queue": "social-club-jobs", "max_batch_size": 10, "max_batch_timeout": 30 }],
+  // },
 
   "observability": {
     "enabled": true,

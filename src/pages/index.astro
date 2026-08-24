@@ -1,16 +1,16 @@
 ---
-// Public homepage. SEO-first; semantic content above the fold.
-// ThreeUI is mounted as a small island in the hero. The hero degrades
-// gracefully to a static SVG seal when JS is unavailable or
-// prefers-reduced-motion is set.
-//
-// Content reads from the configurable brand layer.
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
-import SocietySeal from "@components/SocietySeal.tsx";
+import PlanLifecycle from "@components/plan-lifecycle";
+import "@components/plan-lifecycle/PlanLifecycle.css";
+import { ArrowUpRight, CalendarDays, Mail, ShieldCheck, VolumeX } from "@lucide/astro";
 import { brand, formatPrice } from "../brand/config";
 import { withCounter } from "../lib/counter";
 
-const stats = await withCounter(Astro.locals?.runtime?.env);
+const stats = await withCounter(runtimeEnv);
+const hasCompletedPlans = stats.cancelledEvents > 0;
+
+const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe];
 ---
 
 <Base
@@ -19,180 +19,926 @@ const stats = await withCounter(Astro.locals?.runtime?.env);
   canonicalPath="/"
   ogImagePath="/og/default.svg"
 >
-  <section class="hero" aria-labelledby="hero-h">
-    <div class="container">
-      <div class="hero__canvas" data-testid="hero-seal">
-        <div class="hero__canvas-fallback" aria-hidden="true">PW</div>
-        <SocietySeal client:only="react" />
+  <section class="dispatch-hero" aria-labelledby="hero-title">
+    <div class="shell dispatch-hero__docket" aria-label="Product summary">
+      <span>Membership / Melbourne</span>
+      <span>Ordinary plans / Cancellation fulfilled</span>
+      <span>Issue 001 / Waitlist</span>
+    </div>
+
+    <div class="shell dispatch-hero__grid">
+      <div class="dispatch-hero__copy">
+        <h1 id="hero-title">
+          Plans are made.<br />
+          <span>Then unmade.</span><br />
+          You remain.
+        </h1>
+        <div class="dispatch-mobile-status" aria-label="Illustrative plan status">
+          <span>A future date / No attendance required</span>
+          <strong>Cancelled, as promised.</strong>
+        </div>
+        <div class="dispatch-hero__intro">
+          <p>
+            A real membership built around invitations you are never expected to accept. We make
+            thoughtful plans with you, cancel them on purpose, and keep the relationship going.
+          </p>
+          <a href="/waiting-list/" class="hero__cta">
+            Join the waitlist <ArrowUpRight size={16} stroke-width={1.8} aria-hidden="true" />
+          </a>
+          <small>Paid membership is not open. No card required.</small>
+        </div>
       </div>
-      <h1 id="hero-h">{brand.copy.hero.headline}</h1>
-      <p>{brand.copy.hero.sub}</p>
-      <a href="/waiting-list/" class="hero__cta">{brand.copy.hero.cta}</a>
+
+      <aside class="dispatch-card" aria-label="Illustration of a typical plan being cancelled">
+        <div class="dispatch-card__top">
+          <span>PWY / Ordinary plan</span>
+          <span>Illustrative plan only</span>
+        </div>
+        <div class="dispatch-card__date">
+          <span class="dispatch-card__month">A month<br />in the future</span>
+          <strong aria-hidden="true">24</strong>
+          <span class="dispatch-card__day">One evening<br />No attendance required</span>
+        </div>
+        <div class="dispatch-card__plan">
+          <span>18:30</span>
+          <p>Something plausible<br />somewhere nearby</p>
+          <span>On schedule</span>
+        </div>
+        <div class="dispatch-card__code" aria-label="Illustrative plan reference">
+          <span>PWY-ORDINARY-0024</span><i aria-hidden="true"></i>
+        </div>
+        <div class="dispatch-card__cancelled">
+          <span>Plan update</span>
+          <strong>Cancelled, as promised.</strong>
+          <span>Fulfilment complete</span>
+        </div>
+        <ol class="dispatch-card__rail" aria-label="A plan's sequence">
+          <li><span>01</span> Invitation arrives</li>
+          <li><span>02</span> Anticipation is optional</li>
+          <li class="is-current"><span>03</span> The plan is unmade</li>
+          <li><span>04</span> The relationship continues</li>
+        </ol>
+      </aside>
     </div>
+
+    <dl class="shell data-strip dispatch-hero__facts">
+      <div><dt>Belonging</dt><dd>Equal at every tier</dd></div>
+      <div><dt>Attendance</dt><dd>Never expected</dd></div>
+      <div><dt>Communication</dt><dd>Silence is valid</dd></div>
+      <div><dt>Current access</dt><dd>Waitlist only</dd></div>
+    </dl>
   </section>
 
-  <section class="counter" aria-labelledby="counter-h">
-    <div class="container">
-      <h2 id="counter-h" class="counter__heading">So far, the plans that have been unmade</h2>
-      <p class="counter__big" data-testid="public-cancelled-counter">
-        {stats.cancelledEvents}
-        <span class="counter__unit">plans</span>
-      </p>
-      <p class="counter__sub">
-        — and the invitations that went with them. The estimated attendance hours avoided is
-        <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>. The
-        counter is derived from real records. An unmade plan is successful fulfilment.
-      </p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="how-h">
-    <div class="container">
-      <h2 id="how-h">{brand.copy.howItWorks.headline}</h2>
-      <p>{brand.copy.howItWorks.lede}</p>
-      <pre
-        class="emotional-arc"
-        aria-label="The signature emotional arc">{brand.copy.emotionalArc.join("\n→ ")}</pre>
-      <p>{brand.copy.aboutClosing}</p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="invite-h">
-    <div class="container">
-      <h2 id="invite-h">A short, plausible, complete example</h2>
-      <article class="example">
-        <header>
-          <h3>Tuesday, 7:30pm — the gallery on Gertrude Street</h3>
-          <p class="example__meta">An ordinary invitation. Sent to a Core member in Melbourne.</p>
-        </header>
+  <section class="manifesto" aria-labelledby="manifesto-title">
+    <div class="shell manifesto__grid">
+      <div>
+        <h2 id="manifesto-title">You were on the list the whole time.</h2>
+      </div>
+      <div class="manifesto__letter">
         <p>
-          The Society sends a small, plausible invitation to a small, ordinary, deliberately
-          constructed event. The dress is quiet. The address is plausible. The plan is plausible.
-          The date approaches.
+          Most clubs ask you to prove you belong by turning up. Plans With You does not. The
+          invitation carries the feeling; the cancellation carries the relief; the memory carries
+          the relationship.
         </p>
-        <p class="example__note">→ 36 hours before the event — the plan is unmade.</p>
+        <p class="manifesto__signoff">Warmly,<br /><em>Plans With You</em></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lifecycle-section" aria-labelledby="lifecycle-title">
+    <div class="shell lifecycle-section__intro">
+      <div>
+        <h2 id="lifecycle-title">Cancellation is the destination.</h2>
+      </div>
+      <p>
+        This is an illustrative lifecycle, not a real event or venue booking. In the product, every
+        ordinary plan has an accountable state and must end in cancellation, archive, or explicit
+        human escalation.
+      </p>
+    </div>
+    <div class="shell lifecycle-section__stage">
+      <PlanLifecycle
+        state="cancelled"
+        staticMode={true}
+        event={{
+          id: "illustrative-ordinary-plan",
+          title: "An ordinary plan, successfully unmade",
+          date: "A future date supplied with the invitation",
+          chapter: "Member's resolved chapter",
+          status: "Cancelled intentionally",
+          location: "A plausible place, confirmed before use",
+          detail:
+            "A transparent example of the state machine. No real venue, endorsement, partnership, or booking is claimed.",
+        }}
+      />
+    </div>
+    <div class="shell lifecycle-section__key">
+      <p><span aria-hidden="true">●</span> Required terminal result</p>
+      <p>No RSVP / No check-in / No no-show state / No attendance record</p>
+    </div>
+  </section>
+
+  <section class="counter-wall" aria-labelledby="counter-title">
+    <div class="shell counter-wall__grid">
+      <div class="counter-wall__number">
+        <span class="eyebrow">D1-backed production record</span>
+        <strong data-testid="public-cancelled-counter">{stats.cancelledEvents}</strong>
+        <span>plans<br />unmade</span>
+      </div>
+      <div class="counter-wall__copy">
+        <h2 id="counter-title">A truthful counter, even when the number is quiet.</h2>
+        {
+          hasCompletedPlans ? (
+            <p>
+              Production records currently contain {stats.cancelledEvents} completed ordinary plans
+              and an estimated{" "}
+              <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>{" "}
+              attendance hours avoided. The estimate is derived from recorded duration and
+              invitation counts.
+            </p>
+          ) : (
+            <p>
+              There are no completed production plans to report yet. We show zero instead of
+              inventing momentum. The counter will move only when real D1 records reach a successful
+              cancellation state.
+              <span class="visually-hidden" data-testid="public-hours-avoided">
+                {stats.estimatedHoursAvoided}
+              </span>
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="two-worlds" aria-labelledby="worlds-title">
+    <div class="shell two-worlds__heading">
+      <h2 id="worlds-title">On schedule.<br /><span>In the post.</span></h2>
+    </div>
+    <div class="two-worlds__grid">
+      <article class="world-card world-card--schedule">
+        <div class="world-card__icon">
+          <CalendarDays size={26} stroke-width={1.6} aria-hidden="true" />
+        </div>
+        <h3>The calendar is the artefact.</h3>
         <p>
-          The cancellation is the same form as the invitation. The relationship continues. The
-          member never had to show up.
+          Invitations, approaching dates, clear status changes, cancellation windows, and a record
+          of plans fulfilled by being unmade.
         </p>
-        <p class="example__scale">
-          <em
-            >Scale that by every member, every month, every tier, and the membership becomes a long,
-            quiet correspondence — and the unmade plans add up.</em
-          >
+        <a href="/how-it-works/">Follow a plan <ArrowUpRight size={15} aria-hidden="true" /></a>
+      </article>
+      <article class="world-card world-card--post">
+        <div class="world-card__icon"><Mail size={26} stroke-width={1.6} aria-hidden="true" /></div>
+        <h3>Care takes physical form.</h3>
+        <p>
+          Correspondence, cards, milestone objects, and human attention become more tangible at
+          higher tiers—only with the right entitlement and permission.
         </p>
+        <a href="/correspondence/"
+          >See what may arrive <ArrowUpRight size={15} aria-hidden="true" /></a
+        >
       </article>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="tiers-h">
-    <div class="container">
-      <h2 id="tiers-h">Three tiers</h2>
-      <p>Higher tiers buy more physical and human intensity. They are not more loved.</p>
-      <div class="tiers">
-        <article class="tier" aria-labelledby="tier-core-h">
-          <h3 id="tier-core-h">{brand.tiers.core.name}</h3>
-          <p class="tier__price">{formatPrice(brand.tiers.core.priceAud)}<small>/month</small></p>
-          <p class="tier__tagline">{brand.tiers.core.tagline}</p>
-          <ul>
-            <li>Identity and member number</li>
-            <li>Invitations and unmade plans</li>
-            <li>Personalised digital correspondence</li>
-            <li>Birthday and anniversary recognition</li>
-            <li>Memory of the things you choose to share</li>
-          </ul>
-        </article>
-        <article class="tier" aria-labelledby="tier-phys-h">
-          <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
-          <p class="tier__price">
-            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
-          </p>
-          <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
-          <ul>
-            <li>Welcome pack and physical card</li>
-            <li>Posted birthday card</li>
-            <li>Signed correspondence</li>
-            <li>Milestone artefacts</li>
-            <li>Optional manufactured commitments</li>
-          </ul>
-        </article>
-        <article class="tier" aria-labelledby="tier-del-h">
-          <h3 id="tier-del-h">{brand.tiers.deluxe.name}</h3>
-          <p class="tier__price">{formatPrice(brand.tiers.deluxe.priceAud)}<small>/month</small></p>
-          <p class="tier__tagline">{brand.tiers.deluxe.tagline}</p>
-          <ul>
-            <li>All of the above</li>
-            <li>Hand-signed personal letters</li>
-            <li>Thoughtful gifts</li>
-            <li>Opted-in calls</li>
-            <li>Priority handling</li>
-          </ul>
-        </article>
+  <section class="membership-section" aria-labelledby="membership-title">
+    <div class="shell membership-section__heading">
+      <div>
+        <h2 id="membership-title">More tangible.<br />Never more belonging.</h2>
       </div>
       <p>
-        Membership is a relationship, not a transaction. Pricing is per individual, per month. There
-        is no per-event surcharge for being remembered.
+        Every member is equally wanted. Higher tiers fund increasing physical and human
+        fulfilment—not status, access to belonging, or an obligation to engage.
       </p>
+    </div>
+    <div class="shell tiers tiers--home">
+      {
+        tiers.map((tier, index) => (
+          <article class="tier">
+            <h3>{tier.name}</h3>
+            <p class="tier__price">
+              {formatPrice(tier.priceAud)}
+              <small>AUD / month</small>
+            </p>
+            <p class="tier__tagline">{tier.tagline}</p>
+            <p class="tier__positioning">{tier.positioning}</p>
+            <ul>
+              {tier.includes.slice(0, 4).map((line) => (
+                <li>{line}</li>
+              ))}
+            </ul>
+            <a
+              href={`/waiting-list/?tier=${index === 0 ? "member" : index === 1 ? "corresponding" : "deluxe"}`}
+            >
+              Register interest <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          </article>
+        ))
+      }
+    </div>
+    <p class="shell membership-section__note">
+      Displayed prices are not an offer to transact. Stripe and paid activation remain disabled.
+    </p>
+  </section>
+
+  <section class="quiet-belonging" aria-labelledby="quiet-title">
+    <div class="shell quiet-belonging__grid">
+      <div class="quiet-belonging__title">
+        <VolumeX size={34} stroke-width={1.4} aria-hidden="true" />
+        <h2 id="quiet-title">Silence is a successful membership.</h2>
+      </div>
+      <div class="quiet-belonging__rules">
+        <article>
+          <span>01</span><h3>No social homework</h3><p>
+            No posting, networking, streak, reply, or regular login is required.
+          </p>
+        </article>
+        <article>
+          <span>02</span><h3>Memory you control</h3><p>
+            Inspect, correct, restrict, revoke, or delete what you have chosen to share.
+          </p>
+        </article>
+        <article>
+          <span>03</span><h3>Consent stays specific</h3><p>
+            Post, gifts, calls, commitments, and appearances each have separate gates.
+          </p>
+        </article>
+        <article>
+          <span>04</span><h3>Automation has limits</h3><p>
+            AI can assist within policy. It cannot invent you or override permission.
+          </p>
+        </article>
+      </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="memory-h">
-    <div class="container">
-      <h2 id="memory-h">Care is real</h2>
-      <p>
-        The Society remembers what you choose to share. A birthday, a preferred pen, a pet called
-        Frank, an inside joke that became a tradition. You decide what the Society keeps, and you
-        can ask it to forget any of it.
-      </p>
-      <p>
-        Optional services — post, gifts, calls, manufactured commitments, the real-world appearance
-        service — are controllable. The default is off. The default is silence.
-      </p>
+  <section class="trust-section" aria-labelledby="trust-title">
+    <div class="shell trust-section__grid">
+      <div>
+        <ShieldCheck size={34} stroke-width={1.4} aria-hidden="true" />
+        <h2 id="trust-title">No mystery about what the system knows.</h2>
+      </div>
+      <div>
+        <p>
+          Confirmed facts need provenance. Candidate memories stay candidates. Rejected and revoked
+          facts remain out of personalisation. Important actions are auditable, and every workflow
+          ends or reaches a human.
+        </p>
+        <a href="/privacy/" class="button button--paper"
+          >Read the privacy approach <ArrowUpRight size={15} aria-hidden="true" /></a
+        >
+      </div>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="chapters-h">
-    <div class="container">
-      <h2 id="chapters-h">Chapters</h2>
-      <p>
-        The Society opens slowly, chapter by chapter. <a href="/chapters/"
-          >See which chapters are open</a
-        >.
-      </p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="lore-h">
-    <div class="container">
-      <h2 id="lore-h">From the journal</h2>
-      <p>
-        The Society publishes a journal: chapter reports, upcoming plans, unmade plans,
-        correspondence extracts, Society history, etiquette, seasonal letters, and artefact
-        announcements. <a href="/journal/">Read the journal</a>.
-      </p>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="faq-h">
-    <div class="container">
-      <h2 id="faq-h">A few questions, briefly</h2>
-      <p>
-        <a href="/faq/">Read the full FAQ</a>. The short version: silence is a valid membership. You
-        do not need to attend. The Society can be wrong about the weather too.
-      </p>
-    </div>
-  </section>
-
-  <section class="section wlist" aria-labelledby="wlist-h">
-    <div class="container">
-      <h2 id="wlist-h">The list</h2>
-      <p>
-        We are opening slowly. Add your name to the list and the Society will be in touch when it is
-        ready for you.
-      </p>
-      <p>
-        <a href="/waiting-list/" class="hero__cta">Add your name to the list</a>
-      </p>
+  <section class="final-invitation" aria-labelledby="final-title">
+    <div class="shell final-invitation__grid">
+      <h2 id="final-title">Put your name on a list you never have to perform for.</h2>
+      <div>
+        <p>
+          Register truthful interest in Member, Corresponding Member, or Deluxe Member. We will
+          write when there is something real to say.
+        </p>
+        <a href="/waiting-list/" class="hero__cta button--signal">
+          Join the waitlist <ArrowUpRight size={16} aria-hidden="true" />
+        </a>
+      </div>
     </div>
   </section>
 </Base>
+
+<style>
+  .dispatch-hero {
+    border-bottom: 1px solid var(--ink);
+  }
+  .dispatch-hero__docket {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding-block: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-family: var(--font-data);
+    font-size: 0.6rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  .dispatch-hero__docket span:nth-child(2) {
+    text-align: center;
+  }
+  .dispatch-hero__docket span:last-child {
+    text-align: right;
+  }
+  .dispatch-hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    padding-block: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  .dispatch-hero__copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
+    gap: clamp(2rem, 7vw, 8rem);
+    align-items: end;
+  }
+  .dispatch-hero__copy h1 {
+    max-width: 11ch;
+    margin: 0;
+    font-size: clamp(3.8rem, 6vw, 5.8rem);
+  }
+  .dispatch-hero__copy h1 span {
+    color: var(--signal-text);
+  }
+  .dispatch-hero__intro {
+    display: grid;
+    grid-template-columns: minmax(16rem, 32rem) auto;
+    gap: 1rem 1.5rem;
+    align-items: end;
+  }
+  .dispatch-hero__intro p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-letter);
+    font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .dispatch-hero__intro small {
+    grid-column: 2;
+    color: var(--ink-faint);
+    font-family: var(--font-data);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+  }
+  .dispatch-mobile-status {
+    display: none;
+  }
+  .dispatch-card {
+    position: relative;
+    display: grid;
+    grid-template-areas:
+      "top top"
+      "date rail"
+      "plan rail"
+      "cancel cancel"
+      "code code";
+    grid-template-columns: minmax(0, 1.45fr) minmax(16rem, 0.55fr);
+    overflow: hidden;
+    border: 1px solid var(--ink);
+    background: var(--paper-light);
+    box-shadow: 0 1.4rem 3.2rem rgb(18 17 15 / 16%);
+  }
+  .dispatch-card__top,
+  .dispatch-card__plan,
+  .dispatch-card__cancelled {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.8rem;
+    font-family: var(--font-data);
+    font-size: 0.56rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .dispatch-card__top {
+    grid-area: top;
+    background: var(--calendar);
+    color: #fff;
+  }
+  .dispatch-card__date {
+    grid-area: date;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 10rem;
+    padding: 1.25rem;
+    border-bottom: 1px dashed var(--ink);
+  }
+  .dispatch-card__date strong {
+    font-size: clamp(4.5rem, 8vw, 5.8rem);
+    font-weight: 720;
+    letter-spacing: -0.09em;
+    line-height: 0.75;
+  }
+  .dispatch-card__month,
+  .dispatch-card__day {
+    font-family: var(--font-data);
+    font-size: 0.56rem;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .dispatch-card__day {
+    text-align: right;
+  }
+  .dispatch-card__plan {
+    grid-area: plan;
+    align-items: center;
+    border-bottom: 1px solid var(--ink);
+  }
+  .dispatch-card__plan p {
+    flex: 1;
+    margin: 0;
+    font-family: var(--font-letter);
+    font-size: 1rem;
+    text-transform: none;
+  }
+  .dispatch-card__code {
+    display: flex;
+    grid-area: code;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.6rem;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px dashed var(--ink);
+    font-family: var(--font-data);
+    font-size: 0.56rem;
+    letter-spacing: 0.05em;
+  }
+  .dispatch-card__code i {
+    width: min(9rem, 45%);
+    height: 1.2rem;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--ink) 0 1px,
+      transparent 1px 3px,
+      var(--ink) 3px 5px,
+      transparent 5px 8px
+    );
+  }
+  .dispatch-card__cancelled {
+    display: grid;
+    grid-area: cancel;
+    padding: 1rem;
+    background: var(--signal);
+    color: var(--ink);
+  }
+  .dispatch-card__cancelled strong {
+    font-size: clamp(1.5rem, 3vw, 2.7rem);
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+  }
+  .dispatch-card__rail {
+    display: grid;
+    grid-area: rail;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--ink);
+    list-style: none;
+  }
+  .dispatch-card__rail li {
+    display: grid;
+    grid-template-columns: 2.3rem 1fr;
+    padding: 0.55rem 0.8rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-family: var(--font-data);
+    font-size: 0.61rem;
+    text-transform: uppercase;
+  }
+  .dispatch-card__rail .is-current {
+    color: var(--signal-text);
+  }
+  .dispatch-hero__facts {
+    padding-inline: var(--gutter);
+  }
+  .manifesto {
+    padding-block: var(--section-space);
+    background: var(--calendar);
+    color: white;
+  }
+  .manifesto__grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: clamp(3rem, 10vw, 10rem);
+    align-items: start;
+  }
+  .manifesto .eyebrow {
+    color: #fff;
+  }
+  .manifesto h2 {
+    max-width: 12ch;
+    margin: 1rem 0 0;
+    font-size: clamp(3.5rem, 7vw, 5.8rem);
+  }
+  .manifesto__letter {
+    padding: clamp(1.5rem, 3vw, 3rem);
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1.4rem 3rem rgb(0 0 0 / 22%);
+    transform: rotate(-1deg);
+  }
+  .manifesto__letter p {
+    font-family: var(--font-letter);
+    font-size: clamp(1.15rem, 2vw, 1.55rem);
+    line-height: 1.5;
+  }
+  .manifesto__signoff {
+    margin-top: 3rem;
+  }
+  .manifesto__signoff em {
+    color: var(--signal-text);
+    font-size: 1.4em;
+  }
+  .lifecycle-section {
+    padding-block: var(--section-space);
+    border-bottom: 1px solid var(--ink);
+  }
+  .lifecycle-section__intro {
+    display: grid;
+    grid-template-columns: 1fr 0.7fr;
+    gap: 3rem;
+    align-items: end;
+  }
+  .lifecycle-section__intro h2 {
+    max-width: 12ch;
+    margin: 1rem 0 0;
+    font-size: clamp(3rem, 6vw, 5.8rem);
+  }
+  .lifecycle-section__intro > p {
+    max-width: 35rem;
+    margin: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-letter);
+    font-size: 1.15rem;
+  }
+  .lifecycle-section__stage {
+    display: grid;
+    margin-top: 4rem;
+    place-items: center;
+  }
+  .lifecycle-section__key {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 1rem;
+    color: var(--ink-faint);
+    font-family: var(--font-data);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+  }
+  .lifecycle-section__key p:first-child span {
+    color: var(--ok);
+  }
+  .counter-wall {
+    padding-block: var(--section-space);
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .counter-wall__grid {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr;
+    gap: clamp(3rem, 10vw, 10rem);
+    align-items: end;
+  }
+  .counter-wall__number {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: end;
+  }
+  .counter-wall__number .eyebrow {
+    grid-column: 1 / -1;
+    color: #96938c;
+  }
+  .counter-wall__number strong {
+    font-size: clamp(4.8rem, 8vw, 5.8rem);
+    font-weight: 700;
+    letter-spacing: -0.12em;
+    line-height: 0.68;
+  }
+  .counter-wall__number > span:last-child {
+    padding-bottom: 0.5rem;
+    color: var(--signal);
+    font-family: var(--font-data);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+  .counter-wall__copy h2 {
+    margin: 0 0 2rem;
+    font-size: clamp(2.2rem, 4vw, 4.2rem);
+  }
+  .counter-wall__copy p {
+    color: #c9c4b9;
+    font-family: var(--font-letter);
+    font-size: 1.1rem;
+  }
+  .two-worlds {
+    padding-block: var(--section-space);
+  }
+  .two-worlds__heading h2 {
+    margin: 1rem 0 3rem;
+    font-size: clamp(4rem, 7vw, 5.8rem);
+  }
+  .two-worlds__heading h2 span {
+    color: var(--signal-text);
+    font-family: var(--font-letter);
+    font-style: italic;
+    font-weight: 520;
+  }
+  .two-worlds__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid var(--ink);
+  }
+  .world-card {
+    min-height: 31rem;
+    padding: clamp(1.5rem, 4vw, 4rem);
+  }
+  .world-card + .world-card {
+    border-left: 1px solid var(--ink);
+  }
+  .world-card__icon {
+    width: max-content;
+    margin-bottom: 5rem;
+    padding: 0.8rem;
+    border: 1px solid currentColor;
+  }
+  .world-card h3 {
+    max-width: 11ch;
+    margin: 1rem 0;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+  }
+  .world-card p:not(.eyebrow) {
+    max-width: 35rem;
+    color: var(--ink-soft);
+  }
+  .world-card a,
+  .tier a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-data);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+  }
+  .world-card--schedule {
+    background: var(--paper-light);
+  }
+  .world-card--post {
+    background: var(--signal-soft);
+  }
+  .world-card--post .eyebrow {
+    color: var(--ink);
+  }
+  .membership-section {
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--ink);
+  }
+  .membership-section__heading {
+    display: grid;
+    grid-template-columns: 1.2fr 0.6fr;
+    gap: 3rem;
+    align-items: end;
+  }
+  .membership-section__heading h2 {
+    margin: 1rem 0 0;
+    font-size: clamp(3.4rem, 6vw, 5.8rem);
+  }
+  .membership-section__heading > p {
+    color: var(--ink-soft);
+    font-family: var(--font-letter);
+    font-size: 1.15rem;
+  }
+  .tiers--home {
+    margin-top: 4rem;
+  }
+  .tiers--home .tier:nth-child(2) {
+    background: #eef0ff;
+  }
+  .tiers--home .tier:nth-child(3) {
+    background: var(--signal-soft);
+  }
+  .tiers--home .tier:nth-child(3) .eyebrow,
+  .tiers--home .tier:nth-child(3) .tier__price small {
+    color: var(--ink);
+  }
+  .membership-section__note {
+    color: var(--ink-faint);
+    font-family: var(--font-data);
+    font-size: 0.62rem;
+    text-transform: uppercase;
+  }
+  .quiet-belonging {
+    padding-block: var(--section-space);
+    background: var(--paper-deep);
+  }
+  .quiet-belonging__grid {
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+    gap: clamp(3rem, 8vw, 8rem);
+  }
+  .quiet-belonging__title h2 {
+    max-width: 10ch;
+    margin: 1.2rem 0 0;
+    font-size: clamp(3.3rem, 6vw, 5.8rem);
+  }
+  .quiet-belonging__title .eyebrow {
+    color: var(--ink);
+  }
+  .quiet-belonging__title svg {
+    margin-bottom: 2rem;
+  }
+  .quiet-belonging__rules {
+    border-top: 1px solid var(--ink);
+  }
+  .quiet-belonging__rules article {
+    display: grid;
+    grid-template-columns: 2rem 1fr 1.2fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .quiet-belonging__rules span {
+    font-family: var(--font-data);
+    font-size: 0.65rem;
+  }
+  .quiet-belonging__rules h3 {
+    margin: 0;
+    font-size: 1.35rem;
+    letter-spacing: -0.035em;
+  }
+  .quiet-belonging__rules p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+  .trust-section {
+    padding-block: var(--section-space);
+    background: var(--signal-text);
+    color: white;
+  }
+  .trust-section__grid {
+    display: grid;
+    grid-template-columns: 1fr 0.7fr;
+    gap: clamp(3rem, 10vw, 10rem);
+    align-items: end;
+  }
+  .trust-section .eyebrow {
+    margin-top: 2rem;
+    color: #ffd9cc;
+  }
+  .trust-section h2 {
+    max-width: 11ch;
+    margin: 1rem 0 0;
+    font-size: clamp(3rem, 6vw, 5.8rem);
+  }
+  .trust-section p {
+    font-family: var(--font-letter);
+    font-size: 1.2rem;
+  }
+  .trust-section .button {
+    margin-top: 1.5rem;
+    border-color: white;
+  }
+  .final-invitation {
+    padding-block: var(--section-space);
+  }
+  .final-invitation__grid {
+    display: grid;
+    grid-template-columns: 0.3fr 1.2fr 0.5fr;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .final-invitation h2 {
+    margin: 0;
+    font-size: clamp(3.2rem, 6vw, 5.8rem);
+  }
+  .final-invitation__grid > div p {
+    margin-top: 0;
+    color: var(--ink-soft);
+    font-family: var(--font-letter);
+  }
+
+  @media (max-width: 64rem) {
+    .dispatch-hero__grid {
+      grid-template-columns: 1fr;
+    }
+    .dispatch-card {
+      width: min(100%, 38rem);
+      margin-inline: auto;
+    }
+    .dispatch-hero__copy h1 {
+      max-width: 10ch;
+    }
+    .manifesto__grid,
+    .counter-wall__grid,
+    .quiet-belonging__grid {
+      grid-template-columns: 1fr;
+    }
+    .counter-wall__number strong {
+      font-size: clamp(4.8rem, 10vw, 5.8rem);
+    }
+    .final-invitation__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 48rem) {
+    .dispatch-hero__docket {
+      grid-template-columns: 1fr auto;
+    }
+    .dispatch-hero__docket span:nth-child(2) {
+      display: none;
+    }
+    .dispatch-hero__grid {
+      gap: 2rem;
+      padding-block: 1.5rem 2.5rem;
+    }
+    .dispatch-hero__copy {
+      display: block;
+    }
+    .dispatch-hero__copy h1 {
+      font-size: clamp(3rem, 14vw, 4.25rem);
+    }
+    .dispatch-mobile-status {
+      display: grid;
+      gap: 0.25rem;
+      margin-top: 1rem;
+      padding: 0.65rem 0.75rem;
+      border-block: 1px dashed var(--ink);
+      background: var(--signal);
+      color: var(--ink);
+      font-family: var(--font-data);
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .dispatch-mobile-status strong {
+      font-size: 0.82rem;
+      letter-spacing: 0;
+    }
+    .dispatch-hero__intro {
+      grid-template-columns: 1fr;
+      margin-top: 1rem;
+    }
+    .dispatch-hero__intro .hero__cta {
+      width: 100%;
+    }
+    .dispatch-hero__intro p {
+      font-size: 1rem;
+    }
+    .dispatch-hero__intro small {
+      grid-column: auto;
+    }
+    .dispatch-card {
+      grid-template-areas:
+        "top"
+        "date"
+        "plan"
+        "cancel"
+        "code"
+        "rail";
+      grid-template-columns: 1fr;
+      box-shadow: 0 1rem 2.5rem rgb(18 17 15 / 14%);
+    }
+    .dispatch-card__date {
+      min-height: 10rem;
+    }
+    .dispatch-card__date strong {
+      font-size: clamp(4.5rem, 20vw, 5.5rem);
+    }
+    .dispatch-card__rail {
+      border-top: 1px solid var(--ink);
+      border-left: 0;
+    }
+    .dispatch-card__top {
+      gap: 0.5rem;
+      font-size: 0.5rem;
+    }
+    .dispatch-card__top span:last-child {
+      text-align: right;
+    }
+    .manifesto__grid,
+    .lifecycle-section__intro,
+    .two-worlds__grid,
+    .membership-section__heading,
+    .trust-section__grid {
+      grid-template-columns: 1fr;
+    }
+    .manifesto__letter {
+      transform: none;
+    }
+    .lifecycle-section__key {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .counter-wall__number strong {
+      font-size: clamp(4.8rem, 24vw, 5.8rem);
+    }
+    .world-card {
+      min-height: auto;
+    }
+    .world-card + .world-card {
+      border-top: 1px solid var(--ink);
+      border-left: 0;
+    }
+    .world-card__icon {
+      margin-bottom: 3rem;
+    }
+    .quiet-belonging__rules article {
+      grid-template-columns: 2rem 1fr;
+    }
+    .quiet-belonging__rules p {
+      grid-column: 2;
+    }
+  }
+</style>

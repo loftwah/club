@@ -27,9 +27,8 @@ const HEIGHT = 630;
 /**
  * Render an OG card as an SVG string.
  *
- * The SVG is deliberately restrained: cream paper background,
- * the configured accent, the configured seal, real typography.
- * No AI imagery. No gradients beyond a single subtle vignette.
+ * Dispatch Wall social card: schedule grid, large editorial copy and a
+ * cancelled calendar object. All typography remains real SVG text.
  */
 export function renderOgSvg(opts: OgOptions = {}): string {
   const template = opts.template ?? "default";
@@ -38,61 +37,51 @@ export function renderOgSvg(opts: OgOptions = {}): string {
   const chapter = opts.chapter ?? null;
   const date = opts.date ?? null;
 
+  const titleLines = wrapLines(title, 20, 3);
+  const subtitleLines = wrapLines(subtitle, 42, 3);
+
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-label="${escapeXml(title)}">
   <defs>
-    <radialGradient id="g" cx="50%" cy="40%" r="70%">
-      <stop offset="0%" stop-color="#1b2230" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#070a0f" stop-opacity="0.7"/>
-    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#12110f" stroke-opacity=".055" stroke-width="1"/></pattern>
     <style>
-      .bg { fill: ${brand.palette.bg}; }
-      .fg { fill: ${brand.palette.fg}; }
-      .muted { fill: ${brand.palette.fgMuted}; }
-      .faint { fill: ${brand.palette.fgFaint}; }
-      .accent { fill: ${brand.palette.accent}; }
-      .serif { font-family: ${brand.typography.serif}; }
-      .sans { font-family: ${brand.typography.sans}; }
-      .mono { font-family: ${brand.typography.mono}; }
+      .display { font-family: "Archivo", "Arial Narrow", sans-serif; font-weight: 700; }
+      .letter { font-family: "Source Serif 4", Georgia, serif; }
+      .data { font-family: "Fragment Mono", ui-monospace, monospace; }
     </style>
   </defs>
-  <rect class="bg" width="${WIDTH}" height="${HEIGHT}"/>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#g)"/>
-  ${renderCornerFrame()}
-  ${renderSeal()}
-  <g transform="translate(440, 168)">
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="#f5f1e7"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#grid)"/>
+  <rect width="${WIDTH}" height="54" fill="#12110f"/>
+  <circle cx="64" cy="27" r="6" fill="#e94616"/>
+  <text class="data" x="82" y="33" fill="#f5f1e7" font-size="13" letter-spacing="2">PLANS WITH YOU / ON SCHEDULE</text>
+  <text class="data" x="1136" y="33" fill="#f5f1e7" font-size="13" letter-spacing="2" text-anchor="end">WAITLIST OPEN</text>
+  <g transform="translate(64, 144)">
     ${chapterLine(chapter, date)}
-    <text class="serif fg" x="0" y="0" font-size="84" font-weight="400" letter-spacing="-1">${escapeXml(truncate(title, 28))}</text>
-    <text class="sans muted" x="0" y="80" font-size="32" font-weight="400">${escapeXml(truncate(subtitle, 64))}</text>
-    <line x1="0" x2="120" y1="160" y2="160" stroke="${brand.palette.accentDim}" stroke-width="2"/>
-    <text class="serif accent" x="0" y="220" font-size="28" letter-spacing="2">${escapeXml(brand.name.toUpperCase())}</text>
-    <text class="sans faint" x="0" y="260" font-size="20">${escapeXml(brand.tagline)}</text>
+    ${renderTextLines(titleLines, { className: "display", y: 0, size: 67, lineHeight: 66, fill: "#12110f", letterSpacing: -2 })}
+    ${renderTextLines(subtitleLines, { className: "letter", y: 248, size: 24, lineHeight: 31, fill: "#4e4b44", letterSpacing: 0 })}
+    <line x1="0" x2="630" y1="380" y2="380" stroke="#12110f" stroke-width="1"/>
+    <text class="data" x="0" y="412" fill="#b9340e" font-size="15" letter-spacing="1.5">${escapeXml(brand.tagline.toUpperCase())}</text>
   </g>
+  ${renderCalendarObject()}
 </svg>`;
 }
 
-function renderCornerFrame(): string {
-  const c = brand.palette.accentDim;
+function renderCalendarObject(): string {
   return `
-  <g stroke="${c}" stroke-width="2" fill="none">
-    <path d="M 60 60 L 60 100 M 60 60 L 100 60"/>
-    <path d="M ${WIDTH - 60} 60 L ${WIDTH - 60} 100 M ${WIDTH - 60} 60 L ${WIDTH - 100} 60"/>
-    <path d="M 60 ${HEIGHT - 60} L 60 ${HEIGHT - 100} M 60 ${HEIGHT - 60} L 100 ${HEIGHT - 60}"/>
-    <path d="M ${WIDTH - 60} ${HEIGHT - 60} L ${WIDTH - 60} ${HEIGHT - 100} M ${WIDTH - 60} ${HEIGHT - 60} L ${WIDTH - 100} ${HEIGHT - 60}"/>
-  </g>`;
-}
-
-function renderSeal(): string {
-  // Pure-SVG mark: monoline circle with the configured seal as a
-  // monogram. This is rendered in the OG canvas at a fixed size.
-  const cx = 230;
-  const cy = HEIGHT / 2;
-  const r = 130;
-  return `
-  <g transform="translate(${cx}, ${cy})">
-    <circle r="${r}" fill="none" stroke="${brand.palette.accent}" stroke-width="2" opacity="0.6"/>
-    <circle r="${r - 14}" fill="none" stroke="${brand.palette.accent}" stroke-width="1" opacity="0.4"/>
-    <text class="serif accent" text-anchor="middle" dominant-baseline="central" font-size="64" letter-spacing="2">R</text>
-    <text class="serif muted" text-anchor="middle" font-size="13" letter-spacing="6" y="60">RESERVED</text>
+  <g transform="translate(820, 102) rotate(1 160 220)">
+    <rect x="12" y="14" width="316" height="442" fill="#12110f" opacity=".1"/>
+    <rect width="316" height="442" fill="#fbf9f3" stroke="#12110f" stroke-width="2"/>
+    <rect width="316" height="38" fill="#2447ff"/>
+    <text class="data" x="14" y="24" fill="white" font-size="10" letter-spacing="1">ORDINARY PLAN / ILLUSTRATION</text>
+    <text class="display" x="158" y="190" fill="#12110f" font-size="142" letter-spacing="-10" text-anchor="middle">24</text>
+    <line x1="0" x2="316" y1="220" y2="220" stroke="#12110f"/>
+    <text class="letter" x="16" y="256" fill="#12110f" font-size="22">Something plausible</text>
+    <text class="data" x="16" y="278" fill="#69655d" font-size="9">NO ATTENDANCE REQUIRED</text>
+    <rect y="300" width="316" height="98" fill="#e94616"/>
+    <text class="data" x="16" y="326" fill="#12110f" font-size="10" letter-spacing="1">PLAN UPDATE</text>
+    <text class="display" x="16" y="368" fill="#12110f" font-size="31">CANCELLED.</text>
+    <text class="data" x="16" y="386" fill="#12110f" font-size="9">FULFILMENT COMPLETE</text>
+    <text class="data" x="16" y="424" fill="#69655d" font-size="9">THE RELATIONSHIP CONTINUES</text>
   </g>`;
 }
 
@@ -101,7 +90,7 @@ function chapterLine(chapter: string | null, date: string | null): string {
   const parts: string[] = [];
   if (chapter) parts.push(chapter.toUpperCase());
   if (date) parts.push(date.toUpperCase());
-  return `<text class="sans faint" x="0" y="-40" font-size="18" letter-spacing="3">${escapeXml(parts.join(" · "))}</text>`;
+  return `<text class="data" x="0" y="-38" fill="#69655d" font-size="12" letter-spacing="2">${escapeXml(parts.join(" / "))}</text>`;
 }
 
 function pickTitle(template: OgTemplate, _opts: OgOptions): string {
@@ -109,7 +98,7 @@ function pickTitle(template: OgTemplate, _opts: OgOptions): string {
     case "membership":
       return "Three tiers of belonging";
     case "how-it-works":
-      return "How the Society works";
+      return "How Plans With You works";
     case "chapter":
       return "Chapter report";
     case "journal":
@@ -130,14 +119,41 @@ function pickSubtitle(template: OgTemplate): string {
     case "journal":
       return "Etiquette, history, chapter letters, and the cadence of ordinary things.";
     default:
-      return "A real paid membership that takes your absence seriously.";
+      return brand.proposition;
   }
 }
 
-function truncate(s: string, maxWords: number): string {
-  const words = s.split(/\s+/);
-  if (words.length <= maxWords) return s;
-  return words.slice(0, maxWords).join(" ") + "…";
+function wrapLines(value: string, maxChars: number, maxLines: number): string[] {
+  const words = value.trim().split(/\s+/);
+  const lines: string[] = [];
+  for (const word of words) {
+    const last = lines.at(-1);
+    if (!last || `${last} ${word}`.length > maxChars) lines.push(word);
+    else lines[lines.length - 1] = `${last} ${word}`;
+  }
+  if (lines.length <= maxLines) return lines;
+  const kept = lines.slice(0, maxLines);
+  kept[maxLines - 1] = `${kept[maxLines - 1]}…`;
+  return kept;
+}
+
+function renderTextLines(
+  lines: string[],
+  options: {
+    className: string;
+    y: number;
+    size: number;
+    lineHeight: number;
+    fill: string;
+    letterSpacing: number;
+  },
+): string {
+  return lines
+    .map(
+      (line, index) =>
+        `<text class="${options.className}" x="0" y="${options.y + index * options.lineHeight}" fill="${options.fill}" font-size="${options.size}" letter-spacing="${options.letterSpacing}">${escapeXml(line)}</text>`,
+    )
+    .join("\n");
 }
 
 function escapeXml(s: string): string {

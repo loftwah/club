@@ -82,13 +82,16 @@ async function generateOne(entry) {
   const destFull = resolve(repoRoot, entry.destination);
   mkdirSync(resolve(destFull, ".."), { recursive: true });
   const prompt = entry.prompt;
+  // Verified against mmx-cli v1.0.22 — endpoint is
+  // POST /v1/image_generation with body { model, prompt, aspect_ratio | (width & height), n }.
+  // The response shape is { data: { image_urls: string[] } | { image_base64: string[] }, base_resp }.
   const body = {
-    prompt,
-    width: entry.width,
-    height: entry.height,
     model: entry.model ?? "image-01",
+    prompt,
+    aspect_ratio: aspectRatioFor(entry.width, entry.height),
+    n: 1,
   };
-  const res = await fetch("https://api.minimax.io/v1/image/generations", {
+  const res = await fetch("https://api.minimax.io/v1/image_generation", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.MINIMAX_API_KEY}`,
@@ -101,15 +104,20 @@ async function generateOne(entry) {
     console.error(`[${entry.id}] MiniMax error ${res.status}: ${text.slice(0, 200)}`);
     return;
   }
-  const json = /** @type {{ data?: Array<{ url?: string; b64_json?: string }> }} */ (
-    await res.json()
-  );
-  const first = json.data?.[0];
-  if (!first) {
-    console.error(`[${entry.id}] MiniMax returned no image.`);
+  const json =
+    /** @type {{ data?: { image_urls?: string[]; image_base64?: string[] }; base_resp?: { status_code?: number; status_msg?: string } }} */ (
+      await res.json()
+    );
+  const data = json?.data ?? {};
+  const imageUrl = data.image_urls?.[0] ?? data.image_base64?.[0] ?? "";
+  if (!imageUrl) {
+    console.error(
+      `[${entry.id}] MiniMax returned no image (base_resp=${
+        json?.base_resp?.status_code ?? "n/a"
+      } ${json?.base_resp?.status_msg ?? ""}).`,
+    );
     return;
   }
-  const imageUrl = first.url ?? first.b64_json ?? "";
   /** @type {RegistryEntry} */
   const entry_record = {
     id: entry.id,
@@ -128,6 +136,34 @@ async function generateOne(entry) {
   registry.push(entry_record);
   writeFileSync(registryPath, JSON.stringify(registry, null, 2));
   console.info(`[${entry.id}] recorded -> ${entry.destination}`);
+}
+
+/**
+ * Pick the closest supported aspect ratio for the requested width/height.
+ * MiniMax supports "1:1", "16:9", "4:3", "3:4", "9:16", "2:3", "3:2", "21:9"
+ * (and a few others). When an exact preset isn't available we fall back
+ * to the closest width/height divisor match. We prefer aspect_ratio over
+ * (width, height) because the CLI's stable form uses it.
+ *
+ * @param {number} w
+ * @param {number} h
+ * @returns {string}
+ */
+function aspectRatioFor(w, h) {
+  const target = w / h;
+  const presets = ["1:1", "3:2", "2:3", "16:9", "9:16", "4:3", "3:4", "21:9"];
+  let best = "1:1";
+  let bestDelta = Number.POSITIVE_INFINITY;
+  for (const p of presets) {
+    const [pw, ph] = p.split(":").map(Number);
+    const r = pw / ph;
+    const delta = Math.abs(Math.log(r / target));
+    if (delta < bestDelta) {
+      best = p;
+      bestDelta = delta;
+    }
+  }
+  return best;
 }
 
 (async () => {

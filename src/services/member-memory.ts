@@ -45,16 +45,27 @@ export interface ProposeFactInput {
 export interface ConfirmFactInput {
   readonly factId: string;
   readonly reason: string;
+  /** The authenticated member for portal mutations; omitted for trusted service/operator callers. */
+  readonly memberId?: string;
 }
 
 export interface RejectFactInput {
   readonly factId: string;
   readonly reason: string;
+  readonly memberId?: string;
 }
 
 export interface RevokeFactInput {
   readonly factId: string;
   readonly reason: string;
+  readonly memberId?: string;
+}
+
+export class MemberOwnershipError extends Error {
+  constructor() {
+    super("Member does not own this fact.");
+    this.name = "MemberOwnershipError";
+  }
 }
 
 export interface MemberMemoryDeps {
@@ -108,6 +119,7 @@ export class MemberMemoryService {
   async confirm(input: ConfirmFactInput): Promise<MemberFact> {
     const fact = await this.get(input.factId);
     if (!fact) throw new Error(`Unknown fact: ${input.factId}`);
+    assertFactOwnership(fact, input.memberId);
     if (fact.status === "CONFIRMED") return fact;
     if (fact.status === "REVOKED") {
       throw new Error("REVOKED facts cannot be re-confirmed; create a new fact instead.");
@@ -136,6 +148,7 @@ export class MemberMemoryService {
   async reject(input: RejectFactInput): Promise<MemberFact> {
     const fact = await this.get(input.factId);
     if (!fact) throw new Error(`Unknown fact: ${input.factId}`);
+    assertFactOwnership(fact, input.memberId);
     if (fact.status === "REJECTED") return fact;
     const now = this.deps.clock.nowIso();
     await this.deps.db
@@ -161,6 +174,7 @@ export class MemberMemoryService {
   async revoke(input: RevokeFactInput): Promise<MemberFact> {
     const fact = await this.get(input.factId);
     if (!fact) throw new Error(`Unknown fact: ${input.factId}`);
+    assertFactOwnership(fact, input.memberId);
     if (fact.status === "REVOKED") return fact;
     const now = this.deps.clock.nowIso();
     await this.deps.db
@@ -183,9 +197,15 @@ export class MemberMemoryService {
   }
 
   /** Mark a fact as "do not use" without revoking the source record. */
-  async setDoNotUse(factId: string, doNotUse: boolean, reason: string): Promise<MemberFact> {
+  async setDoNotUse(
+    factId: string,
+    doNotUse: boolean,
+    reason: string,
+    memberId?: string,
+  ): Promise<MemberFact> {
     const fact = await this.get(factId);
     if (!fact) throw new Error(`Unknown fact: ${factId}`);
+    assertFactOwnership(fact, memberId);
     const now = this.deps.clock.nowIso();
     await this.deps.db
       .prepare(`UPDATE member_facts SET do_not_use = ?, updated_at = ? WHERE id = ?`)
@@ -215,7 +235,7 @@ export class MemberMemoryService {
     return rowToFact(row as Record<string, unknown>);
   }
 
-  /** All facts for a member. Used for the "What the Society remembers about me" UI. */
+  /** All facts for a member. Used for the "What we remember about you" portal UI. */
   async listForMember(memberId: string): Promise<MemberFact[]> {
     const rows = await this.deps.db
       .prepare(`SELECT * FROM member_facts WHERE member_id = ? ORDER BY created_at DESC`)
@@ -233,6 +253,10 @@ export class MemberMemoryService {
     const all = await this.listForMember(memberId);
     return all.filter((f) => f.status === "CONFIRMED" && !f.doNotUse);
   }
+}
+
+function assertFactOwnership(fact: MemberFact, memberId: string | undefined): void {
+  if (memberId !== undefined && fact.memberId !== memberId) throw new MemberOwnershipError();
 }
 
 function rowToFact(r: Record<string, unknown>): MemberFact {

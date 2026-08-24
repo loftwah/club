@@ -5,120 +5,287 @@ import { brand } from "../brand/config";
 
 <Base
   title="FAQ"
-  description="Frequently asked questions about the membership, the waiting list, the cadence, and what the Society actually does."
+  description={`Clear answers about ${brand.name}, the waitlist, cancellation, memory and optional services.`}
   canonicalPath="/faq/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>Frequently asked questions</h1>
-      <p>
-        Short answers to the questions that come up most. If your question isn't here, the waiting
-        list is the easiest way to ask us anything.
-      </p>
-      <ul class="faq-list">
-        <li>
-          <p class="faq-q">Is the {brand.name} a real club?</p>
-          <p class="faq-a">
-            Yes. Membership is a real paid subscription. Your membership record, your preferences,
-            and the correspondence you receive are real.
+  <section class="pwy-page pwy-faq" aria-labelledby="faq-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <p class="pwy-kicker">Questions / 05</p>
+        <div class="pwy-hero__grid">
+          <h1 id="faq-heading">The short answers.</h1>
+          <p class="pwy-hero__lede">
+            The product is unusual. The explanation should be plain. Open a question to see the
+            exact arrangement.
           </p>
-        </li>
-        <li>
-          <p class="faq-q">Do I have to attend the events?</p>
-          <p class="faq-a">
-            No. Ordinary events are constructed, and they are intended to be cancelled before the
-            date. A completely silent member is a successful member.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">What is the difference between the tiers?</p>
-          <p class="faq-a">
-            All three tiers are equally members. Higher tiers buy more physical mail, more human
-            attention, and the option of calls and richer gifts. They are not more loved.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">How often will I receive invitations?</p>
-          <p class="faq-a">
-            The cadence is set by your preferences. Common presets are "occasional", "about
-            monthly", or "a couple per month". The Society may also exercise its own discretion.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">How often will my event actually be cancelled?</p>
-          <p class="faq-a">
-            Every ordinary event is intended to be cancelled before the date. The exact cancellation
-            window is a policy decision the user will lock. Cancellation is successful fulfilment,
-            not failure.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">What does the Society remember about me?</p>
-          <p class="faq-a">
-            Only what you choose to share. You can see, edit, and remove anything the Society
-            remembers. You can mark items as "do not mention" and the Society will respect that.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">What about gifts, calls, and physical mail?</p>
-          <p class="faq-a">
-            Each is an explicit opt-in. The default is off. You can opt in to a single service, all
-            of them, or none. You can opt out at any time and any already-scheduled future work for
-            that service will be cancelled.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">What is a "manufactured commitment"?</p>
-          <p class="faq-a">
-            A consensual artificial social obligation. The member wants to clean the apartment, asks
-            the Society to construct a plausible visitor, confirms the scenario, and the Society
-            creates useful pressure and then explicitly cancels. The member knows it's constructed.
-            The member can abort at any time.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">What is the "appearance" service?</p>
-          <p class="faq-a">
-            A separately priced service that lets you hire a real person to appear at a real event
-            in a harmless agreed role (friend, plus-one, club representative, guest, supporter).
-            Travel and expenses are quoted separately. Members may receive priority or member
-            pricing.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">Will my data be used to train AI?</p>
-          <p class="faq-a">
-            No. Member data is used to run the Society. It is not used to train general models.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">How do I leave?</p>
-          <p class="faq-a">
-            You can cancel at any time. Cancellation stops future personalisation and any
-            already-scheduled work for the cancelled services. Personal data is removed on request
-            subject to legitimate retention requirements.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">When does paid membership open?</p>
-          <p class="faq-a">
-            The waiting list is open now. The paid membership will open chapter by chapter. The
-            Melbourne chapter is opening first.
-          </p>
-        </li>
-        <li>
-          <p class="faq-q">Is the Society a real institution or a piece of fiction?</p>
-          <p class="faq-a">
-            The Society is a real paid membership relationship. Some of the people, places, and
-            history the Society writes about are fictional. The Society never claims fictional
-            characters or locations as real people or real partnerships.
-          </p>
-        </li>
-      </ul>
-      <p>
-        Still have a question? <a href="/waiting-list/">Join the waiting list</a> and ask us anything
-        in the reason field.
-      </p>
+        </div>
+        <div class="pwy-hero__meta">
+          <span class="pwy-stamp">Truth before theatre</span>
+          <span>Waitlist open</span>
+          <span>Paid membership closed</span>
+        </div>
+      </header>
+
+      <section class="pwy-faq-list" aria-label="Frequently asked questions">
+        <details open>
+          <summary>Is {brand.name} a real club?</summary>
+          <div>
+            <p>
+              Yes. The membership relationship, member record and correspondence are real. Paid
+              membership is currently closed; the public waitlist is free and does not activate a
+              membership.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>Do I have to attend the events?</summary>
+          <div>
+            <p>
+              No. Ordinary events are deliberately constructed and intended to be cancelled before
+              their date. There is no ordinary attendance, RSVP, check-in or no-show state. A
+              completely silent member is a successful member.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>What is the difference between the tiers?</summary>
+          <div>
+            <p>
+              All three tiers provide equal belonging. Member, Corresponding Member and Deluxe
+              Member differ in physical fulfilment and human time: more mail, artefacts, gifts or
+              opted-in calls as entitlement, permission and prerequisites allow.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>How often are plans made and cancelled?</summary>
+          <div>
+            <p>
+              The cadence follows your preference: occasional, about monthly, a couple per month, or
+              our discretion. Invitations generally arrive 7–21 days before the constructed date;
+              cancellations generally arrive 12–36 hours before it. Cancellation is successful
+              fulfilment.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>What do you remember about me?</summary>
+          <div>
+            <p>
+              Only what you choose to share. You can inspect, edit, restrict, mark as
+              do-not-mention, export or remove confirmed facts through the member portal. Candidate
+              facts remain separate until you confirm them; we do not invent member truth.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>What about gifts, calls and physical mail?</summary>
+          <div>
+            <p>
+              Each is an explicit opt-in. The default is off. You can revoke permission, and
+              revocation affects already-scheduled future work for that service. The rest of the
+              membership continues unaffected.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>What is a manufactured commitment?</summary>
+          <div>
+            <p>
+              A consensual artificial social obligation: you ask for a plausible scenario, confirm
+              it, use the pressure toward a goal you chose, and we explicitly cancel it. You can
+              abort at any time; nothing dangles.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>What is the appearance service?</summary>
+          <div>
+            <p>
+              A separately priced service for a real person to appear in a harmless, agreed role. It
+              is not bundled into any tier. Travel and substantial preparation are quoted
+              separately, and prohibited or impersonating uses are refused.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>Will my data be used to train AI?</summary>
+          <div>
+            <p>
+              No. Member data is used to run {brand.name}; it is not exported to train general
+              models. AI may assist bounded drafts, but it cannot override consent, permissions or
+              confirmed truth.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>When does paid membership open?</summary>
+          <div>
+            <p>
+              The waitlist is open now. Paid membership, payment collection and Stripe activation
+              remain closed while chapters open carefully. We will write when there is a real next
+              step; nothing is charged by joining the list.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>Is the lore real?</summary>
+          <div>
+            <p>
+              {brand.name} is a real membership relationship. Some characters, places and history in correspondence
+              may be fictional. We do not represent fictional references as real partners, endorsements
+              or bookings.
+            </p>
+          </div>
+        </details>
+        <details>
+          <summary>How do I leave or ask a question?</summary>
+          <div>
+            <p>
+              Members can cancel and request data removal through the member portal, subject to
+              legitimate retention requirements. For a public question, join the waitlist and tell
+              us what you need to know.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <footer class="pwy-page-footer">
+        <p>Still unsure? A human can answer the question behind the question.</p>
+        <a class="pwy-button" href="/waiting-list/"
+          >Join the waitlist <span aria-hidden="true">↗</span></a
+        >
+      </footer>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    margin: 0;
+    font: 400 clamp(3.5rem, 10vw, 9rem)/0.83 var(--font-serif);
+    letter-spacing: -0.06em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-faq-list {
+    max-width: 58rem;
+    padding: clamp(3rem, 7vw, 5.5rem) 0;
+  }
+  .pwy-faq-list details {
+    border-top: 1px solid var(--line);
+  }
+  .pwy-faq-list details:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-faq-list summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: baseline;
+    padding: 1.35rem 0;
+    cursor: pointer;
+    list-style: none;
+    font: 400 clamp(1.25rem, 2.3vw, 1.7rem)/1.15 var(--font-serif);
+  }
+  .pwy-faq-list summary::-webkit-details-marker {
+    display: none;
+  }
+  .pwy-faq-list summary::after {
+    content: "+";
+    color: var(--accent);
+    font: 1.2rem/1 var(--font-mono);
+  }
+  .pwy-faq-list details[open] summary::after {
+    content: "−";
+  }
+  .pwy-faq-list details > div {
+    padding: 0 3rem 1.5rem 0;
+  }
+  .pwy-faq-list p {
+    max-width: 48rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+  }
+  .pwy-page-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0 4rem;
+    border-top: 1px solid var(--line);
+  }
+  .pwy-page-footer p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  @media (max-width: 680px) {
+    .pwy-hero__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .pwy-faq-list details > div {
+      padding-right: 0;
+    }
+  }
+</style>

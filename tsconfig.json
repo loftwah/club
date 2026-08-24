@@ -22,7 +22,8 @@
       "@adapters/*": ["src/adapters/*"],
       "@infra/*": ["src/infra/*"],
       "@components/*": ["src/components/*"],
-      "@layouts/*": ["src/layouts/*"]
+      "@layouts/*": ["src/layouts/*"],
+      "@lib/*": ["src/lib/*"]
     },
     "skipLibCheck": true,
     "allowJs": true,

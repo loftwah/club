@@ -64,25 +64,7 @@ export async function readCancellationCounter(
 }
 
 /**
- * Adapter for use from Astro frontmatter: the runtime env is on
- * `Astro.locals.runtime.env`. If the binding is missing the
- * counter returns zeros and the page still renders.
- */
-export async function cancellationCounter(): Promise<CancellationCounter> {
-  const env = (globalThis as { __ASTRO__?: unknown }).__ASTRO__;
-  // Astro injects locals into the page; we read it via a thin
-  // shim because we cannot import the Astro runtime here without
-  // coupling this helper to the Astro lifecycle.
-  // Frontmatter callers pass the env explicitly via withCounter().
-  if (env) {
-    const e = env as { locals?: { runtime?: { env?: { DB?: D1Database } } } };
-    return readCancellationCounter(e.locals?.runtime?.env?.DB);
-  }
-  return { cancelledEvents: 0, estimatedHoursAvoided: 0 };
-}
-
-/**
- * Frontmatter-friendly form: pass the env directly.
+ * Frontmatter-friendly form: pass the native Cloudflare env directly.
  */
 export async function withCounter(
   env: { DB?: D1Database } | undefined,

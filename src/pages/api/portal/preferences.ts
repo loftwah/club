@@ -2,14 +2,30 @@
 // /api/portal/preferences/{identity,grant}
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 import { MembershipService } from "@services/membership-service";
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 import { requireSession } from "../../../lib/portal-auth";
+import { isSameOriginMutation } from "../../../lib/request-security";
+
+const SERVICES = new Set([
+  "CORE_MEMBERSHIP",
+  "NEWSLETTER",
+  "PERSONALISED_MEMORY",
+  "CALENDAR_MESSAGES",
+  "PHYSICAL_CORRESPONDENCE",
+  "GIFTS",
+  "CALLS",
+  "MANUFACTURED_COMMITMENTS",
+  "APPEARANCE_INTEREST",
+]);
 
 export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
-  const env = locals.runtime.env;
+  const env = getRuntimeEnv(locals);
   if (!env?.DB) return new Response("DB not available", { status: 500 });
+  if (!isSameOriginMutation(request))
+    return new Response("Cross-origin request rejected.", { status: 403 });
   const ctx = await requireSession(request, env);
   if (!ctx) return new Response("Sign in first.", { status: 401 });
   const form = await request.formData();
@@ -28,48 +44,12 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
   } else if (action === "grant") {
     const service = String(form.get("service") ?? "");
     const state = String(form.get("state") ?? "");
-    if (!service || !state) return new Response("service and state required", { status: 400 });
+    if (!SERVICES.has(service) || !state)
+      return new Response("Invalid service or state", { status: 400 });
     if (!["OPTED_IN", "OPTED_OUT", "AVAILABLE", "PAUSED", "SUSPENDED"].includes(state)) {
       return new Response("Invalid state", { status: 400 });
     }
     await ms.setServiceGrant(ctx.member.id, service, state as never);
-    // When a service is opted-out, cancel its non-terminal
-    // scheduled work (invariant 9 / 3.15).
-    if (state === "OPTED_OUT") {
-      if (service === "GIFTS") {
-        await env.DB.prepare(
-          `UPDATE gifts SET state = 'CANCELLED' WHERE member_id = ? AND state NOT IN ('DELIVERED', 'CANCELLED')`,
-        )
-          .bind(ctx.member.id)
-          .run();
-      } else if (service === "CALLS") {
-        await env.DB.prepare(
-          `UPDATE calls SET state = 'PERMISSION_REVOKED' WHERE member_id = ? AND state NOT IN ('COMPLETED', 'CLOSED', 'PERMISSION_REVOKED')`,
-        )
-          .bind(ctx.member.id)
-          .run();
-        await env.DB.prepare(
-          `UPDATE fulfilment_tasks SET state = 'CANCELLED'
-             WHERE member_id = ? AND task_type = 'MAKE_CALL' AND state IN ('CREATED', 'OPERATOR_NOTIFIED', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESCHEDULED')`,
-        )
-          .bind(ctx.member.id)
-          .run();
-      } else if (service === "MANUFACTURED_COMMITMENTS") {
-        await env.DB.prepare(
-          `UPDATE commitment_scenarios SET state = 'ABORTED'
-             WHERE member_id = ? AND state NOT IN ('COMPLETED', 'ABORTED', 'DECLINED')`,
-        )
-          .bind(ctx.member.id)
-          .run();
-        await env.DB.prepare(
-          `UPDATE jobs SET state = 'DEAD_LETTER', failure_reason = 'SERVICE_OPTED_OUT'
-             WHERE state IN ('AVAILABLE', 'CLAIMED', 'RUNNING') AND type IN ('SEND_EMAIL', 'CREATE_HUMAN_TASK', 'AI_AGENT_WORK')
-               AND json_extract(payload_json, '$.memberId') = ?`,
-        )
-          .bind(ctx.member.id)
-          .run();
-      }
-    }
   } else {
     return new Response("Unknown action", { status: 404 });
   }

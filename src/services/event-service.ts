@@ -18,7 +18,8 @@ import {
 } from "../domain/machines/events.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
-import { canPerform, type Capability, type PolicyContext } from "../domain/policy.js";
+import { canPerform } from "../domain/policy.js";
+import { loadPolicyContext } from "../domain/policy-context.js";
 import { calendarUid, renderIcs, type IcsEvent } from "../lib/calendar.js";
 import { brand } from "../brand/config.js";
 
@@ -155,10 +156,9 @@ export class EventService {
     }
     await this.transition(eventId, "QUEUE_INVITATIONS");
 
-    // Find active members in this chapter with NEWSLETTER-or-higher
-    // service grant (everyone with active membership) and no opt-out.
-    // Two-step: members in chapter, then filter to those with
-    // ACTIVE membership and no existing invitation.
+    // Find members in this chapter and no existing invitation. Membership
+    // state, entitlement, consent, billing, and service permission are read
+    // again per member below so a stale candidate cannot receive an invite.
     const chapterMembers = await this.deps.db
       .prepare(
         `SELECT id, email, preferred_name
@@ -172,33 +172,15 @@ export class EventService {
       .bind(eventId)
       .all<{ member_id: string }>();
     const alreadyInvited = new Set((alreadyInvitedRows.results ?? []).map((r) => r.member_id));
-    const activeMembers = new Set<string>();
-    const memberships = await this.deps.db
-      .prepare(`SELECT member_id FROM memberships WHERE state = 'ACTIVE'`)
-      .all<{ member_id: string }>();
-    for (const m of memberships.results ?? []) {
-      activeMembers.add(m.member_id);
-    }
-    const eligible = (chapterMembers.results ?? []).filter(
-      (m) => activeMembers.has(m.id) && !alreadyInvited.has(m.id),
-    );
+    const eligible = (chapterMembers.results ?? []).filter((m) => !alreadyInvited.has(m.id));
 
     let queued = 0;
     for (const m of eligible) {
-      // Policy check: tier capability for EVENTS, no explicit opt-out.
-      const decision = canPerform("EVENTS" as Capability, {
-        membershipState: "ACTIVE",
-        tierId: null,
-        tierCapabilities: new Set(["EVENTS"]),
-        serviceGrantState: "OPTED_IN",
-        explicitOptOut: false,
-        consentCurrent: true,
-        termsCurrent: true,
-        billingActive: true,
-        chapterSupported: true,
-        safetyBlocked: false,
-        duplicate: false,
-      } satisfies PolicyContext);
+      // Policy check is authoritative at send-queue time. CORE_MEMBERSHIP
+      // has no opt-in requirement by default, but an explicit revocation is
+      // still honoured by the policy engine.
+      const context = await loadPolicyContext(this.deps.db, m.id, "CORE_MEMBERSHIP");
+      const decision = canPerform("EVENTS", context);
       if (!decision.allowed) continue;
 
       // Per-member opt-out for the calendar.
@@ -277,7 +259,18 @@ export class EventService {
     if (event.state === "INVITED" || event.state === "REMINDER_WINDOW") {
       await this.transition(eventId, "QUEUE_CANCELLATION");
     }
-    await this.transition(eventId, "CANCEL");
+    if (event.state === "CANCELLATION_FAILURE") {
+      await this.transition(eventId, "RETRY_CANCELLATION");
+    }
+    if (event.state === "CRITICAL_OPERATOR_ACTION") {
+      await this.transition(eventId, "RECOVER_VIA_OPERATOR");
+    } else {
+      await this.transition(eventId, "CANCEL");
+    }
+    const cancelled = await this.get(eventId);
+    if (cancelled?.state !== "CANCELLED") {
+      throw new Error(`Cancellation did not reach CANCELLED from ${event.state}.`);
+    }
 
     // Cancellation communications. The same UID is used for the
     // calendar update so existing imports get updated, not duplicated.
@@ -327,7 +320,7 @@ export class EventService {
       action: "EVENT_CANCELLED",
       entityType: "EVENT",
       entityId: eventId,
-      fromState: "CANCELLATION_QUEUED",
+      fromState: event.state,
       toState: "CANCELLED",
       reasonCode: reason,
       correlationId: null,
@@ -369,6 +362,12 @@ export class EventService {
         if (e.state === "CANCELLATION_FAILURE") {
           await this.transition(e.id, "ESCALATE_TO_OPERATOR");
           criticalCount++;
+          rescured.push(e.id);
+        } else {
+          // Invitation delivery failure can never leave an ordinary plan live.
+          // Close the invitation retry path, then force the normal cancellation.
+          await this.transition(e.id, "EXHAUST_INVITATION_RETRIES");
+          await this.cancel(e.id, "system-safety-monitor", "INVITATION_SEND_FAILURE_SAFETY");
           rescured.push(e.id);
         }
       } else if (e.state === "INVITED" || e.state === "REMINDER_WINDOW") {

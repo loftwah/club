@@ -6,6 +6,8 @@
 node_modules/
 dist/
 .wrangler/
+.playwright-cli/
+.playwright-mcp/
 coverage/
 playwright-report/
 test-results/
@@ -13,5 +15,16 @@ test-results/
 *.log
 .cache/
 social-club-complete-spec-corrected.zip
+
+# Heavy Remotion render artefacts live locally and in versioned R2 storage.
+artifacts/video/
+out/
+output/video-preflight/
+
+# Regenerable provider responses may contain temporary signed URLs.
+explorations/brand/_*.json
 # Astro
 .astro/
+
+# Provider smoke artefacts (image generation experiments, scratch runs)
+.smoke/

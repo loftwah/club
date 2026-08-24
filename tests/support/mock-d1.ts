@@ -85,6 +85,12 @@ export class MockD1Database {
     return new MockD1PreparedStatement(sql, this);
   }
 
+  async batch(statements: MockD1PreparedStatement[]): Promise<MockD1Result[]> {
+    const results: MockD1Result[] = [];
+    for (const statement of statements) results.push(await statement.run());
+    return results;
+  }
+
   async exec(sql: string): Promise<void> {
     // Naive multi-statement splitter.
     for (const stmt of sql.split(";")) {

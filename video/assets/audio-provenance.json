@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "generationTimeCapabilityOnly": true,
+  "publicWorkerDependency": false,
+  "assets": [
+    {
+      "id": "paper-arrival",
+      "file": "public/video/audio/paper-arrival.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "Close-miked thick uncoated invitation card sliding across a clean wooden desk and settling with a soft confident paper tap. Dry studio recording, tactile, restrained, no room noise, no music, no voice.",
+      "requestedDurationSeconds": 2.2,
+      "loop": false,
+      "generatedAt": "2026-08-24T08:16:49.881Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    },
+    {
+      "id": "calendar-settle",
+      "file": "public/video/audio/calendar-settle.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "A precise mechanical calendar index advancing one position, followed by a solid card placement on paper. Refined administrative object, quiet metal and paper, satisfying but subtle, no bell, no voice, no music.",
+      "requestedDurationSeconds": 1.6,
+      "loop": false,
+      "generatedAt": "2026-08-24T08:16:51.938Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    },
+    {
+      "id": "cancellation",
+      "file": "public/video/audio/cancellation.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "A large rubber cancellation stamp hits thick paper with a fast tactile thump, short inked scrape, and controlled low-frequency release. Deeply satisfying successful action, premium sound design, no explosion, no trailer boom, no voice, no music.",
+      "requestedDurationSeconds": 2.4,
+      "loop": false,
+      "generatedAt": "2026-08-24T08:16:54.409Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    },
+    {
+      "id": "correspondence",
+      "file": "public/video/audio/correspondence.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "A quality paper envelope slides forward, opens, and a folded cotton letter unfolds in three clean movements. Close and detailed studio foley, warm physical paper, elegant and restrained, no wax seal, no voice, no music.",
+      "requestedDurationSeconds": 3.2,
+      "loop": false,
+      "generatedAt": "2026-08-24T08:16:57.146Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    },
+    {
+      "id": "milestone",
+      "file": "public/video/audio/milestone.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "A small weighty membership artefact is placed gently onto thick paper, followed by one muted resonant ceramic tone. Restrained earned ceremony, warm and modern, no confetti, no fanfare, no voice.",
+      "requestedDurationSeconds": 2,
+      "loop": false,
+      "generatedAt": "2026-08-24T08:16:59.262Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    },
+    {
+      "id": "sonic-bed",
+      "file": "public/video/audio/sonic-bed.mp3",
+      "provider": "ElevenLabs",
+      "model": "eleven_text_to_sound_v2",
+      "prompt": "Seamless minimal sound-design bed made from quiet paper texture, soft mechanical calendar ticks, a warm low pulse and sparse muted wooden percussion. Contemporary editorial, patient and human, no melody, no corporate music, no cinematic trailer, no voice. Loop perfectly.",
+      "requestedDurationSeconds": 24,
+      "loop": true,
+      "generatedAt": "2026-08-24T08:17:05.656Z",
+      "rightsBasis": "Generated through the operator-authorised paid ElevenLabs account; commercial use governed by the account plan and ElevenLabs terms at generation time.",
+      "terms": "https://elevenlabs.io/terms-of-use",
+      "campaignUsage": ["The Plan", "The Relationship"]
+    }
+  ],
+  "postProcessing": {
+    "tool": "FFmpeg loudnorm",
+    "integratedLufsTargets": {
+      "paper-arrival": -14,
+      "calendar-settle": -14,
+      "cancellation": -14,
+      "correspondence": -14,
+      "milestone": -14,
+      "sonic-bed": -20
+    },
+    "truePeakDbTarget": -2,
+    "loudnessRangeTarget": 7,
+    "sampleRateHz": 48000,
+    "bitrateKbps": 192,
+    "processedAt": "2026-08-24T08:46:15.482Z"
+  }
+}

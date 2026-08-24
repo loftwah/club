@@ -10,12 +10,23 @@
 // consumer.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 import { SystemClock } from "@infra/clock";
+import { requireOperator } from "../../../lib/portal-auth";
+import {
+  isSameOriginMutation,
+  privateJsonResponse,
+  privateTextResponse,
+} from "../../../lib/request-security";
 
-export const POST: APIRoute = async ({ request: _request, locals }) => {
-  const env = locals.runtime.env;
+export const POST: APIRoute = async ({ request, locals }) => {
+  const env = getRuntimeEnv(locals);
+  const operator = await requireOperator(request, env);
+  if (!operator) return privateJsonResponse({ error: "operator authentication required" }, 401);
+  if (!isSameOriginMutation(request))
+    return privateJsonResponse({ error: "cross-origin mutation rejected" }, 403);
   if (!env?.DB) {
-    return new Response("database binding not available", { status: 500 });
+    return privateTextResponse("database binding not available", 500);
   }
   // Manual cron trigger via the Cloudflare scheduled handler URL.
   // Local dev uses the SystemClock; production uses the workerd
@@ -57,16 +68,8 @@ export const POST: APIRoute = async ({ request: _request, locals }) => {
     // Tables may not exist on a fresh deploy. The cron handler
     // returns zeros and the next run will pick up the work.
   }
-  return new Response(
-    JSON.stringify({
-      now,
-      criticalEvents: criticalCount,
-      dueMilestones,
-      reminderDue,
-    }),
-    {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    },
+  return privateJsonResponse(
+    { now, criticalEvents: criticalCount, dueMilestones, reminderDue },
+    200,
   );
 };

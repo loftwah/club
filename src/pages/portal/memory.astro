@@ -1,14 +1,16 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { requireSession } from "../../lib/portal-auth";
 import { MemberMemoryService } from "@services/member-memory";
 import { SystemClock } from "@infra/clock";
 import { D1AuditWriter } from "@infra/audit";
 
-const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+const ctx = await requireSession(Astro.request, runtimeEnv);
 if (!ctx) return Astro.redirect("/portal/login/");
 
-const env = Astro.locals.runtime.env;
+const env = runtimeEnv;
 const audit = new D1AuditWriter(env.DB, new SystemClock());
 const clock = new SystemClock();
 const memory = new MemberMemoryService({ db: env.DB, audit, clock });
@@ -19,121 +21,204 @@ const revoked = all.filter((f) => f.status === "REVOKED" || f.status === "REJECT
 ---
 
 <Base
-  title="What the Society remembers about you"
+  title="What we remember about you"
   description="Manage your member memory."
   canonicalPath="/portal/memory/"
 >
-  <section class="section">
+  <section class="section app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/portal/">Portal</a> / Memory
-      </p>
-      <h1>What the Society remembers about you</h1>
-      <p>
-        The Society remembers only what you choose to share. You can edit, remove, mark as
-        do-not-mention, or add new information. AI may propose candidates; only you can confirm.
-      </p>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Memory</p>
+          <p class="app-kicker">Member-controlled record</p>
+          <h1>What we remember about you</h1>
+          <p class="app-lede">
+            We remember only what you choose to share. Every fact has a visible state and
+            provenance; AI may propose candidates, but only you can confirm.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Available to mention</dt><dd>
+            {usable.length} confirmed fact{usable.length === 1 ? "" : "s"}
+          </dd><dt>Pending review</dt><dd>
+            {candidates.length} candidate{candidates.length === 1 ? "" : "s"}
+          </dd>
+        </dl>
+      </header>
 
-      <h2>Confirmed facts the Society can mention ({usable.length})</h2>
-      {
-        usable.length === 0 ? (
-          <p style="color: var(--fg-muted)">No confirmed facts yet.</p>
-        ) : (
-          <ul>
-            {usable.map((f) => (
-              <li>
-                <strong>{f.category}</strong>: {f.subject}
-                <span style="color: var(--fg-faint)"> · {JSON.stringify(f.value)}</span>
-                <form method="post" action="/api/portal/memory/do-not-use" style="display: inline;">
-                  <input type="hidden" name="factId" value={f.id} />
-                  <input type="hidden" name="next" value="1" />
-                  <button type="submit" class="link-button">
-                    Mark as do-not-mention
-                  </button>
-                </form>
-                <form method="post" action="/api/portal/memory/revoke" style="display: inline;">
-                  <input type="hidden" name="factId" value={f.id} />
-                  <button type="submit" class="link-button link-button--danger">
-                    Revoke (forget)
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      <section class="app-section" aria-labelledby="confirmed-heading">
+        <div class="app-section__head">
+          <h2 id="confirmed-heading">Confirmed facts we can mention</h2><p>
+            {usable.length} available
+          </p>
+        </div>
+        {
+          usable.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No confirmed facts yet</strong>
+                <span>Nothing will be used in correspondence until you confirm it.</span>
+              </>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {usable.map((f) => (
+                <li>
+                  <span class="app-list__label">{f.category}</span>
+                  <span class="app-list__detail">
+                    <strong>{f.subject}</strong> · {JSON.stringify(f.value)}
+                    <br />
+                    <span class="app-provenance">Source: {f.sourceType ?? "self"}</span>
+                  </span>
+                  <span class="app-actions">
+                    <form method="post" action="/api/portal/memory/do-not-use">
+                      <input type="hidden" name="factId" value={f.id} />
+                      <input type="hidden" name="next" value="1" />
+                      <button type="submit" class="app-action app-action--quiet">
+                        Do not mention
+                      </button>
+                    </form>
+                    <form method="post" action="/api/portal/memory/revoke">
+                      <input type="hidden" name="factId" value={f.id} />
+                      <button type="submit" class="app-action app-action--danger">
+                        Revoke
+                      </button>
+                    </form>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
 
-      <h2>Pending candidates ({candidates.length})</h2>
-      {
-        candidates.length === 0 ? (
-          <p style="color: var(--fg-muted)">No pending candidates.</p>
-        ) : (
-          <ul>
-            {candidates.map((f) => (
-              <li>
-                <strong>{f.category}</strong>: {f.subject}
-                <span style="color: var(--fg-faint)"> · source: {f.sourceType ?? "self"}</span>
-                <form method="post" action="/api/portal/memory/confirm" style="display: inline;">
-                  <input type="hidden" name="factId" value={f.id} />
-                  <button type="submit" class="link-button">
-                    Confirm
-                  </button>
-                </form>
-                <form method="post" action="/api/portal/memory/reject" style="display: inline;">
-                  <input type="hidden" name="factId" value={f.id} />
-                  <button type="submit" class="link-button link-button--danger">
-                    Reject
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      <section class="app-section" aria-labelledby="candidate-heading">
+        <div class="app-section__head">
+          <h2 id="candidate-heading">Pending candidates</h2><p>
+            {candidates.length} awaiting your decision
+          </p>
+        </div>
+        {
+          candidates.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No pending candidates</strong>
+                <span>When a candidate is proposed, it will wait here for your decision.</span>
+              </>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {candidates.map((f) => (
+                <li>
+                  <span class="app-list__label">{f.category}</span>
+                  <span class="app-list__detail">
+                    <strong>{f.subject}</strong> · {JSON.stringify(f.value)}
+                    <br />
+                    <span class="app-provenance">Proposed from: {f.sourceType ?? "self"}</span>
+                  </span>
+                  <span class="app-actions">
+                    <form method="post" action="/api/portal/memory/confirm">
+                      <input type="hidden" name="factId" value={f.id} />
+                      <button type="submit" class="app-action">
+                        Confirm
+                      </button>
+                    </form>
+                    <form method="post" action="/api/portal/memory/reject">
+                      <input type="hidden" name="factId" value={f.id} />
+                      <button type="submit" class="app-action app-action--danger">
+                        Reject
+                      </button>
+                    </form>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
 
-      <h2>Do-not-mention or revoked</h2>
-      {
-        revoked.length === 0 ? (
-          <p style="color: var(--fg-muted)">No revoked or do-not-mention facts.</p>
-        ) : (
-          <ul>
-            {revoked.map((f) => (
-              <li style="color: var(--fg-faint)">
-                <strong>{f.category}</strong>: {f.subject} — {f.status}
-                {f.doNotUse ? " (also do-not-use)" : ""}
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      <section class="app-section" aria-labelledby="restricted-heading">
+        <div class="app-section__head">
+          <h2 id="restricted-heading">Restricted and revoked</h2><p>Not available to mention</p>
+        </div>
+        {
+          revoked.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No restricted facts</strong>
+                <span>
+                  Facts you revoke or mark do-not-mention will remain visible here as a transparent
+                  record.
+                </span>
+              </>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {revoked.map((f) => (
+                <li>
+                  <span class="app-list__label">{f.category}</span>
+                  <span class="app-list__detail">
+                    {f.subject}
+                    <br />
+                    <span class="app-provenance">
+                      State: {f.status}
+                      {f.doNotUse ? " · do-not-mention" : ""}
+                    </span>
+                  </span>
+                  <span class="pill pill--warn">restricted</span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
 
-      <h2>Add a fact</h2>
-      <p>
-        The Society may use this in future correspondence. You can change or remove it at any time.
-      </p>
-      <form class="form" method="post" action="/api/portal/memory/add">
-        <label for="category">Category</label>
-        <input
-          id="category"
-          name="category"
-          type="text"
-          required
-          maxlength="60"
-          placeholder="interest, pet, project, important date"
-        />
-        <label for="subject">Subject</label>
-        <input id="subject" name="subject" type="text" required maxlength="120" />
-        <label for="value">Value</label>
-        <input id="value" name="value" type="text" required maxlength="200" />
-        <button type="submit">Save fact</button>
-      </form>
-
-      <h2>What is a fact?</h2>
-      <p style="color: var(--fg-muted)">
-        A fact is a small piece of information about you — a pet, a hobby, a project, an important
-        date. The Society may use it to personalise correspondence. It is never shared or used to
-        train models. You may revoke or remove any fact at any time.
-      </p>
+      <section class="app-section" aria-labelledby="add-heading">
+        <div class="app-section__head">
+          <h2 id="add-heading">Add a fact</h2><p>Optional and editable</p>
+        </div>
+        <p class="app-note">
+          A fact might be a pet, a hobby, a project, or an important date. You can change or remove
+          it at any time. It is never shared or used to train models.
+        </p>
+        <form class="form app-form" method="post" action="/api/portal/memory/add">
+          <div class="app-form__grid">
+            <div class="app-form__field">
+              <label for="category">Category</label><input
+                id="category"
+                name="category"
+                type="text"
+                required
+                maxlength="60"
+                placeholder="interest, pet, project, important date"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="subject">Subject</label><input
+                id="subject"
+                name="subject"
+                type="text"
+                required
+                maxlength="120"
+              />
+            </div>
+            <div class="app-form__field app-form__field--full">
+              <label for="value">Value</label><input
+                id="value"
+                name="value"
+                type="text"
+                required
+                maxlength="200"
+              />
+            </div>
+          </div>
+          <div class="app-form__actions">
+            <button class="app-action" type="submit"
+              >Save fact <span aria-hidden="true">→</span></button
+            >
+          </div>
+        </form>
+      </section>
     </div>
   </section>
 </Base>

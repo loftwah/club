@@ -12,6 +12,8 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { newAppearanceId } from "../infra/ids.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
+import { canPerform } from "../domain/policy.js";
+import { loadPolicyContext } from "../domain/policy-context.js";
 
 export type AppearanceState =
   | "REQUESTED"
@@ -89,6 +91,13 @@ export class AppearanceService {
     readonly travelRequired: boolean;
     readonly brief: string;
   }): Promise<Appearance> {
+    if (input.memberId) {
+      const decision = canPerform(
+        "APPEARANCE_MEMBER_BENEFIT",
+        await loadPolicyContext(this.deps.db, input.memberId, "APPEARANCE_INTEREST"),
+      );
+      if (!decision.allowed) throw new Error(`Appearance not allowed: ${decision.reason}`);
+    }
     const id = newAppearanceId();
     const now = this.deps.clock.nowIso();
     await this.deps.db

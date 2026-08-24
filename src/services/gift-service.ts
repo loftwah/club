@@ -10,7 +10,8 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { newGiftId } from "../infra/ids.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
-import { canPerform, type PolicyContext } from "../domain/policy.js";
+import { canPerform } from "../domain/policy.js";
+import { loadPolicyContext } from "../domain/policy-context.js";
 
 export type GiftState =
   | "TRIGGERED"
@@ -68,19 +69,10 @@ export class GiftService {
       .run();
 
     // Eligibility check.
-    const decision = canPerform("GIFTS", {
-      membershipState: "ACTIVE",
-      tierId: null,
-      tierCapabilities: new Set(["GIFTS"]),
-      serviceGrantState: "OPTED_IN",
-      explicitOptOut: false,
-      consentCurrent: true,
-      termsCurrent: true,
-      billingActive: true,
-      chapterSupported: true,
-      safetyBlocked: false,
-      duplicate: false,
-    } satisfies PolicyContext);
+    const decision = canPerform(
+      "GIFTS",
+      await loadPolicyContext(this.deps.db, input.memberId, "GIFTS"),
+    );
     if (!decision.allowed) {
       await this.transition(id, "DENY", decision.evidence.join(";"));
       return (await this.get(id))!;

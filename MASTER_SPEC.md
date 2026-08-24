@@ -1,8 +1,8 @@
-# Social Club — Complete Master Specification
+# Plans With You — Complete Master Specification
 
 Generated from scratch: **2026/08/23 15:16 AEST (UTC+10) / 2026/08/23 05:16 UTC**
 
-This document is the complete current product, architecture, operation and acceptance specification. It supersedes earlier generated versions.
+This document is the complete product, architecture, operation and acceptance specification. Current production identity and visual detail are authoritative in `src/brand/config.ts`, `src/brand/cadence.ts`, `DESIGN.md`, and `docs/24_BRAND_LOCK.md`; those sources supersede any legacy “Society” vocabulary retained here as conceptual domain language.
 
 ---
 
@@ -60,7 +60,7 @@ Member memory should feel like controlled institutional remembrance, not surveil
 
 The subscription buys an ongoing membership relationship. Members receive a club identity, correspondence, plausible social plans, cancellations, milestones and increasingly tangible/human treatment according to tier.
 
-## 2.2 A$5/month — Core Member
+## 2.2 A$5/month — Member
 
 Current intended inclusions:
 
@@ -82,7 +82,7 @@ Gross recurring revenue before fees/costs: A$60/year.
 
 The physical component must remain economically controlled.
 
-## 2.3 A$20/month — Physical Correspondence Tier
+## 2.3 A$20/month — Corresponding Member
 
 Everything in A$5 plus materially more real-world fulfilment:
 
@@ -102,7 +102,7 @@ Concept: **the club arrives in the letterbox**.
 
 Gross recurring revenue before fees/costs: A$240/year.
 
-## 2.4 A$50/month — Deluxe Human Tier
+## 2.4 A$50/month — Deluxe Member
 
 Everything above plus:
 
@@ -648,7 +648,7 @@ Do not hide headings, value proposition, pricing, FAQ, chapter content, waiting-
 
 MiniMax may generate:
 
-- logo/crest explorations;
+- campaign and social asset explorations;
 - fictional archival portraits;
 - event art;
 - stationery mockups;
@@ -659,13 +659,13 @@ Record prompt/provider/model/date for selected assets.
 
 ## 4.11 Copy proposition
 
-Possible directions, not final tagline:
+Locked public name and tagline:
 
-> You belong. You are invited. You are remembered. You do not have to show up.
+> Plans With You
 
-> Belong without participating.
+> You are wanted. You don't have to go.
 
-> A social club that takes your absence seriously.
+The narrative proposition “Plans were made. Plans were unmade.” may support the tagline. Production copy follows `src/brand/config.ts` and does not self-identify as “the Society” or “the Club”.
 
 ## 4.12 Public information architecture
 
@@ -3142,27 +3142,21 @@ Do not assume every local variable is injected into Worker runtime. D1/R2/Queues
 - real cancelled-event counter;
 - consent/preferences before paid activation;
 - actor service can exist outside premium subscription.
+- public name: Plans With You;
+- tier names: Member, Corresponding Member, Deluxe Member;
+- displayed monthly pricing: A$5/A$20/A$50;
+- tagline and visual system in `src/brand/config.ts` and `DESIGN.md`;
+- product cadence and cancellation windows in `src/brand/cadence.ts`.
 
 ## Open — ask before locking
-
-### Brand
-
-- final club name;
-- final tier names;
-- logo/crest;
-- colours;
-- fonts;
-- tagline.
 
 ### Launch geography
 
 - Melbourne only vs five metros vs broader waitlist.
 
-### Events
+### Runtime scheduling
 
-- exact cadence;
-- exact cancellation windows;
-- cancellation-style timings.
+- exact production Cron Trigger frequency for discovery and safety monitoring. Product cadence policy is already locked; no runtime trigger is deployed.
 
 ### Physical economics
 

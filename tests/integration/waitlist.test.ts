@@ -71,4 +71,76 @@ describe("waitlist integration", () => {
     const { service } = makeDeps();
     await expect(service.submit({ email: "not-an-email" })).rejects.toThrow();
   });
+
+  it("persists interested_tier (Member) when supplied", async () => {
+    const { service, db } = makeDeps();
+    const entry = await service.submit({
+      email: "tier-member@example.com",
+      interestedTier: "Member",
+    });
+    expect(entry.state).toBe("ACTIVE_WAITLIST");
+    const stored = db.all("waitlist_entries");
+    expect(stored.length).toBe(1);
+    expect(stored[0]!.interested_tier).toBe("Member");
+  });
+
+  it("persists interested_tier (Corresponding Member) when supplied", async () => {
+    const { service, db } = makeDeps();
+    await service.submit({
+      email: "tier-corresponding@example.com",
+      interestedTier: "Corresponding Member",
+    });
+    const stored = db.all("waitlist_entries");
+    expect(stored[0]!.interested_tier).toBe("Corresponding Member");
+  });
+
+  it("persists interested_tier (Deluxe Member) when supplied", async () => {
+    const { service, db } = makeDeps();
+    await service.submit({
+      email: "tier-deluxe@example.com",
+      interestedTier: "Deluxe Member",
+    });
+    const stored = db.all("waitlist_entries");
+    expect(stored[0]!.interested_tier).toBe("Deluxe Member");
+  });
+
+  it("leaves interested_tier null when not supplied", async () => {
+    const { service, db } = makeDeps();
+    await service.submit({ email: "no-tier@example.com" });
+    const stored = db.all("waitlist_entries");
+    expect(stored[0]!.interested_tier).toBeNull();
+  });
+
+  it("rejects an unknown interested_tier value (zod validation)", async () => {
+    const { service } = makeDeps();
+    await expect(
+      service.submit({
+        email: "bad-tier@example.com",
+        // Cast to bypass TS so we can prove runtime validation
+        interestedTier: "Imaginary Tier" as unknown as "Member",
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("welcome email acknowledges the chosen tier (and does not imply payment)", async () => {
+    const { service, resend } = makeDeps();
+    await service.submit({
+      email: "tier-ack@example.com",
+      interestedTier: "Corresponding Member",
+    });
+    expect(resend.sent.length).toBe(1);
+    const mail = resend.sent[0]!;
+    expect(mail.subject).toContain("Plans With You");
+    // The subject must not assert activation, payment, or subscription.
+    expect(mail.subject).not.toMatch(/paid|active|subscript|receipt|invoice/i);
+    const body = `${mail.html ?? ""} ${mail.text ?? ""}`;
+    expect(body).toContain("Corresponding Member");
+    // The email must not claim the tier membership is active or that
+    // a subscription exists. The safe phrasing "Nothing has been charged"
+    // is allowed (and asserted below).
+    expect(body).not.toMatch(/your corresponding member account is active/i);
+    expect(body).not.toMatch(/subscription (started|active|created)/i);
+    expect(body).not.toMatch(/payment (was )?(taken|received|processed)/i);
+    expect(body).toMatch(/nothing has been charged/i);
+  });
 });

@@ -1,66 +1,337 @@
 ---
 import Base from "@layouts/Base.astro";
 import { brand } from "../brand/config";
+
+// Locked brand values for legal copy.
+const T = {
+  name: brand.name,
+  legal: brand.legalName,
+  short: brand.shortName,
+  year: new Date().getFullYear(),
+  docVersion: "0.9.0-draft",
+  effectiveOn: "TBD — pending Australian legal review",
+};
 ---
 
-<Base title="Terms" description="Plain-language terms of membership." canonicalPath="/terms/">
-  <section class="section">
-    <div class="container">
-      <h1>Terms</h1>
+<Base
+  title="Terms"
+  description={`Plain-language terms and the formal ${brand.name} membership agreement.`}
+  canonicalPath="/terms/"
+>
+  <section class="pwy-page pwy-legal" aria-labelledby="terms-heading">
+    <div class="pwy-shell">
+      <header class="pwy-legal__head">
+        <p class="pwy-kicker">The arrangement / terms</p>
+        <h1 id="terms-heading">Terms</h1>
+        <p class="pwy-legal__lead">
+          The waitlist is free and does not create paid membership. Paid membership and payment are
+          currently closed. This page is a plain-language draft while the formal agreement is
+          finalised with Australian-facing legal review.
+        </p>
+        <p class="pwy-legal__status"><strong>Draft v{T.docVersion}</strong> · {T.effectiveOn}</p>
+      </header>
+
+      <h2>Plain-language summary</h2>
+      <p>By joining {T.short}, you agree to the following in plain language:</p>
+      <ul>
+        <li>
+          You will receive invitations to <strong>constructed ordinary events</strong>. These events
+          are not real in the way a conference or a wedding is real. They are constructed by {
+            T.short
+          } on purpose.
+        </li>
+        <li>
+          <strong>Ordinary events are intended to be cancelled</strong> before the date. A completely
+          silent member is a successful member. We will never charge a per-event surcharge.
+        </li>
+        <li>
+          Some <strong
+            >characters, locations, and references in our correspondence are fictional</strong
+          >. We do not claim fictional people, places, or partnerships as real.
+        </li>
+        <li>
+          <strong>AI and automation assist personalisation</strong> within the rules we set. A human operator
+          reviews selected outputs and performs real-world tasks (print, sign, post, call, gift).
+        </li>
+        <li>
+          <strong>Optional services are controllable</strong>. The default for every optional
+          service is off. You can opt in, opt out, and revoke already-scheduled future work for any
+          service.
+        </li>
+        <li>
+          <strong>You can leave at any time</strong>. Cancellation stops future personalisation and
+          any already-scheduled work for the cancelled services. Required records (e.g. financial
+          records) are kept for the minimum period required by law.
+        </li>
+      </ul>
+
+      <h2>Formal membership agreement</h2>
       <p>
-        The full membership terms will be finalised before the paid launch, with appropriate
-        Australian-facing legal review. The current waiting list does not create paid membership,
-        does not require you to accept paid terms, and does not obligate you to any future purchase.
+        This section is the formal agreement between you and {T.legal} ("we", "us", "{T.short}").
+        The plain-language summary above is provided for clarity and is not the agreement.
       </p>
 
-      <h2>Plain-language preview of the acknowledgement</h2>
-      <p>Before paid activation, every member will explicitly acknowledge that:</p>
-      <ul>
-        <li>ordinary {brand.shortName} events are constructed;</li>
-        <li>ordinary {brand.shortName} events are intended to be cancelled;</li>
-        <li>members are not expected to attend ordinary events;</li>
-        <li>
-          {brand.shortName} characters and references may be fictional; the {brand.shortName}
-          does not claim fictional characters, locations, or partnerships as real;
-        </li>
-        <li>
-          AI and automation may assist personalisation within the rules the {brand.shortName} sets;
-        </li>
-        <li>human operators perform selected real-world tasks (print, sign, post, call, gift);</li>
-        <li>optional services remain controllable and may be paused or revoked.</li>
-      </ul>
-
-      <h2>What the {brand.shortName} agrees to</h2>
-      <ul>
-        <li>
-          Cancellation will happen before the date. Cancellation is not a failure; it is the
-          product.
-        </li>
-        <li>Your data will be handled under the published privacy policy.</li>
-        <li>
-          You can leave at any time. Cancellation stops future personalisation and any
-          already-scheduled work for the cancelled services.
-        </li>
-      </ul>
-
-      <h2>What the {brand.shortName} does not do</h2>
-      <ul>
-        <li>
-          The {brand.shortName} does not claim fictional partnerships, endorsements, or real bookings.
-        </li>
-        <li>
-          The {brand.shortName} does not charge per-event, per-RSVP, or per-cancellation.
-        </li>
-        <li>
-          The {brand.shortName} does not lock you into an annual contract without explicit consent.
-        </li>
-      </ul>
-
+      <h3>1. Membership</h3>
       <p>
-        The full terms will be published here before the paid launch. <a href="/faq/"
-          >Read the FAQ</a
-        > for the most common questions.
+        1.1 {T.legal} operates a tiered membership program with three tiers: Member, Corresponding Member,
+        and Deluxe Member. Pricing is per individual, per month, in Australian dollars. Tier capabilities
+        are described on the <a href="/membership/">membership page</a>.
+      </p>
+      <p>
+        1.2 Membership is a month-to-month recurring subscription. We do not require an annual
+        contract. You may cancel at any time; cancellation takes effect at the end of the current
+        billing period and stops future personalisation.
+      </p>
+      <p>
+        1.3 Paid activation is not available at the current waitlist launch. When billing is
+        enabled, activation will require: (a) completion of identity verification; (b) acceptance of
+        the current terms and privacy policy; (c) successful billing authorisation via the enabled
+        billing provider; and (d) an activation confirmation recorded against your member record.
+        Joining the waitlist satisfies none of these gates and collects no payment.
+      </p>
+
+      <h3>2. Constructed ordinary events</h3>
+      <p>
+        2.1 {T.short} will, from time to time, send you invitations to ordinary events. The cadence is
+        set by your preferences (occasional, about monthly, a couple per month, or "use our discretion").
+        Cadence is honoured approximately, not exactly.
+      </p>
+      <p>
+        2.2 Ordinary events are <strong>constructed</strong> — that is, created by {T.short} on purpose.
+        They are not real social, cultural, or commercial events of the kind advertised by a venue or
+        a business. Locations referenced in invitations are real public addresses, but the events themselves
+        are not real events at those addresses.
+      </p>
+      <p>
+        2.3 {T.short} intends to cancel every ordinary event before its scheduled start. The default cancellation
+        window is 12 to 36 hours before the event; some cancellations land earlier ("merciful") and some
+        later ("last minute"). {T.short} will not cancel an event after it has begun.
+      </p>
+      <p>
+        2.4 Cancellation is successful fulfilment, not failure. You are not expected to attend. A
+        completely silent member is a successful member.
+      </p>
+
+      <h3>3. Fictional references</h3>
+      <p>
+        3.1 {T.short} correspondence may mention characters, locations, and references that are fictional.
+        Real public addresses may be used as scene locations, but the events at those addresses are constructed
+        by {T.short} and are not real events.
+      </p>
+      <p>
+        3.2 {T.short} will not claim fictional characters, locations, or partnerships as real people,
+        places, or commercial partners. If a real third party is referenced (e.g. a real public café as
+        a scene location), {T.short} will not represent that third party as endorsing, sponsoring, or
+        hosting the constructed event.
+      </p>
+
+      <h3>4. Optional services</h3>
+      <p>
+        4.1 Optional services include: posted correspondence, gifts, calls, manufactured
+        commitments, and the real-world appearance service. Each optional service is an explicit
+        opt-in. The default for every optional service is off.
+      </p>
+      <p>
+        4.2 You may opt in or opt out of any optional service at any time. Opting out of a service
+        pauses that service and cancels any already-scheduled future work for that service. Other
+        membership actions continue unaffected.
+      </p>
+      <p>
+        4.3 The real-world appearance service is a separate paid service, not bundled with any tier.
+        Travel and substantial preparation are quoted separately. {T.short} will not provide a representative
+        for any purpose involving impersonation of real authorities, fraud, harassment, or illegal activity.
+      </p>
+
+      <h3>5. Personalisation consent and memory</h3>
+      <p>
+        5.1 {T.short} will use the confirmed facts you have shared, plus your stated preferences, to personalise
+        correspondence. You may view, edit, or remove any confirmed fact at any time from the member portal.
+        You may mark any fact as "do not mention" and
+        {T.short} will respect that.
+      </p>
+      <p>
+        5.2 {T.short} will not infer sensitive personal categories for personalisation. {T.short}
+        will not use your data to train general AI models. {T.short} will not sell your data or share
+        it with third parties except as required to deliver the service.
+      </p>
+      <p>
+        5.3 AI may propose candidate facts (e.g. a fact inferred from an inbound message). Candidate
+        facts are stored separately and require your explicit confirmation before they are used in
+        correspondence. {T.short} will not invent facts about you.
+      </p>
+
+      <h3>6. Physical fulfilment consent</h3>
+      <p>
+        6.1 Posted correspondence and physical artefacts will only be sent to the postal address on
+        your member record. Surprise packages are sent only if you have explicitly opted in to them.
+      </p>
+      <p>
+        6.2 {T.short} sets real, transparent budget limits on physical fulfilment. Budgets are described
+        on the <a href="/membership/">membership page</a>. {T.short} will not independently make expensive
+        purchases; operator approval is required for any purchase above the published per-item threshold.
+      </p>
+
+      <h3>7. Call consent</h3>
+      <p>
+        7.1 Calls require explicit opt-in. The default is no calls. When calls are enabled,
+        {T.short} will only call within the window you have specified. Voicemail is used only if you have
+        explicitly opted in to it.
+      </p>
+      <p>
+        7.2 Calls are scripted and reviewed for do-not-mention compliance. The caller identifies as
+        calling from {T.short} and will not impersonate a third party.
+      </p>
+
+      <h3>8. Manufactured commitments</h3>
+      <p>
+        8.1 A manufactured commitment is a consensual artificial social obligation. You may ask {
+          T.short
+        } to construct a plausible scenario, confirm it, and use it to create useful pressure toward a
+        goal you have set. {T.short} will then explicitly cancel the scenario.
+      </p>
+      <p>
+        8.2 You may abort a manufactured commitment at any time. Aborting cancels the scenario and
+        clears future reminders. Nothing dangles.
+      </p>
+
+      <h3>9. Cancellation, refunds, and termination</h3>
+      <p>
+        9.1 You may cancel your membership at any time from the member portal. Cancellation stops
+        future personalisation and any already-scheduled work for the cancelled services.
+        Cancellation is effective at the end of the current billing period.
+      </p>
+      <p>
+        9.2 Refunds for the current billing period are at our discretion. We do not charge
+        per-event, per-RSVP, or per-cancellation, so there is no per-event refund pathway.
+      </p>
+      <p>
+        9.3 We may suspend or terminate a membership that materially breaches these terms, including
+        (a) abusive conduct toward operators, (b) fraudulent use of optional services, or (c) use of
+        the appearance service for prohibited purposes.
+      </p>
+
+      <h3>10. Privacy and data</h3>
+      <p>
+        10.1 Your data is handled under the published <a href="/privacy/">privacy policy</a>, which
+        forms part of these terms.
+      </p>
+      <p>
+        10.2 Account deletion stops future personalisation and triggers the data-removal workflow.
+        Required records (e.g. financial records) are kept for the minimum period required by law
+        and then removed.
+      </p>
+
+      <h3>11. Limitation of liability</h3>
+      <p>
+        11.1 To the extent permitted by law, our liability is limited to the amount you have paid us
+        in the 12 months preceding the claim. We are not liable for indirect, incidental, or
+        consequential damages.
+      </p>
+      <p>
+        11.2 Nothing in these terms excludes, restricts, or modifies any guarantee, condition, or
+        warranty that cannot be excluded under the Australian Consumer Law.
+      </p>
+
+      <h3>12. Changes to these terms</h3>
+      <p>
+        12.1 We may update these terms from time to time. The current version, effective date, and
+        content hash are always published on this page. We will notify you by email of any material
+        change.
+      </p>
+      <p>
+        12.2 Re-acceptance of an updated document does not by itself re-charge or change your
+        membership. If you do not agree to an updated version, you may cancel.
+      </p>
+
+      <h3>13. Governing law</h3>
+      <p>
+        13.1 These terms are governed by the laws of Victoria, Australia. The parties submit to the
+        non-exclusive jurisdiction of the courts of Victoria.
+      </p>
+
+      <h3>14. Contact</h3>
+      <p>
+        14.1 Questions about these terms: <a href="/waiting-list/">join the waiting list</a>
+        and write to us, or reply to any {T.short} email.
+      </p>
+
+      <h2>Document version</h2>
+      <p class="pwy-legal__version">
+        Version: {T.docVersion} · Effective: {T.effectiveOn}<br />
+        © {T.year}
+        {T.legal}
       </p>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-legal {
+    padding: clamp(3.5rem, 8vw, 6rem) 0 5rem;
+  }
+  .pwy-legal__head {
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-legal h1 {
+    margin: 0 0 1rem;
+    font: 400 clamp(3.5rem, 10vw, 8rem)/0.84 var(--font-serif);
+    letter-spacing: -0.06em;
+  }
+  .pwy-legal__lead {
+    max-width: 48rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  }
+  .pwy-legal__status {
+    margin: 1.5rem 0 0;
+    color: var(--accent);
+    font: 0.75rem/1.4 var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .pwy-legal > .pwy-shell > h2 {
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+  .pwy-legal h2 {
+    font: 400 clamp(1.8rem, 3vw, 2.8rem)/1 var(--font-serif);
+    letter-spacing: -0.03em;
+  }
+  .pwy-legal h3 {
+    margin-top: 2.2rem;
+    font: 400 1.4rem/1.1 var(--font-serif);
+  }
+  .pwy-legal p,
+  .pwy-legal li {
+    max-width: 48rem;
+    color: var(--fg-muted);
+  }
+  .pwy-legal li {
+    margin: 0.7rem 0;
+  }
+  .pwy-legal strong {
+    color: var(--fg);
+  }
+  .pwy-legal__version {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--fg-faint) !important;
+    font: 0.75rem/1.6 var(--font-mono);
+  }
+</style>

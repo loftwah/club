@@ -1,5 +1,7 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 
 interface EventRow {
   id: string;
@@ -10,7 +12,7 @@ interface EventRow {
   chapter_id: string;
 }
 
-const env = Astro.locals?.runtime?.env;
+const env = runtimeEnv;
 const events: EventRow[] = env?.DB
   ? await env.DB.prepare(
       `SELECT id, title, state, start_at, cancellation_due_at, chapter_id
@@ -23,48 +25,76 @@ const events: EventRow[] = env?.DB
 ---
 
 <Base title="Events — Admin" description="Event catalogue" canonicalPath="/admin/events/">
-  <section class="section">
+  <section class="section app-surface app-operator">
     <div class="container">
-      <p><a href="/admin/">← Back to admin</a></p>
-      <h1>Events</h1>
-      <p>
-        Every event in D1. Ordinary events only; the forbidden attendance states (ATTENDED /
-        CHECKED_IN / NO_SHOW) are not stored.
-      </p>
-      {
-        events.length === 0 ? (
-          <p style="color: var(--fg-muted)">No events yet.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Title</th>
-                <th>Chapter</th>
-                <th>Start</th>
-                <th>Cancellation due</th>
-              </tr>
-            </thead>
-            <tbody>
-              {events.map((e) => (
-                <tr>
-                  <td>
-                    <span
-                      class={`pill ${e.state === "CANCELLED" || e.state === "ARCHIVED" ? "pill--ok" : e.state.includes("FAILURE") || e.state.includes("CRITICAL") ? "pill--danger" : "pill--info"}`}
-                    >
-                      {e.state}
-                    </span>
-                  </td>
-                  <td>{e.title}</td>
-                  <td>{e.chapter_id}</td>
-                  <td>{e.start_at}</td>
-                  <td>{e.cancellation_due_at}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/admin/">Operator desk</a> / Events</p>
+          <p class="app-kicker">Schedule state catalogue</p>
+          <h1>Events</h1>
+          <p class="app-lede">
+            Every event in D1 is shown with its current state and cancellation deadline. Ordinary
+            plans end in cancellation; they do not create an attendance workflow.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Rows shown</dt><dd>{events.length}</dd><dt>Safety rule</dt><dd>
+            Cancellation is successful fulfilment
+          </dd>
+        </dl>
+      </header>
+      <section class="app-section" aria-labelledby="events-heading">
+        <div class="app-section__head">
+          <h2 id="events-heading">Schedule records</h2><p>Newest start first</p>
+        </div>
+        {
+          events.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No event records yet</strong>
+                <span>There are no plans in the operator catalogue.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>State</th>
+                        <th>Title</th>
+                        <th>Chapter</th>
+                        <th>Start</th>
+                        <th>Cancellation due</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {events.map((e) => (
+                      <tr>
+                        <td data-label="State">
+                          <span
+                            class={`pill ${e.state === "CANCELLED" || e.state === "ARCHIVED" ? "pill--ok" : e.state.includes("FAILURE") || e.state.includes("CRITICAL") ? "pill--danger" : "pill--info"}`}
+                          >
+                            {e.state}
+                          </span>
+                        </td>
+                        <td data-label="Title">{e.title}</td>
+                        <td data-label="Chapter">
+                          <code>{e.chapter_id}</code>
+                        </td>
+                        <td data-label="Start">{e.start_at}</td>
+                        <td data-label="Cancellation due">{e.cancellation_due_at}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              </table>
+            </div>
+          )
+        }
+      </section>
     </div>
   </section>
 </Base>

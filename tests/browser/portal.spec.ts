@@ -50,72 +50,60 @@ test.describe("portal", () => {
 });
 
 test.describe("onboarding", () => {
-  test("GET /onboarding/identity/ renders the identity step", async ({ page }) => {
+  test("GET /onboarding/identity/ requires member authentication", async ({ page }) => {
     const response = await page.goto("/onboarding/identity/");
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: "Onboarding" })).toBeVisible();
-    await expect(page.getByRole("heading", { level: 2, name: /Step 1: Identity/ })).toBeVisible();
+    await expect(page).toHaveURL(/\/portal\/login\/?\?next=%2Fonboarding%2Fidentity%2F?$/);
   });
 
-  test("GET /onboarding/identity/ shows the progress for all 15 steps", async ({ page }) => {
-    const response = await page.goto("/onboarding/identity/");
-    expect(response?.status()).toBe(200);
-    // 15 steps × one <li> each.
-    await expect(page.locator(".onboarding-progress li")).toHaveCount(15);
-  });
-
-  test("GET /onboarding/payment-gate/ shows the disabled-payment message", async ({ page }) => {
+  test("GET /onboarding/payment-gate/ requires member authentication", async ({ page }) => {
     const response = await page.goto("/onboarding/payment-gate/");
     expect(response?.status()).toBe(200);
-    await expect(page.getByText(/disabled/i).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/portal\/login\/?\?next=%2Fonboarding%2Fpayment-gate%2F?$/);
+  });
+
+  test("POST /api/onboarding/identity rejects unauthenticated writes", async ({ request }) => {
+    const response = await request.post("/api/onboarding/identity", {
+      form: { preferredName: "Attacker" },
+    });
+    // Astro's built-in cross-site form protection may reject first; the
+    // application boundary returns 401 for same-origin unauthenticated POSTs.
+    expect([401, 403]).toContain(response.status());
   });
 });
 
 test.describe("admin", () => {
-  test("GET /admin/ renders the 'What does the Society need from me?' landing", async ({
-    page,
-  }) => {
-    const response = await page.goto("/admin/");
-    expect(response?.status()).toBe(200);
-    await expect(
-      page.getByRole("heading", { level: 1, name: /What does the Society need from me\?/ }),
-    ).toBeVisible();
-  });
+  for (const path of [
+    "/admin/",
+    "/admin/tasks/",
+    "/admin/inbound/",
+    "/admin/events/",
+    "/admin/members/",
+    "/admin/appearance/",
+    "/admin/operations/",
+    "/admin/creative/",
+  ]) {
+    test(`GET ${path} requires operator authentication`, async ({ page }) => {
+      const response = await page.goto(path);
+      expect(response?.status()).toBe(200);
+      await expect(page).toHaveURL(
+        new RegExp(`/portal/login/\\?next=${path.replaceAll("/", "%2F")}$`),
+      );
+    });
+  }
 
-  test("GET /admin/tasks/ renders the fulfilment tasks table", async ({ page }) => {
-    const response = await page.goto("/admin/tasks/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: /Fulfilment tasks/ })).toBeVisible();
-  });
+  for (const path of ["/%61dmin/", "/%61dmin/members/", "/%2561dmin/events/"]) {
+    test(`GET ${path} cannot bypass operator authentication`, async ({ request }) => {
+      const response = await request.get(path, { maxRedirects: 0 });
+      expect(response.status()).toBe(302);
+      expect(response.headers().location).toContain("/portal/login/?next=%2Fadmin");
+    });
+  }
 
-  test("GET /admin/inbound/ renders the inbound email review page", async ({ page }) => {
-    const response = await page.goto("/admin/inbound/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: /Inbound email/ })).toBeVisible();
-  });
-
-  test("GET /admin/events/ renders the event catalogue", async ({ page }) => {
-    const response = await page.goto("/admin/events/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: "Events" })).toBeVisible();
-  });
-
-  test("GET /admin/members/ renders the member directory", async ({ page }) => {
-    const response = await page.goto("/admin/members/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: "Members" })).toBeVisible();
-  });
-
-  test("GET /admin/appearance/ renders the appearance enquiries page", async ({ page }) => {
-    const response = await page.goto("/admin/appearance/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: /Appearance/ })).toBeVisible();
-  });
-
-  test("GET /admin/operations/ renders the operations digest", async ({ page }) => {
-    const response = await page.goto("/admin/operations/");
-    expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { level: 1, name: /Operations digest/ })).toBeVisible();
+  test("encoded internal route cannot bypass operator authentication", async ({ request }) => {
+    const response = await request.get("/%69nternal/threeui-bakeoff/", { maxRedirects: 0 });
+    expect(response.status()).toBe(302);
+    expect(response.headers().location).toContain("/portal/login/?next=%2Finternal");
   });
 });
 
@@ -134,6 +122,16 @@ test.describe("public", () => {
     const body = await res.text();
     expect(body).toContain("Sitemap:");
     expect(body).toContain("Disallow: /admin/");
+    expect(body).toContain("Disallow: /onboarding/");
+  });
+
+  test("public responses carry baseline browser security headers", async ({ request }) => {
+    const response = await request.get("/");
+    expect(response.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
+    expect(response.headers()["permissions-policy"]).toContain("camera=()");
+    expect(response.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+    expect(response.headers()["x-frame-options"]).toBe("DENY");
   });
 
   test("GET /sitemap.xml is served", async ({ request }) => {

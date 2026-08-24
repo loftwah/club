@@ -1,14 +1,9 @@
 ---
-// Base layout for all public-facing pages.
-// Semantic HTML, accessible by default. No essential content depends on JS.
-//
-// ThreeUI is mounted as a small island in the hero; the hero degrades to
-// semantic content when JS is unavailable or prefers-reduced-motion is set.
-//
-// All copy, name, palette, and typography flow from the configurable
-// brand layer in `src/brand/config.ts` so a final brand lock is an
-// inexpensive change to a single file.
+import { runtimeEnv } from "@lib/runtime-env";
+// Base layout for public-facing pages. Essential navigation and content work
+// without JavaScript; the native disclosure is the mobile navigation.
 import "../styles/global.css";
+import { ArrowUpRight } from "@lucide/astro";
 import { brand } from "../brand/config";
 
 interface Props {
@@ -25,10 +20,21 @@ const {
   ogImagePath = "/og/default.svg",
 } = Astro.props;
 
-const baseUrl = Astro.locals?.runtime?.env.APP_BASE_URL ?? "https://club.loftwah.com";
+const baseUrl = runtimeEnv.APP_BASE_URL ?? "https://club.loftwah.com";
 const canonical = new URL(canonicalPath, baseUrl).toString();
 const ogImage = new URL(ogImagePath, baseUrl).toString();
 const fullTitle = title === brand.name ? title : `${title} — ${brand.name}`;
+const currentPath = Astro.url.pathname;
+
+const navigation = [
+  { href: "/how-it-works/", label: "How it works" },
+  { href: "/membership/", label: "Membership" },
+  { href: "/correspondence/", label: "In the post" },
+  { href: "/chapters/", label: "Chapters" },
+  { href: "/journal/", label: "Journal" },
+];
+
+const isCurrent = (href: string) => currentPath === href || currentPath.startsWith(href);
 ---
 
 <!doctype html>
@@ -54,49 +60,123 @@ const fullTitle = title === brand.name ? title : `${title} — ${brand.name}`;
     <meta name="theme-color" content={brand.palette.bg} />
   </head>
   <body>
+    <!--
+      THESIS: A living operations desk for plans that are made, anticipated, and successfully unmade.
+      OWN-WORLD: Contemporary schedule objects first; private correspondence provides warmth and tactility.
+      STORY: Enter the schedule, watch a plan complete through cancellation, then discover the membership relationship that continues afterwards.
+      FIRST VIEWPORT: Brand, date logic, cancellation-as-fulfilment, and a truthful waitlist action are legible without scrolling.
+      FORM: Dispatch Wall — an administrative strip bay grounded by seed 2a9e769e, with disciplined grids, status typography, and vermilion interventions.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
     <a href="#main" class="skip-link">Skip to main content</a>
     <header class="site-header" role="banner">
-      <div class="container">
+      <div class="site-header__signal" aria-label="Membership status">
+        <div class="shell site-header__signal-inner">
+          <span><span class="status-dot" aria-hidden="true"></span>Waitlist open</span>
+          <span>Paid membership remains closed</span>
+        </div>
+      </div>
+      <div class="shell site-header__main">
         <a href="/" class="wordmark" aria-label={`${brand.name} — home`}>
-          <img
-            src={brand.seal.publicPath}
-            alt=""
-            aria-hidden="true"
-            class="wordmark__mark"
-            width="32"
-            height="32"
-          />
-          <span class="wordmark__text">{brand.name}</span>
+          <span class="wordmark__calendar" aria-hidden="true"><span>PWY</span><b>24</b></span>
+          <span class="wordmark__text">Plans<br />With You</span>
         </a>
-        <nav aria-label="Primary">
+
+        <nav class="desktop-nav" aria-label="Primary">
           <ul>
-            <li><a href="/membership/">Membership</a></li>
-            <li><a href="/how-it-works/">How it works</a></li>
-            <li><a href="/chapters/">Chapters</a></li>
-            <li><a href="/journal/">Journal</a></li>
-            <li><a href="/correspondence/">Correspondence</a></li>
-            <li><a href="/faq/">FAQ</a></li>
-            <li><a href="/waiting-list/" class="cta-link">Waiting list</a></li>
+            {
+              navigation.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
           </ul>
         </nav>
+
+        <a href="/waiting-list/" class="header-cta">
+          Join the waitlist <ArrowUpRight size={14} stroke-width={1.8} aria-hidden="true" />
+        </a>
+
+        <details class="mobile-nav">
+          <summary
+            ><span>Menu</span><span class="mobile-nav__icon" aria-hidden="true"></span></summary
+          >
+          <nav aria-label="Mobile primary">
+            <ul>
+              {
+                navigation.map((item) => (
+                  <li>
+                    <a href={item.href} aria-current={isCurrent(item.href) ? "page" : undefined}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
+              <li><a href="/faq/">Questions</a></li>
+              <li><a href="/waiting-list/">Join the waitlist</a></li>
+            </ul>
+          </nav>
+        </details>
       </div>
     </header>
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <footer class="site-footer" role="contentinfo">
-      <div class="container">
-        <p>
-          {brand.name} is a real paid membership. Ordinary events are deliberately cancelled. You are
-          not expected to attend.
-        </p>
-        <p>
-          <a href="/privacy/">Privacy</a> &middot;
-          <a href="/terms/">Terms</a> &middot;
-          <a href="/faq/">FAQ</a> &middot;
-          <a href="/chapters/">Chapters</a>
-        </p>
+      <div class="shell site-footer__grid">
+        <div class="site-footer__statement">
+          <p>You are wanted.<br />You don’t have to go.</p>
+        </div>
+        <div>
+          <p class="site-footer__label">The arrangement</p>
+          <p>
+            Ordinary plans are deliberately constructed, then deliberately cancelled. Cancellation
+            is successful fulfilment. Silence is a valid way to belong.
+          </p>
+        </div>
+        <nav aria-label="Footer">
+          <p class="site-footer__label">Small print</p>
+          <ul>
+            <li><a href="/privacy/">Privacy</a></li>
+            <li><a href="/terms/">Terms</a></li>
+            <li><a href="/faq/">Questions</a></li>
+            <li><a href="/portal/login/">Member portal</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="shell site-footer__base">
+        <span>Melbourne, Australia</span><span>© {new Date().getFullYear()} {brand.name}</span>
       </div>
     </footer>
+    <script is:inline>
+      const mobileNavigation = document.querySelector("details.mobile-nav");
+      const pageMain = document.querySelector("body > main");
+      const pageFooter = document.querySelector("body > footer");
+      if (mobileNavigation instanceof HTMLDetailsElement) {
+        const summary = mobileNavigation.querySelector("summary");
+        const synchroniseMenu = () => {
+          const open = mobileNavigation.open;
+          document.documentElement.classList.toggle("mobile-menu-open", open);
+          if (pageMain instanceof HTMLElement) pageMain.inert = open;
+          if (pageFooter instanceof HTMLElement) pageFooter.inert = open;
+        };
+        mobileNavigation.addEventListener("toggle", synchroniseMenu);
+        mobileNavigation.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", () => {
+            mobileNavigation.open = false;
+          });
+        });
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && mobileNavigation.open) {
+            mobileNavigation.open = false;
+            if (summary instanceof HTMLElement) summary.focus();
+          }
+        });
+        synchroniseMenu();
+      }
+    </script>
   </body>
 </html>

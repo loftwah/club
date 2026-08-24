@@ -1,11 +1,13 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { requireSession } from "../../lib/portal-auth";
 
-const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+const ctx = await requireSession(Astro.request, runtimeEnv);
 if (!ctx) return Astro.redirect("/portal/login/");
 
-const env = Astro.locals.runtime.env;
+const env = runtimeEnv;
 const rows = (
   await env.DB.prepare(
     `SELECT id, role, location, travel_required, state, quote_total_cents, created_at
@@ -28,135 +30,178 @@ const rows = (
 
 <Base
   title="Appearance service"
-  description="Request a real Society representative to appear at a real-world event in an agreed role."
+  description="Request a real Plans With You representative to appear at a real-world event in an agreed role."
   canonicalPath="/portal/appearance/"
 >
-  <section class="section">
+  <section class="section app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/portal/">Portal</a> / Appearance
-      </p>
-      <h1>Appearance service</h1>
-      <p>
-        The Society can send a real person to a real event in an agreed role — friend, plus-one,
-        club representative, guest, supporter. The customer understands the arrangement. Travel,
-        accommodation and substantial preparation are quoted separately. Members may receive
-        priority and member pricing.
-      </p>
-      <p>
-        The Society will <strong>not</strong> support requests to impersonate real authorities (police,
-        lawyer, doctor, government), commit fraud, harass, or facilitate illegal activity. Disallowed
-        directions are declined at suitability review before any quote is prepared.
-      </p>
-      <p>
-        Final public pricing is not locked. Submitting an enquiry is free; you will receive a quote
-        before any commitment.
-      </p>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Appearance</p>
+          <p class="app-kicker">Independent, quote-based service</p>
+          <h1>Appearance service</h1>
+          <p class="app-lede">
+            Request a real Plans With You representative for a real-world event in an agreed role.
+            Nothing is booked until suitability, quote, and consent are complete.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Pricing</dt><dd>Quote-based; enquiry is free</dd><dt>Safety gate</dt><dd>
+            Suitability review before quote
+          </dd>
+        </dl>
+      </header>
 
-      <h2>Request an appearance</h2>
-      <form class="form" method="post" action="/api/portal/appearance/request">
-        <label for="role">Agreed role</label>
-        <select id="role" name="role" required>
-          <option value="friend">Friend</option>
-          <option value="plus-one">Plus-one</option>
-          <option value="club-rep">Club representative</option>
-          <option value="guest">Guest</option>
-          <option value="supporter">Supporter</option>
-        </select>
-        <label for="location">Location (city / suburb)</label>
-        <input
-          id="location"
-          name="location"
-          type="text"
-          required
-          maxlength="200"
-          placeholder="Carlton, VIC"
-        />
-        <label for="eventDate">Event date (if known)</label>
-        <input id="eventDate" name="eventDate" type="date" />
-        <label for="eventTime">Event time (if known)</label>
-        <input id="eventTime" name="eventTime" type="time" />
-        <label for="duration">Duration (hours)</label>
-        <input
-          id="duration"
-          name="duration"
-          type="number"
-          min="1"
-          max="48"
-          step="0.5"
-          placeholder="3"
-        />
-        <label for="travel">Travel needed?</label>
-        <select id="travel" name="travel" required>
-          <option value="false">No — local</option>
-          <option value="true">Yes — interstate or international</option>
-        </select>
-        <label for="brief">Context, dress, accessibility, anything we should know</label>
-        <textarea
-          id="brief"
-          name="brief"
-          rows="4"
-          maxlength="1000"
-          required
-          placeholder="A casual friend for a wedding-adjacent dinner. Outgoing, can hold a conversation. No impersonation of any authority."
-        ></textarea>
-        <label>
-          <input type="checkbox" name="acknowledged" value="true" required />
-          I understand the Society will not impersonate real authorities, will not commit fraud, will
-          not harass, and will not facilitate illegal activity. The arrangement is consensual.
-        </label>
-        <button type="submit">Submit enquiry</button>
-      </form>
+      <section class="app-section" aria-labelledby="brief-heading">
+        <div class="app-callout app-callout--danger">
+          <strong>Boundaries are part of the service.</strong> We do not impersonate real authorities,
+          commit fraud, harass, or facilitate illegal activity. Disallowed directions stop at suitability
+          review.
+        </div>
+        <p class="app-note">
+          Travel, accommodation, and substantial preparation are quoted separately. Members may
+          receive priority and member pricing.
+        </p>
+        <div class="app-section__head">
+          <h2 id="brief-heading">Request an appearance</h2><p>Starts with your brief</p>
+        </div>
+        <form class="form app-form" method="post" action="/api/portal/appearance/request">
+          <div class="app-form__grid">
+            <div class="app-form__field">
+              <label for="role">Agreed role</label><select id="role" name="role" required
+                ><option value="friend">Friend</option><option value="plus-one">Plus-one</option
+                ><option value="club-rep">Club representative</option><option value="guest"
+                  >Guest</option
+                ><option value="supporter">Supporter</option></select
+              >
+            </div>
+            <div class="app-form__field">
+              <label for="location">Location (city / suburb)</label><input
+                id="location"
+                name="location"
+                type="text"
+                required
+                maxlength="200"
+                placeholder="Carlton, VIC"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="eventDate">Event date (if known)</label><input
+                id="eventDate"
+                name="eventDate"
+                type="date"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="eventTime">Event time (if known)</label><input
+                id="eventTime"
+                name="eventTime"
+                type="time"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="duration">Duration (hours)</label><input
+                id="duration"
+                name="duration"
+                type="number"
+                min="1"
+                max="48"
+                step="0.5"
+                placeholder="3"
+              />
+            </div>
+            <div class="app-form__field">
+              <label for="travel">Travel needed?</label><select id="travel" name="travel" required
+                ><option value="false">No — local</option><option value="true"
+                  >Yes — interstate or international</option
+                ></select
+              >
+            </div>
+            <div class="app-form__field app-form__field--full">
+              <label for="brief">Context, dress, accessibility, anything we should know</label
+              ><textarea
+                id="brief"
+                name="brief"
+                rows="4"
+                maxlength="1000"
+                required
+                placeholder="A casual friend for a wedding-adjacent dinner. Outgoing, can hold a conversation. No impersonation of any authority."
+              ></textarea>
+            </div>
+            <div class="app-form__field app-form__field--full">
+              <label
+                ><input type="checkbox" name="acknowledged" value="true" required /> I understand the
+                service boundaries above and that the arrangement is consensual.</label
+              >
+            </div>
+          </div>
+          <div class="app-form__actions">
+            <button class="app-action" type="submit"
+              >Submit enquiry <span aria-hidden="true">→</span></button
+            >
+          </div>
+        </form>
+      </section>
 
-      <h2>Your enquiries</h2>
-      {
-        rows.length === 0 ? (
-          <p style="color: var(--fg-muted)">No enquiries yet.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
+      <section class="app-section" aria-labelledby="enquiries-heading">
+        <div class="app-section__head">
+          <h2 id="enquiries-heading">Your enquiries</h2><p>{rows.length} recorded</p>
+        </div>
+        {
+          rows.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No enquiries yet</strong>
+                <span>
+                  Suitability review, quoting, booking, and cancellation states will be shown here
+                  without implying a booking.
+                </span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
                 <>
-                  <th>State</th>
-                  <th>Role</th>
-                  <th>Location</th>
-                  <th>Travel</th>
-                  <th>Quote</th>
-                  <th>Created</th>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>State</th>
+                        <th>Role</th>
+                        <th>Location</th>
+                        <th>Travel</th>
+                        <th>Quote</th>
+                        <th>Created</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr>
+                        <td data-label="State">
+                          <span
+                            class={`pill ${r.state === "BOOKED" || r.state === "PERFORMED" ? "pill--ok" : r.state === "SUITABILITY_DECLINED" || r.state === "CUSTOMER_CANCELLED" || r.state === "CLUB_CANCELLED" ? "pill--warn" : "pill--info"}`}
+                          >
+                            {r.state}
+                          </span>
+                        </td>
+                        <td data-label="Role">{r.role}</td>
+                        <td data-label="Location">{r.location}</td>
+                        <td data-label="Travel">{r.travel_required === 1 ? "Yes" : "No"}</td>
+                        <td data-label="Quote">
+                          {r.quote_total_cents
+                            ? `A$${(r.quote_total_cents / 100).toFixed(2)}`
+                            : "—"}
+                        </td>
+                        <td data-label="Created">{r.created_at.slice(0, 10)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr>
-                  <td>
-                    <span
-                      class={`pill ${
-                        r.state === "BOOKED" || r.state === "PERFORMED"
-                          ? "pill--ok"
-                          : r.state === "SUITABILITY_DECLINED" ||
-                              r.state === "CUSTOMER_CANCELLED" ||
-                              r.state === "CLUB_CANCELLED"
-                            ? "pill--warn"
-                            : "pill--info"
-                      }`}
-                    >
-                      {r.state}
-                    </span>
-                  </td>
-                  <td>{r.role}</td>
-                  <td>{r.location}</td>
-                  <td>{r.travel_required === 1 ? "Yes" : "No"}</td>
-                  <td>
-                    {r.quote_total_cents ? `A$${(r.quote_total_cents / 100).toFixed(2)}` : "—"}
-                  </td>
-                  <td>{r.created_at.slice(0, 10)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+              </table>
+            </div>
+          )
+        }
+      </section>
     </div>
   </section>
 </Base>

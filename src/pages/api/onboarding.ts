@@ -4,6 +4,7 @@
 // the wizard.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 import type { D1Database } from "@cloudflare/workers-types";
 import {
   OnboardingService,
@@ -13,10 +14,17 @@ import {
 import { MembershipService } from "../../services/membership-service";
 import { D1AuditWriter } from "../../infra/audit";
 import { SystemClock } from "../../infra/clock";
+import { requireOnboardingSession } from "../../lib/portal-auth";
+import { isSameOriginMutation } from "../../lib/request-security";
 
 export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
-  const env = locals.runtime.env;
+  const env = getRuntimeEnv(locals);
   if (!env?.DB) return new Response("DB not available", { status: 500 });
+  if (!isSameOriginMutation(request)) {
+    return new Response("Cross-origin request rejected.", { status: 403 });
+  }
+  const ctx = await requireOnboardingSession(request, env);
+  if (!ctx) return new Response("Sign in to continue onboarding.", { status: 401 });
   const step = (url.pathname.split("/").pop() ?? "") as OnboardingStepId;
   if (!ONBOARDING_STEPS.find((s) => s.id === step)) {
     return new Response("Unknown step", { status: 404 });
@@ -26,16 +34,9 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
   const onboarding = new OnboardingService({ db: env.DB });
   const ms = new MembershipService({ db: env.DB, audit, clock });
 
-  // Look up the most-recent applicant. (Local dev: there is
-  // typically exactly one.) When the portal auth is wired, this
-  // becomes `ctx.member.id`.
-  const applicant = await env.DB.prepare(
-    `SELECT m.id FROM members m
-         JOIN memberships ms ON ms.member_id = m.id
-         WHERE ms.state = 'APPLICANT'
-         ORDER BY m.created_at DESC LIMIT 1`,
-  ).first<{ id: string }>();
-  if (!applicant) return new Response("No applicant to onboard", { status: 400 });
+  // Ownership is established by the server-backed member session. Never
+  // infer an applicant from global recency or an attacker-controlled id.
+  const applicant = { id: ctx.member.id };
 
   const form = await request.formData();
 

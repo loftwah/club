@@ -6,13 +6,14 @@
 // body via the Resend Received Emails API. See MASTER_SPEC §9.6.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 import { InboundEmailService } from "@services/inbound-email";
 import { RealResendAdapter } from "@adapters/resend-real";
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env;
+  const env = getRuntimeEnv(locals);
   if (!env?.DB) {
     return new Response("database binding not available", { status: 500 });
   }

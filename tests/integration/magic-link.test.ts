@@ -4,7 +4,7 @@ import { MockD1Database } from "../support/mock-d1";
 import { loadSchema } from "../support/load-schema";
 import { FixedClock } from "../../src/infra/clock";
 import { InMemoryAuditWriter } from "../../src/infra/audit";
-import { MagicLinkService, MagicLinkError } from "../../src/services/magic-link";
+import { MagicLinkService, MagicLinkError, safeInternalPath } from "../../src/services/magic-link";
 
 function setup() {
   const db = new MockD1Database();
@@ -45,6 +45,25 @@ describe("MagicLinkService", () => {
     expect(issued.url).toContain("token=");
     const session = await service.consume(issued.token);
     expect(session.memberId).toBe("mem_1");
+  });
+
+  it("preserves only a safe internal continuation path", async () => {
+    const { db, service } = setup();
+    addMember(db);
+    const issued = await service.request({
+      memberId: "mem_1",
+      email: "a@example.com",
+      continuePath: "/admin/",
+    });
+    expect(new URL(issued.url).searchParams.get("next")).toBe("/admin/");
+    const unsafe = await service.request({
+      memberId: "mem_1",
+      email: "a@example.com",
+      continuePath: "https://evil.example/steal",
+    });
+    expect(new URL(unsafe.url).searchParams.get("next")).toBeNull();
+    expect(safeInternalPath("//evil.example")).toBeNull();
+    expect(safeInternalPath("/admin/?view=queue")).toBe("/admin/?view=queue");
   });
 
   it("rejects a second consumption (replay detection)", async () => {

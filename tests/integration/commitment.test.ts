@@ -28,9 +28,15 @@ function setupMember(db: MockD1Database) {
     society_alias: null,
     country: "AU",
     metro_area: "Melbourne",
-    chapter_id: null,
+    chapter_id: "chap_melbourne",
     birthday: null,
     timezone: "Australia/Melbourne",
+  });
+  db.insert("chapters", {
+    id: "chap_melbourne",
+    slug: "melbourne",
+    name: "Melbourne",
+    status: "ACTIVE",
   });
   db.insert("memberships", {
     id: "mship_1",
@@ -43,7 +49,7 @@ function setupMember(db: MockD1Database) {
   db.insert("membership_tiers", {
     id: "tier_correspondence",
     slug: "correspondence",
-    display_name: "Correspondence",
+    display_name: "Corresponding Member",
     price_cents: 2000,
     currency: "AUD",
   });
@@ -57,6 +63,43 @@ function setupMember(db: MockD1Database) {
     member_id: "mem_1",
     service: "MANUFACTURED_COMMITMENTS",
     state: "OPTED_IN",
+  });
+  for (const [id, docType] of [
+    ["doc_terms", "TERMS"],
+    ["doc_privacy", "PRIVACY_POLICY"],
+    ["doc_theatrical", "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT"],
+  ]) {
+    db.insert("legal_documents", {
+      id,
+      doc_type: docType,
+      version: "1.0.0",
+      effective_at: "2026-01-01T00:00:00.000Z",
+      content_hash: `hash_${id}`,
+      body: null,
+    });
+    db.insert("member_acceptances", {
+      id: `acc_${id}`,
+      member_id: "mem_1",
+      document_id: id,
+      accepted_at: "2026-01-01T00:00:00.000Z",
+      method: "WEB",
+    });
+  }
+  db.insert("subscriptions", {
+    id: "sub_1",
+    member_id: "mem_1",
+    provider: "fake",
+    provider_customer_id: "cus_1",
+    provider_subscription_id: "provider_sub_1",
+    tier_id: "tier_correspondence",
+    status: "ACTIVE",
+    current_period_end: null,
+  });
+  db.insert("billing_customers", {
+    id: "bc_1",
+    member_id: "mem_1",
+    provider: "fake",
+    provider_customer_id: "cus_1",
   });
 }
 

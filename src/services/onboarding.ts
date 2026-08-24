@@ -86,7 +86,7 @@ export const ONBOARDING_STEPS: ReadonlyArray<OnboardingStep> = [
   {
     id: "memory",
     title: "Memory preferences",
-    description: "What the Society may remember, and what it must never mention.",
+    description: "What we may remember, and what we must never mention.",
     order: 7,
     requiredForActivation: false,
   },

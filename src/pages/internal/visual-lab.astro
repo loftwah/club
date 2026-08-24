@@ -1,0 +1,351 @@
+---
+import Base from "@layouts/Base.astro";
+import PlanLifecycle from "@components/plan-lifecycle";
+import "@components/plan-lifecycle/PlanLifecycle.css";
+import { ArrowUpRight, Check, Mail, ShieldCheck, TriangleAlert } from "@lucide/astro";
+
+const planStates = ["invited", "planned", "approaching", "cancelled", "archived"] as const;
+---
+
+<Base
+  title="Visual laboratory"
+  description="Operator-protected visual development laboratory."
+  canonicalPath="/internal/visual-lab/"
+>
+  <header class="lab-intro">
+    <div class="shell">
+      <p class="eyebrow">Internal / Visual laboratory / Non-production fixtures</p>
+      <h1>Plans With You<br />interface specimens.</h1>
+      <p>
+        This route is available on loopback during development and requires an operator session on
+        deployed hosts. Everything below is a labelled specimen, not member or business data.
+      </p>
+    </div>
+  </header>
+
+  <section class="lab-section" aria-labelledby="tokens-title">
+    <div class="shell">
+      <p class="eyebrow">01 / Foundation</p>
+      <h2 id="tokens-title">Colour and type</h2>
+      <div class="swatches">
+        <div style="--swatch: var(--paper)"><span>Paper</span><code>#F5F1E7</code></div>
+        <div style="--swatch: var(--ink)"><span>Ink</span><code>#12110F</code></div>
+        <div style="--swatch: var(--signal)"><span>Cancellation</span><code>#E94616</code></div>
+        <div style="--swatch: var(--calendar)"><span>Calendar</span><code>#2447FF</code></div>
+        <div style="--swatch: var(--signal-soft)">
+          <span>Correspondence</span><code>#F7D9CC</code>
+        </div>
+      </div>
+      <div class="type-specimens">
+        <p class="type-display">Plans were made.</p>
+        <p class="type-letter">
+          A quiet note in the post, written only when there is something to say.
+        </p>
+        <p class="type-data">PLAN-024 / CANCELLED / FULFILMENT COMPLETE</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab-section" aria-labelledby="controls-title">
+    <div class="shell">
+      <p class="eyebrow">02 / Controls</p>
+      <h2 id="controls-title">Actions and inputs</h2>
+      <div class="lab-row">
+        <a class="button" href="#controls-title"
+          >Primary action <ArrowUpRight size={15} aria-hidden="true" /></a
+        >
+        <a class="button button--signal" href="#controls-title"
+          >Cancellation action <Check size={15} aria-hidden="true" /></a
+        >
+        <a class="button button--paper" href="#controls-title">Quiet action</a>
+      </div>
+      <form class="form" onsubmit="return false">
+        <label for="lab-email">Email specimen</label>
+        <input id="lab-email" type="email" placeholder="person@example.com" />
+        <label for="lab-tier">Tier specimen</label>
+        <select id="lab-tier"
+          ><option>Member</option><option>Corresponding Member</option><option>Deluxe Member</option
+          ></select
+        >
+        <label for="lab-note">Member-controlled note specimen</label>
+        <textarea id="lab-note" placeholder="Nothing entered is saved on this laboratory route."
+        ></textarea>
+        <button type="button">Save specimen</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="lab-section" aria-labelledby="states-title">
+    <div class="shell">
+      <p class="eyebrow">03 / State language</p>
+      <h2 id="states-title">Explicit, terminal, auditable.</h2>
+      <div class="state-grid">
+        {
+          planStates.map((state, index) => (
+            <article class:list={["state-card", state === "cancelled" && "state-card--signal"]}>
+              <>
+                <span>0{index + 1}</span>
+                <h3>{state}</h3>
+              </>
+              <p>
+                {state === "cancelled"
+                  ? "Successful fulfilment"
+                  : state === "archived"
+                    ? "Quiet record retained"
+                    : "Work remains explicit"}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+      <div class="alert-grid">
+        <article>
+          <Check size={20} aria-hidden="true" /><div>
+            <h3>Complete</h3><p>Nothing further needs a member or operator.</p>
+          </div>
+        </article>
+        <article>
+          <TriangleAlert size={20} aria-hidden="true" /><div>
+            <h3>Escalated</h3><p>A named human queue owns the next decision.</p>
+          </div>
+        </article>
+        <article>
+          <ShieldCheck size={20} aria-hidden="true" /><div>
+            <h3>Permission held</h3><p>The service is both entitled and explicitly enabled.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="lab-section" aria-labelledby="lifecycle-lab-title">
+    <div class="shell">
+      <p class="eyebrow">04 / Signature primitive</p>
+      <h2 id="lifecycle-lab-title">Plan lifecycle</h2>
+      <PlanLifecycle
+        state="approaching"
+        staticMode={true}
+        event={{
+          id: "visual-lab-fixture",
+          title: "Deterministic laboratory plan",
+          date: "Fixture date",
+          chapter: "Fixture chapter",
+          status: "Approaching deliberate cancellation",
+          location: "Fixture place — not a booking",
+          detail:
+            "This labelled fixture exists only to test long content, state contrast, and responsive layout.",
+        }}
+      />
+    </div>
+  </section>
+
+  <section class="lab-section lab-section--post" aria-labelledby="post-title">
+    <div class="shell correspondence-specimen">
+      <div>
+        <Mail size={28} stroke-width={1.5} aria-hidden="true" />
+        <p class="eyebrow">05 / In the post</p>
+        <h2 id="post-title">Correspondence should feel handled.</h2>
+      </div>
+      <article>
+        <p class="correspondence-specimen__date">A labelled fixture / No recipient</p>
+        <p>Dear member,</p>
+        <p>The plan has been unmade. There is nothing you need to do.</p>
+        <p>We thought you should know that it was lovely not to see you.</p>
+        <p><em>Plans With You</em></p>
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lab-intro,
+  .lab-section {
+    padding-block: clamp(4rem, 8vw, 8rem);
+    border-bottom: 1px solid var(--ink);
+  }
+  .lab-intro {
+    background: var(--calendar);
+    color: white;
+  }
+  .lab-intro .eyebrow {
+    color: #c7ceff;
+  }
+  .lab-intro h1 {
+    margin: 1rem 0 2rem;
+    font-size: clamp(4rem, 10vw, 9rem);
+  }
+  .lab-intro p:last-child {
+    max-width: 48rem;
+    font-family: var(--font-letter);
+    font-size: 1.2rem;
+  }
+  .lab-section h2 {
+    margin: 1rem 0 3rem;
+    font-size: clamp(3rem, 6vw, 6rem);
+  }
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--ink);
+  }
+  .swatches div {
+    display: grid;
+    min-height: 12rem;
+    align-content: end;
+    padding: 1rem;
+    background: var(--swatch);
+    border-right: 1px solid var(--ink);
+    color: var(--ink);
+  }
+  .swatches div:last-child {
+    border-right: 0;
+  }
+  .swatches div:nth-child(2),
+  .swatches div:nth-child(3),
+  .swatches div:nth-child(4) {
+    color: white;
+  }
+  .swatches span {
+    font-weight: 700;
+  }
+  .swatches code {
+    font-family: var(--font-data);
+    font-size: 0.62rem;
+  }
+  .type-specimens {
+    display: grid;
+    gap: 1rem;
+    margin-top: 4rem;
+  }
+  .type-specimens p {
+    margin: 0;
+  }
+  .type-display {
+    font-size: clamp(4rem, 9vw, 9rem);
+    font-weight: 700;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+  }
+  .type-letter {
+    max-width: 48rem;
+    font-family: var(--font-letter);
+    font-size: clamp(1.5rem, 3vw, 3rem);
+  }
+  .type-data {
+    font-family: var(--font-data);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+  .lab-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .state-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--ink);
+  }
+  .state-card {
+    min-width: 0;
+    padding: 1rem;
+    border-right: 1px solid var(--ink);
+  }
+  .state-card:last-child {
+    border-right: 0;
+  }
+  .state-card span {
+    font-family: var(--font-data);
+    font-size: 0.62rem;
+  }
+  .state-card h3 {
+    margin: 3rem 0 0.5rem;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+  }
+  .state-card p {
+    color: var(--ink-soft);
+    font-size: 0.8rem;
+  }
+  .state-card--signal {
+    background: var(--signal);
+    color: var(--ink);
+  }
+  .state-card--signal p {
+    color: var(--ink);
+  }
+  .alert-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 2rem;
+    background: var(--line);
+  }
+  .alert-grid article {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--paper-light);
+  }
+  .alert-grid h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .alert-grid p {
+    margin: 0.35rem 0 0;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .lab-section--post {
+    background: var(--signal-soft);
+  }
+  .correspondence-specimen {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(3rem, 10vw, 10rem);
+  }
+  .correspondence-specimen svg {
+    margin-bottom: 2rem;
+  }
+  .correspondence-specimen article {
+    padding: clamp(2rem, 5vw, 5rem);
+    background: var(--paper-light);
+    box-shadow: 1rem 1rem 0 rgb(18 17 15 / 10%);
+    transform: rotate(-1deg);
+  }
+  .correspondence-specimen article p {
+    font-family: var(--font-letter);
+    font-size: 1.2rem;
+  }
+  .correspondence-specimen__date {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--ink);
+    font-family: var(--font-data) !important;
+    font-size: 0.62rem !important;
+    text-transform: uppercase;
+  }
+  @media (max-width: 48rem) {
+    .swatches {
+      grid-template-columns: 1fr 1fr;
+    }
+    .swatches div {
+      min-height: 8rem;
+      border-bottom: 1px solid var(--ink);
+    }
+    .state-grid,
+    .alert-grid,
+    .correspondence-specimen {
+      grid-template-columns: 1fr;
+    }
+    .state-card {
+      border-right: 0;
+      border-bottom: 1px solid var(--ink);
+    }
+    .state-card h3 {
+      margin-top: 1rem;
+    }
+    .correspondence-specimen article {
+      transform: none;
+    }
+  }
+</style>

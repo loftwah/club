@@ -2,6 +2,10 @@
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import cloudflare from "@astrojs/cloudflare";
+import tailwindcss from "@tailwindcss/vite";
+import { sourceFingerprint } from "./scripts/video/shared.mjs";
+
+const creativeSourceFingerprint = await sourceFingerprint();
 
 // Astro config for the Social Club Worker.
 // Hybrid output: most pages are pre-rendered (SEO, public content),
@@ -11,23 +15,15 @@ import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
   output: "server",
-  adapter: cloudflare({
-    platformProxy: { enabled: true },
-  }),
+  adapter: cloudflare({ imageService: "compile" }),
   integrations: [react()],
   prefetch: {
     defaultStrategy: "hover",
   },
   vite: {
-    ssr: {
-      // ThreeUI bundles a CSS file that should be loaded once. Marking it
-      // external for SSR avoids the bundler trying to inline it into a
-      // server-rendered Worker.
-      noExternal: ["@designcodeio/threeui"],
-    },
-    optimizeDeps: {
-      // ThreeUI is React-only; allow Vite to pre-bundle it for the client.
-      include: ["@designcodeio/threeui", "react", "react-dom"],
+    plugins: [tailwindcss()],
+    define: {
+      __CREATIVE_SOURCE_FINGERPRINT__: JSON.stringify(creativeSourceFingerprint),
     },
   },
 });

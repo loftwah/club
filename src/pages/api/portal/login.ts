@@ -7,22 +7,26 @@
 // developer can test the flow without setting up Resend.
 
 import type { APIRoute } from "astro";
+import { getRuntimeEnv } from "@lib/runtime-env";
 import { z } from "zod";
-import { MagicLinkService } from "@services/magic-link";
+import { MagicLinkService, safeInternalPath } from "@services/magic-link";
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 import { RealResendAdapter } from "@adapters/resend-real";
 import { brand } from "../../../brand/config";
+import { isSameOriginMutation } from "../../../lib/request-security";
 
 const schema = z.object({
-  email: z.string().email().max(200),
+  email: z.email().max(200),
+  next: z.string().max(512).optional(),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env;
+  const env = getRuntimeEnv(locals);
   if (!env?.DB) {
     return json({ error: "database not available" }, 500);
   }
+  if (!isSameOriginMutation(request)) return json({ error: "cross-origin request rejected" }, 403);
   let body: unknown;
   try {
     body = await request.json();
@@ -32,6 +36,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     return json({ error: "invalid email" }, 400);
+  }
+  const rateLimitKey = await hashedRateLimitKey(parsed.data.email);
+  const rateLimit = await env.MAGIC_LINK_RATE_LIMITER.limit({ key: rateLimitKey });
+  if (!rateLimit.success) {
+    return json({ error: "Too many sign-in requests. Please wait a minute and try again." }, 429);
   }
   // Look up member by email. We never echo whether the email
   // exists; we always return ok: true on a well-formed request.
@@ -63,6 +72,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const issued = await service.request({
     memberId: member.id,
     email: member.email,
+    continuePath: safeInternalPath(parsed.data.next),
   });
   // Best-effort email send. Failure to send is recorded but
   // does not affect the user-visible response.
@@ -112,13 +122,20 @@ function json(body: unknown, status: number): Response {
 
 function renderMagicLinkEmail(url: string, brandName: string): string {
   return `<!doctype html>
-<html><body>
-<p>Hello,</p>
-<p>This is ${escapeHtml(brandName)}. Use the link below to sign in to the member portal. It is single-use and expires in 15 minutes.</p>
-<p><a href="${escapeHtml(url)}">${escapeHtml(url)}</a></p>
-<p>If you did not request this link, you can ignore this email.</p>
-<p style="font-size:12px;color:#666">${escapeHtml(brandName)}</p>
-</body></html>`;
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Your sign-in link</title></head>
+<body style="margin:0;background:#f5f1e7;color:#12110f;font-family:Arial,sans-serif;line-height:1.55;">
+<div style="display:none;max-height:0;overflow:hidden;">A single-use sign-in link for ${escapeHtml(brandName)}.</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f1e7;"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;border:1px solid #12110f;background:#fbf9f3;">
+<tr><td style="padding:12px 20px;background:#2447ff;color:white;font-family:monospace;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;">${escapeHtml(brandName)} / Member access</td></tr>
+<tr><td style="padding:40px 32px;"><p style="margin:0 0 18px;font-family:Georgia,serif;font-size:20px;">Hello,</p>
+<h1 style="margin:0 0 22px;font-size:38px;line-height:1;letter-spacing:-1.5px;">Your portal is one click away.</h1>
+<p style="margin:0 0 24px;">This link is single-use and expires in 15 minutes.</p>
+<p style="margin:0 0 28px;"><a href="${escapeHtml(url)}" style="display:inline-block;padding:14px 18px;background:#12110f;color:white;text-decoration:none;font-family:monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;">Sign in to the member portal</a></p>
+<p style="margin:0;color:#69655d;font-size:13px;overflow-wrap:anywhere;">If the button does not work, copy this address:<br><a href="${escapeHtml(url)}" style="color:#1932be;">${escapeHtml(url)}</a></p>
+</td></tr>
+<tr><td style="padding:16px 32px;border-top:1px solid #d5cfc1;color:#69655d;font-size:11px;">If you did not request this link, ignore this email. No password has changed.</td></tr>
+</table></td></tr></table></body></html>`;
 }
 
 function renderMagicLinkText(url: string, brandName: string): string {
@@ -132,4 +149,10 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+async function hashedRateLimitKey(email: string): Promise<string> {
+  const bytes = new TextEncoder().encode(`magic-link:${email.trim().toLowerCase()}`);
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
 }

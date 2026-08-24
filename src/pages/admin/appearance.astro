@@ -1,5 +1,7 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 
 interface AppearanceRow {
   id: string;
@@ -10,7 +12,7 @@ interface AppearanceRow {
   created_at: string;
 }
 
-const env = Astro.locals?.runtime?.env;
+const env = runtimeEnv;
 const rows: AppearanceRow[] = env?.DB
   ? await env.DB.prepare(
       `SELECT id, role, location, state, quote_total_cents, created_at
@@ -27,50 +29,76 @@ const rows: AppearanceRow[] = env?.DB
   description="Appearance enquiries"
   canonicalPath="/admin/appearance/"
 >
-  <section class="section">
+  <section class="section app-surface app-operator">
     <div class="container">
-      <p><a href="/admin/">← Back to admin</a></p>
-      <h1>Appearance enquiries</h1>
-      <p>
-        Every appearance request in D1. Disallowed use cases are rejected at the suitability-review
-        step and never reach a quote.
-      </p>
-      {
-        rows.length === 0 ? (
-          <p style="color: var(--fg-muted)">No appearance requests yet.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Role</th>
-                <th>Location</th>
-                <th>Quote</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr>
-                  <td>
-                    <span
-                      class={`pill ${r.state === "BOOKED" || r.state === "PERFORMED" ? "pill--ok" : r.state === "SUITABILITY_DECLINED" || r.state === "CUSTOMER_CANCELLED" || r.state === "CLUB_CANCELLED" ? "pill--warn" : "pill--info"}`}
-                    >
-                      {r.state}
-                    </span>
-                  </td>
-                  <td>{r.role}</td>
-                  <td>{r.location}</td>
-                  <td>
-                    {r.quote_total_cents ? `A$${(r.quote_total_cents / 100).toFixed(2)}` : "—"}
-                  </td>
-                  <td>{r.created_at}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/admin/">Operator desk</a> / Appearance</p>
+          <p class="app-kicker">Human service review</p>
+          <h1>Appearance enquiries</h1>
+          <p class="app-lede">
+            Every request in D1. Suitability review is the gate; disallowed use cases stop before a
+            quote is prepared.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Rows shown</dt><dd>{rows.length}</dd><dt>Gate</dt><dd>Suitability before quote</dd>
+        </dl>
+      </header>
+      <section class="app-section" aria-labelledby="appearance-heading">
+        <div class="app-section__head">
+          <h2 id="appearance-heading">Enquiry queue</h2><p>Quote and fulfilment state</p>
+        </div>
+        {
+          rows.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No appearance requests yet</strong>
+                <span>The suitability and quoting queue is clear.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <>
+                  <thead>
+                    <tr>
+                      <>
+                        <th>State</th>
+                        <th>Role</th>
+                        <th>Location</th>
+                        <th>Quote</th>
+                        <th>Created</th>
+                      </>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => (
+                      <tr>
+                        <td data-label="State">
+                          <span
+                            class={`pill ${r.state === "BOOKED" || r.state === "PERFORMED" ? "pill--ok" : r.state === "SUITABILITY_DECLINED" || r.state === "CUSTOMER_CANCELLED" || r.state === "CLUB_CANCELLED" ? "pill--warn" : "pill--info"}`}
+                          >
+                            {r.state}
+                          </span>
+                        </td>
+                        <td data-label="Role">{r.role}</td>
+                        <td data-label="Location">{r.location}</td>
+                        <td data-label="Quote">
+                          {r.quote_total_cents
+                            ? `A$${(r.quote_total_cents / 100).toFixed(2)}`
+                            : "—"}
+                        </td>
+                        <td data-label="Created">{r.created_at}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </>
+              </table>
+            </div>
+          )
+        }
+      </section>
     </div>
   </section>
 </Base>

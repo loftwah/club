@@ -44,7 +44,7 @@ function setupMember(db: MockD1Database) {
   db.insert("membership_tiers", {
     id: "tier_core",
     slug: "core",
-    display_name: "Core",
+    display_name: "Member",
     price_cents: 500,
     currency: "AUD",
   });
@@ -72,6 +72,35 @@ function setupMember(db: MockD1Database) {
     provider: "fake",
     provider_customer_id: "cus_1",
   });
+  for (const step of ["identity", "chapter", "tier", "why", "plain-language", "terms"]) {
+    db.insert("onboarding_step_data", {
+      member_id: "mem_1",
+      step,
+      data_json: "{}",
+      updated_at: "2026-01-01T00:00:00.000Z",
+    });
+  }
+  for (const [id, docType] of [
+    ["doc_terms", "TERMS"],
+    ["doc_privacy", "PRIVACY_POLICY"],
+    ["doc_theatrical", "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT"],
+  ]) {
+    db.insert("legal_documents", {
+      id,
+      doc_type: docType,
+      version: "1.0.0",
+      effective_at: "2026-01-01T00:00:00.000Z",
+      content_hash: `hash_${id}`,
+      body: null,
+    });
+    db.insert("member_acceptances", {
+      id: `acc_${id}`,
+      member_id: "mem_1",
+      document_id: id,
+      accepted_at: "2026-01-01T00:00:00.000Z",
+      method: "WEB",
+    });
+  }
 }
 
 function getMembershipState(db: MockD1Database, memberId: string): string | undefined {
@@ -79,19 +108,27 @@ function getMembershipState(db: MockD1Database, memberId: string): string | unde
 }
 
 describe("brand config", () => {
-  it("is non-final by design: name and tiers are configurable", () => {
-    expect(brand.name).toBeTruthy();
-    expect(brand.tiers.core.priceAud).toBe(5);
-    expect(brand.tiers.correspondence.priceAud).toBe(20);
+  it("is locked: name, tiers, palette and tagline are production", () => {
+    expect(brand.locked).toBe(true);
+    expect(brand.name).toBe("Plans With You");
+    expect(brand.tiers.member.name).toBe("Member");
+    expect(brand.tiers.member.priceAud).toBe(5);
+    expect(brand.tiers.corresponding.name).toBe("Corresponding Member");
+    expect(brand.tiers.corresponding.priceAud).toBe(20);
+    expect(brand.tiers.deluxe.name).toBe("Deluxe Member");
     expect(brand.tiers.deluxe.priceAud).toBe(50);
-    // Provisional identity marker — every agent session should
-    // know that the brand is not locked.
-    expect(brand.development.isProvisional).toBe(true);
+    // Locked marker — no provisional identity.
+    expect((brand as { development?: unknown }).development).toBeUndefined();
   });
   it("formats prices as A$N", () => {
     expect(formatPrice(5)).toBe("A$5");
     expect(formatPrice(20)).toBe("A$20");
     expect(formatPrice(50)).toBe("A$50");
+  });
+  it("tier includes arrays are non-empty for every tier", () => {
+    expect(brand.tiers.member.includes.length).toBeGreaterThan(0);
+    expect(brand.tiers.corresponding.includes.length).toBeGreaterThan(0);
+    expect(brand.tiers.deluxe.includes.length).toBeGreaterThan(0);
   });
 });
 
@@ -129,6 +166,26 @@ describe("BillingService", () => {
     const r2 = await applyBillingEvent(deps, event);
     expect(r1.action).toBe("ACTIVATED");
     expect(r2.duplicate).toBe(true);
+  });
+
+  it("rejects payment activation when onboarding evidence is missing", async () => {
+    const { db, membership, clock, audit } = setup();
+    setupMember(db);
+    await db.prepare(`DELETE FROM onboarding_step_data WHERE member_id = ?`).bind("mem_1").run();
+    const deps = { db: db as unknown as D1Database, audit, clock, membership };
+    await expect(
+      applyBillingEvent(deps, {
+        id: "evt_blocked",
+        type: "invoice.payment_succeeded",
+        customerId: "cus_1",
+        subscriptionId: "sub_1",
+        invoiceId: "in_blocked",
+        payload: {},
+      }),
+    ).rejects.toThrow(/onboarding:identity/);
+    expect(getMembershipState(db, "mem_1")).toBe("PAYMENT_PENDING");
+    expect(db.all("subscriptions")[0]?.status).toBe("INCOMPLETE");
+    expect(db.all("billing_events")).toHaveLength(0);
   });
 
   it("payment_failed suspends the membership", async () => {

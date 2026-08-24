@@ -1,0 +1,18 @@
+---
+import Base from "@layouts/Base.astro";
+import ThreeUIBakeoff from "@components/ThreeUIBakeoff";
+import "../../styles/threeui-bakeoff.css";
+---
+
+<Base
+  title="ThreeUI bakeoff"
+  description="Internal comparison of semantic product primitives and ThreeUI visual enhancements."
+  canonicalPath="/internal/threeui-bakeoff/"
+>
+  <div class="threeui-bakeoff-page">
+    <div class="shell">
+      <p class="threeui-bakeoff-page__path">Internal laboratory / labelled fixtures only</p>
+      <ThreeUIBakeoff client:load />
+    </div>
+  </div>
+</Base>

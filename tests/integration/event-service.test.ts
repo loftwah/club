@@ -42,11 +42,53 @@ function setupChapterAndLocation(db: MockD1Database) {
   });
 }
 
+function seedPolicyTruth(db: MockD1Database, memberId: string, tierId: string): void {
+  for (const [id, docType] of [
+    ["doc_terms", "TERMS"],
+    ["doc_privacy", "PRIVACY_POLICY"],
+    ["doc_theatrical", "THEATRICAL_EXPERIENCE_ACKNOWLEDGEMENT"],
+  ]) {
+    if (!db.all("legal_documents").some((row) => row.id === id)) {
+      db.insert("legal_documents", {
+        id,
+        doc_type: docType,
+        version: "1.0.0",
+        effective_at: "2026-01-01T00:00:00.000Z",
+        content_hash: `hash_${id}`,
+        body: null,
+      });
+    }
+    db.insert("member_acceptances", {
+      id: `acc_${memberId}_${id}`,
+      member_id: memberId,
+      document_id: id,
+      accepted_at: "2026-01-01T00:00:00.000Z",
+      method: "WEB",
+    });
+  }
+  db.insert("subscriptions", {
+    id: `sub_${memberId}`,
+    member_id: memberId,
+    provider: "fake",
+    provider_customer_id: `cus_${memberId}`,
+    provider_subscription_id: `provider_sub_${memberId}`,
+    tier_id: tierId,
+    status: "ACTIVE",
+    current_period_end: null,
+  });
+  db.insert("billing_customers", {
+    id: `bc_${memberId}`,
+    member_id: memberId,
+    provider: "fake",
+    provider_customer_id: `cus_${memberId}`,
+  });
+}
+
 describe("EventService — ordinary event lifecycle", () => {
   it("creates an event, queues invitations, cancels it, and produces a stable calendar UID", async () => {
     const { db, service } = setup();
     setupChapterAndLocation(db);
-    // Two members.
+    // Two complete members and one ACTIVE-looking row with no policy truth.
     db.insert("members", {
       id: "mem_a",
       email: "a@example.com",
@@ -71,6 +113,18 @@ describe("EventService — ordinary event lifecycle", () => {
       birthday: null,
       timezone: "Australia/Melbourne",
     });
+    db.insert("members", {
+      id: "mem_incomplete",
+      email: "incomplete@example.com",
+      preferred_name: "Incomplete",
+      postal_name: null,
+      society_alias: null,
+      country: "AU",
+      metro_area: "Melbourne",
+      chapter_id: "chap_melbourne",
+      birthday: null,
+      timezone: "Australia/Melbourne",
+    });
     db.insert("memberships", {
       id: "mship_a",
       member_id: "mem_a",
@@ -87,13 +141,23 @@ describe("EventService — ordinary event lifecycle", () => {
       started_at: "2026-01-01T00:00:00.000Z",
       ended_at: null,
     });
+    db.insert("memberships", {
+      id: "mship_incomplete",
+      member_id: "mem_incomplete",
+      tier_id: "tier_core",
+      state: "ACTIVE",
+      started_at: "2026-01-01T00:00:00.000Z",
+      ended_at: null,
+    });
     db.insert("membership_tiers", {
       id: "tier_core",
       slug: "core",
-      display_name: "Core",
+      display_name: "Member",
       price_cents: 500,
       currency: "AUD",
     });
+    seedPolicyTruth(db, "mem_a", "tier_core");
+    seedPolicyTruth(db, "mem_b", "tier_core");
     db.insert("tier_capabilities", {
       tier_id: "tier_core",
       capability: "EVENTS",
@@ -125,6 +189,8 @@ describe("EventService — ordinary event lifecycle", () => {
 
     const queued = await service.queueInvitations(event.id);
     expect(queued).toBe(2);
+    const invitations = db.all("event_invitations");
+    expect(invitations.map((row) => row.member_id)).toEqual(["mem_a", "mem_b"]);
 
     await service.cancel(event.id, "operator_1", "OK");
     const reloaded = await service.get(event.id);

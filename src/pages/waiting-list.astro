@@ -1,96 +1,400 @@
 ---
 import Base from "@layouts/Base.astro";
+import { brand } from "../brand/config";
+
+const VALID_TIER_SLUGS = ["member", "corresponding", "deluxe"] as const;
+type TierSlug = (typeof VALID_TIER_SLUGS)[number];
+const slugToName: Record<TierSlug, string> = {
+  member: "Member",
+  corresponding: "Corresponding Member",
+  deluxe: "Deluxe Member",
+};
+const VALID_CHAPTER_SLUGS = ["melbourne", "sydney", "brisbane", "adelaide", "perth"] as const;
+type ChapterSlug = (typeof VALID_CHAPTER_SLUGS)[number];
+const chapterFromUrl = Astro.url.searchParams.get("chapter")?.toLowerCase().trim() ?? "";
+const validChapter: ChapterSlug | null = (VALID_CHAPTER_SLUGS as ReadonlyArray<string>).includes(
+  chapterFromUrl,
+)
+  ? (chapterFromUrl as ChapterSlug)
+  : null;
+const chapterName = validChapter
+  ? validChapter.charAt(0).toUpperCase() + validChapter.slice(1)
+  : null;
+const tierFromUrl = Astro.url.searchParams.get("tier")?.toLowerCase().trim() ?? "";
+const validTier: TierSlug | null = (VALID_TIER_SLUGS as ReadonlyArray<string>).includes(tierFromUrl)
+  ? (tierFromUrl as TierSlug)
+  : null;
+const tierName = validTier ? slugToName[validTier] : null;
 ---
 
 <Base
-  title="Join the waiting list — The Social Club"
-  description="Leave your email to join the Social Club waiting list."
+  title="Join the waitlist"
+  description="Join the free Plans With You waitlist. Paid membership and payments remain closed while chapters open carefully."
   canonicalPath="/waiting-list/"
 >
-  <section class="hero" aria-labelledby="wl-h">
-    <div class="container">
-      <h1 id="wl-h">Waiting list</h1>
-      <p>One field. No follow-up nag. We write when there is something to say.</p>
-      <form class="form" id="wl-form" novalidate aria-describedby="wl-status">
-        <label for="email">Email address</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autocomplete="email"
-          inputmode="email"
-          placeholder="you@example.com"
-        />
-        <label for="name">Preferred first name (optional)</label>
-        <input
-          id="name"
-          name="preferredName"
-          type="text"
-          autocomplete="given-name"
-          maxlength="120"
-        />
-        <label for="chapter">Chapter (optional)</label>
-        <input
-          id="chapter"
-          name="chapterId"
-          type="text"
-          list="chapters"
-          maxlength="64"
-          placeholder="melbourne"
-        />
-        <datalist id="chapters">
-          <option value="melbourne"></option>
-          <option value="sydney"></option>
-          <option value="brisbane"></option>
-          <option value="adelaide"></option>
-          <option value="perth"></option>
-        </datalist>
-        <button type="submit" id="wl-submit">Add me to the list</button>
-        <p id="wl-status" class="form__status" role="status" aria-live="polite"></p>
-      </form>
+  <section class="pwy-page pwy-waitlist" aria-labelledby="waitlist-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <div class="pwy-hero__grid">
+          <h1 id="waitlist-heading">{brand.copy.waitlist.headline}</h1>
+          <div>
+            <p class="pwy-hero__lede">{brand.copy.waitlist.sub}</p>
+            <p class="pwy-hero__note">
+              Free to join. No checkout. No charge. No obligation to reply when we write.
+            </p>
+            <a class="pwy-hero__cta" href="#wl-form">Join the free waitlist</a>
+          </div>
+        </div>
+        <div class="pwy-hero__meta" aria-label="Launch status">
+          <span class="pwy-stamp">Waitlist open</span>
+          <span>Paid membership closed</span>
+          <span>Stripe disabled</span>
+        </div>
+      </header>
+
+      <div class="pwy-waitlist__grid">
+        <aside class="pwy-waitlist__brief" aria-labelledby="brief-heading">
+          <h2 id="brief-heading">Keep the arrangement in view.</h2>
+          <ol>
+            <li>
+              <span>01</span><p>We record your interest and chosen chapter, if you give one.</p>
+            </li>
+            <li><span>02</span><p>We send a confirmation. Nothing has been charged.</p></li>
+            <li>
+              <span>03</span><p>When there is a real paid opening, we write with the next step.</p>
+            </li>
+          </ol>
+          <p class="pwy-waitlist__quiet">{brand.copy.waitlist.reassurance}</p>
+        </aside>
+
+        <div class="pwy-form-wrap">
+          {
+            (tierName || chapterName) && (
+              <aside class="pwy-selection" aria-live="polite">
+                <p class="pwy-kicker">Interest noted</p>
+                {tierName && (
+                  <p>
+                    <strong>{tierName}</strong> tier
+                  </p>
+                )}
+                {chapterName && (
+                  <p>
+                    <strong>{chapterName}</strong> chapter
+                  </p>
+                )}
+                <p>These are preferences for the waitlist only. They do not activate membership.</p>
+              </aside>
+            )
+          }
+
+          <form
+            class="form pwy-form"
+            id="wl-form"
+            novalidate
+            aria-describedby="wl-status form-note"
+          >
+            <p id="form-note" class="pwy-form__intro">
+              A few details, then we will leave you in peace.
+            </p>
+            <label for="email">Email address <span aria-hidden="true">*</span></label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autocomplete="email"
+              inputmode="email"
+              placeholder="you@example.com"
+            />
+            <label for="name">Preferred first name <span class="pwy-optional">optional</span></label
+            >
+            <input
+              id="name"
+              name="preferredName"
+              type="text"
+              autocomplete="given-name"
+              maxlength="120"
+            />
+            <label for="chapter">Chapter <span class="pwy-optional">optional</span></label>
+            <input
+              id="chapter"
+              name="chapterId"
+              type="text"
+              list="chapters"
+              maxlength="64"
+              placeholder="melbourne"
+              value={validChapter ?? ""}
+            />
+            <datalist id="chapters">
+              <option value="melbourne"></option>
+              <option value="sydney"></option>
+              <option value="brisbane"></option>
+              <option value="adelaide"></option>
+              <option value="perth"></option>
+            </datalist>
+            <input
+              type="hidden"
+              name="interestedTier"
+              id="interested-tier"
+              value={tierName ?? ""}
+            />
+            <button type="submit" id="wl-submit">{brand.copy.waitlist.submit}</button>
+            <p id="wl-status" class="form__status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+
+      <footer class="pwy-page-footer">
+        <p>Questions about the arrangement? <a href="/faq/">Read the short answers.</a></p>
+        <span class="pwy-footer-code">WL / FREE / NO PAYMENT</span>
+      </footer>
     </div>
   </section>
-
-  <script>
-    const form = document.getElementById("wl-form") as HTMLFormElement | null;
-    const status = document.getElementById("wl-status") as HTMLElement | null;
-    const submit = document.getElementById("wl-submit") as HTMLButtonElement | null;
-    if (form && status && submit) {
-      form.addEventListener("submit", async (ev) => {
-        ev.preventDefault();
-        status.className = "form__status";
-        status.textContent = "Submitting…";
-        submit.disabled = true;
-        const data = new FormData(form);
-        const payload = {
-          email: String(data.get("email") ?? "").trim(),
-          preferredName: String(data.get("preferredName") ?? "").trim() || undefined,
-          chapterId: String(data.get("chapterId") ?? "").trim() || undefined,
-        };
-        try {
-          const res = await fetch("/api/waitlist", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (!res.ok) {
-            const body = (await res.json().catch(() => ({}))) as { error?: string };
-            status.className = "form__status form__status--error";
-            status.textContent = body.error ?? `Submission failed (${res.status})`;
-            submit.disabled = false;
-            return;
-          }
-          status.className = "form__status form__status--success";
-          status.textContent = "You are on the list. We will be in touch.";
-          form.reset();
-          submit.disabled = false;
-        } catch {
-          status.className = "form__status form__status--error";
-          status.textContent = "Network error. Please try again.";
-          submit.disabled = false;
-        }
-      });
-    }
-  </script>
 </Base>
+
+<script is:inline define:vars={{ tierName }}>
+  const form = document.getElementById("wl-form");
+  const status = document.getElementById("wl-status");
+  const submit = document.getElementById("wl-submit");
+  if (form && status && submit) {
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      status.className = "form__status";
+      status.textContent = "Submitting…";
+      submit.disabled = true;
+      const data = new FormData(form);
+      const tierRaw = String(data.get("interestedTier") ?? "").trim();
+      const payload = {
+        email: String(data.get("email") ?? "").trim(),
+        preferredName: String(data.get("preferredName") ?? "").trim() || undefined,
+        chapterId: String(data.get("chapterId") ?? "").trim() || undefined,
+        interestedTier: tierRaw || undefined,
+      };
+      try {
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          const errMsg = body && typeof body.error === "string" ? body.error : null;
+          status.className = "form__status form__status--error";
+          status.textContent = errMsg ?? `Submission failed (${res.status})`;
+          submit.disabled = false;
+          return;
+        }
+        status.className = "form__status form__status--success";
+        if (tierName) {
+          status.textContent = `You are on the list. We have noted your interest in the ${tierName} tier. We will be in touch when paid membership opens.`;
+        } else {
+          status.textContent =
+            "You are on the list. We will be in touch when paid membership opens.";
+        }
+        form.reset();
+        submit.disabled = false;
+      } catch {
+        status.className = "form__status form__status--error";
+        status.textContent = "Network error. Please try again.";
+        submit.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-hero__cta {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--fg);
+    background: var(--fg);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .pwy-hero__cta:hover {
+    background: var(--cobalt);
+    color: white;
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    max-width: 11ch;
+    margin: 0;
+    font: 700 clamp(3rem, 7vw, 5.8rem)/0.88 var(--font-sans);
+    letter-spacing: -0.055em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__note {
+    margin: 1.5rem 0 0;
+    color: var(--fg-faint);
+    font-size: 0.9rem;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-waitlist__grid {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 1.25fr);
+    gap: clamp(2rem, 10vw, 10rem);
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+  }
+  .pwy-waitlist__brief h2 {
+    margin: 0 0 2rem;
+    font: 700 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-sans);
+    letter-spacing: -0.035em;
+  }
+  .pwy-waitlist__brief ol {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pwy-waitlist__brief li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.7rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .pwy-waitlist__brief li > span {
+    color: var(--accent);
+    font: 0.72rem/1.2 var(--font-mono);
+  }
+  .pwy-waitlist__brief li p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+  }
+  .pwy-waitlist__quiet {
+    margin: 2rem 0 0;
+    color: var(--fg-faint);
+    font-size: 0.88rem;
+  }
+  .pwy-form-wrap {
+    min-width: 0;
+  }
+  .pwy-selection {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line-strong);
+    background: var(--accent-soft);
+  }
+  .pwy-selection .pwy-kicker {
+    margin-bottom: 0.55rem;
+  }
+  .pwy-selection p:not(.pwy-kicker) {
+    margin: 0.3rem 0;
+    color: var(--fg-muted);
+  }
+  .pwy-form {
+    max-width: 40rem;
+    margin: 0;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+  }
+  .pwy-form__intro {
+    margin: 0 0 1.5rem;
+    color: var(--fg-muted);
+    font: 1.2rem/1.25 var(--font-serif);
+  }
+  .pwy-form label {
+    margin-top: 0.6rem;
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .pwy-form label span[aria-hidden="true"] {
+    color: var(--accent);
+  }
+  .pwy-optional {
+    color: var(--fg-faint);
+    font-size: 0.8em;
+    font-weight: 400;
+  }
+  .pwy-form input {
+    width: 100%;
+    min-height: 3rem;
+    background: var(--bg);
+  }
+  .pwy-form button {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+  .pwy-page-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 2rem 0 4rem;
+    border-top: 1px solid var(--line);
+  }
+  .pwy-page-footer p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-page-footer p a {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+  .pwy-footer-code {
+    color: var(--fg-faint);
+    font: 0.68rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+  }
+  @media (max-width: 680px) {
+    .pwy-hero__grid,
+    .pwy-waitlist__grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

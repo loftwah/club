@@ -1,0 +1,205 @@
+---
+import Base from "@layouts/Base.astro";
+import "../../../styles/app-surfaces.css";
+import inventoryData from "../../../../creative/video-inventory.json";
+
+type CreativeAsset = {
+  id: string;
+  campaign: string;
+  composition: string;
+  aspect: string;
+  width: number;
+  height: number;
+  fps: number;
+  durationSeconds?: number | null;
+  fileSizeBytes?: number;
+  sourceCommit?: string;
+  sourceFingerprint?: string;
+  renderedAt?: string;
+  approvalState: string;
+  locations?: Record<string, string> | null;
+};
+
+const assets = inventoryData.assets as CreativeAsset[];
+const currentSourceFingerprint = __CREATIVE_SOURCE_FINGERPRINT__;
+const formatBytes = (bytes?: number) => (bytes ? `${(bytes / 1024 / 1024).toFixed(1)} MiB` : "—");
+const status = (asset: CreativeAsset) => {
+  if (!asset.sourceFingerprint) return "MISSING";
+  return asset.sourceFingerprint === currentSourceFingerprint &&
+    asset.approvalState === "approved" &&
+    asset.locations?.master &&
+    asset.locations?.delivery
+    ? "CURRENT"
+    : "STALE";
+};
+---
+
+<Base
+  title="Creative library"
+  description="Protected retrieval surface for approved Plans With You commercial creative."
+  canonicalPath="/admin/creative/"
+>
+  <section class="section app-surface app-operator creative-library">
+    <div class="container">
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb">Plans With You / Operator desk / Creative</p>
+          <p class="app-kicker">Approved inventory</p>
+          <h1>Creative library</h1>
+          <p class="app-lede">
+            Retrieval, provenance, and freshness. Remotion Studio remains the design environment.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Canonical</dt><dd>{assets.length} evergreen videos</dd><dt>Heavy files</dt><dd>
+            Versioned in private R2
+          </dd>
+        </dl>
+      </header>
+
+      <div class="creative-grid">
+        {
+          assets.map((asset) => (
+            <article class="app-card creative-card">
+              <header>
+                <div>
+                  <p class="app-kicker">{asset.campaign}</p>
+                  <h2>{asset.aspect}</h2>
+                </div>
+                <span class={`creative-status creative-status--${status(asset).toLowerCase()}`}>
+                  {status(asset)}
+                </span>
+              </header>
+              {asset.locations?.delivery ? (
+                <video
+                  controls
+                  preload="metadata"
+                  poster={`/admin/creative/assets/${asset.id}/poster`}
+                  style={`aspect-ratio: ${asset.width} / ${asset.height};`}
+                >
+                  <source src={`/admin/creative/assets/${asset.id}/delivery`} type="video/mp4" />
+                </video>
+              ) : (
+                <div class="creative-missing">No approved delivery file is published.</div>
+              )}
+              <dl class="creative-meta">
+                <>
+                  <dt>Composition</dt>
+                  <dd>{asset.composition}</dd>
+                </>
+                <>
+                  <dt>Frame</dt>
+                  <dd>
+                    {asset.width}×{asset.height} / {asset.fps} fps
+                  </dd>
+                </>
+                <>
+                  <dt>Duration</dt>
+                  <dd>{asset.durationSeconds ? `${asset.durationSeconds.toFixed(1)}s` : "—"}</dd>
+                </>
+                <>
+                  <dt>Delivery</dt>
+                  <dd>{formatBytes(asset.fileSizeBytes)}</dd>
+                </>
+                <>
+                  <dt>Source</dt>
+                  <dd>{asset.sourceCommit?.slice(0, 8) ?? "—"}</dd>
+                </>
+                <>
+                  <dt>Rendered</dt>
+                  <dd>{asset.renderedAt ?? "—"}</dd>
+                </>
+              </dl>
+              {asset.locations?.delivery && (
+                <p class="creative-downloads">
+                  <a href={`/admin/creative/assets/${asset.id}/delivery`} download>
+                    Delivery MP4
+                  </a>
+                  <a href={`/admin/creative/assets/${asset.id}/master`} download>
+                    ProRes master
+                  </a>
+                  <a href={`/admin/creative/assets/${asset.id}/contactSheet`} download>
+                    Contact sheet
+                  </a>
+                </p>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .creative-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .creative-card {
+    display: grid;
+    gap: 1rem;
+  }
+  .creative-card > header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .creative-card h2 {
+    margin: 0;
+  }
+  .creative-card video {
+    width: 100%;
+    background: var(--ink, #12110f);
+  }
+  .creative-missing {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--ink, #12110f);
+  }
+  .creative-missing {
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    color: white;
+    text-align: center;
+  }
+  .creative-status {
+    padding: 0.4rem 0.55rem;
+    border: 1px solid currentColor;
+    font: 0.68rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+  }
+  .creative-status--current {
+    color: var(--success);
+  }
+  .creative-status--stale,
+  .creative-status--missing {
+    color: var(--signal-text);
+  }
+  .creative-meta {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.55fr) 1fr;
+    margin: 0;
+    font-size: 0.86rem;
+  }
+  .creative-meta dt,
+  .creative-meta dd {
+    margin: 0;
+    padding: 0.45rem 0;
+    border-top: 1px solid var(--line);
+  }
+  .creative-downloads {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0;
+  }
+  @media (max-width: 54rem) {
+    .creative-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

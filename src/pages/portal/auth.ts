@@ -2,12 +2,18 @@
 // /portal/auth?token=... sets a session cookie and redirects to /portal/.
 
 import type { APIRoute } from "astro";
-import { MagicLinkService, MagicLinkError, buildSessionCookie } from "@services/magic-link";
+import { getRuntimeEnv } from "@lib/runtime-env";
+import {
+  MagicLinkService,
+  MagicLinkError,
+  buildSessionCookie,
+  safeInternalPath,
+} from "@services/magic-link";
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 
 export const GET: APIRoute = async ({ url, locals }) => {
-  const env = locals.runtime.env;
+  const env = getRuntimeEnv(locals);
   if (!env?.DB) {
     return new Response("Database not available.", { status: 500 });
   }
@@ -34,7 +40,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return new Response(null, {
       status: 302,
       headers: {
-        Location: "/portal/",
+        Location: safeInternalPath(url.searchParams.get("next")) ?? "/portal/",
         "Set-Cookie": buildSessionCookie(session.id, maxAgeSec),
       },
     });

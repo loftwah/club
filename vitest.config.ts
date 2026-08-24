@@ -4,12 +4,14 @@ import { resolve } from "node:path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@domain": resolve(__dirname, "src/domain"),
-      "@services": resolve(__dirname, "src/services"),
-      "@adapters": resolve(__dirname, "src/adapters"),
-      "@infra": resolve(__dirname, "src/infra"),
-      "@components": resolve(__dirname, "src/components"),
-      "@layouts": resolve(__dirname, "src/layouts"),
+      "@domain": resolve(import.meta.dirname, "src/domain"),
+      "@services": resolve(import.meta.dirname, "src/services"),
+      "@adapters": resolve(import.meta.dirname, "src/adapters"),
+      "@infra": resolve(import.meta.dirname, "src/infra"),
+      "@components": resolve(import.meta.dirname, "src/components"),
+      "@layouts": resolve(import.meta.dirname, "src/layouts"),
+      "@lib": resolve(import.meta.dirname, "src/lib"),
+      "cloudflare:workers": resolve(import.meta.dirname, "tests/support/cloudflare-workers.ts"),
     },
   },
   test: {
@@ -18,10 +20,7 @@ export default defineConfig({
     exclude: ["node_modules", "dist", ".wrangler"],
     testTimeout: 10_000,
     pool: "forks",
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    maxWorkers: 1,
+    isolate: false,
   },
 });

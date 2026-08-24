@@ -1,4 +1,5 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 // Onboarding wizard.
 // /onboarding/[step] renders the current step. The wizard is
 // resumable: a member can leave at any step and pick up where
@@ -16,30 +17,33 @@ import { MembershipService } from "@services/membership-service";
 import { SystemClock } from "../../infra/clock";
 import { D1AuditWriter } from "../../infra/audit";
 import { brand } from "../../brand/config";
+import { requireOnboardingSession } from "../../lib/portal-auth";
 
 const stepId = (Astro.params.step ?? "identity") as OnboardingStepId;
 const step = ONBOARDING_STEPS.find((s) => s.id === stepId);
 if (!step) {
   return Astro.redirect("/onboarding/identity/");
 }
-const env = Astro.locals.runtime.env;
+const env = runtimeEnv;
+const ctx = await requireOnboardingSession(Astro.request, env);
+if (!ctx) {
+  return Astro.redirect(
+    `/portal/login/?next=${encodeURIComponent(`${Astro.url.pathname}${Astro.url.search}`)}`,
+  );
+}
 const audit = new D1AuditWriter(env.DB, new SystemClock());
 const clock = new SystemClock();
 const ms = new MembershipService({ db: env.DB, audit, clock });
 const onboarding = new OnboardingService({ db: env.DB });
 
-// For the MVP, onboarding requires a known member record.
-// The wizard is reachable by magic-link or by a temporary
-// onboarding id. For local dev we look up the most recent
-// APPLICANT member.
-const applicant = await env.DB.prepare(
-  `SELECT m.id, m.email, m.preferred_name FROM members m
-       JOIN memberships ms ON ms.member_id = m.id
-       WHERE ms.state = 'APPLICANT'
-       ORDER BY m.created_at DESC LIMIT 1`,
-).first<{ id: string; email: string; preferred_name: string | null }>();
-const memberId = applicant?.id ?? null;
-const progress = memberId ? await onboarding.getProgress(memberId) : null;
+// The authenticated session owns exactly one onboarding subject. It is
+// never selected by global recency or any public URL parameter.
+const applicant = {
+  id: ctx.member.id,
+  email: ctx.member.email,
+  preferred_name: ctx.member.preferredName,
+};
+const memberId = applicant.id;
 const evaluation = memberId ? await ms.evaluateActivation(memberId) : null;
 
 const currentStepIndex = ONBOARDING_STEPS.findIndex((s) => s.id === stepId);
@@ -68,7 +72,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
           </p>
         ) : (
           <p style="color: var(--fg-muted)">
-            No applicant record. <a href="/waiting-list/">Add your name to the list</a> first.
+            No applicant record. <a href="/waiting-list/">Join the waitlist</a> first.
           </p>
         )
       }
@@ -212,16 +216,16 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <label for="tier">Choose your tier</label>
             <div>
               <label>
-                <input type="radio" name="tier" value="core" required />{" "}
-                <strong>{brand.tiers.core.name}</strong> — A${brand.tiers.core.priceAud}/month ·{" "}
-                {brand.tiers.core.tagline}
+                <input type="radio" name="tier" value="member" required />{" "}
+                <strong>{brand.tiers.member.name}</strong> — A${brand.tiers.member.priceAud}/month ·{" "}
+                {brand.tiers.member.tagline}
               </label>
             </div>
             <div>
               <label>
-                <input type="radio" name="tier" value="correspondence" required />{" "}
-                <strong>{brand.tiers.correspondence.name}</strong> — A$
-                {brand.tiers.correspondence.priceAud}/month · {brand.tiers.correspondence.tagline}
+                <input type="radio" name="tier" value="corresponding" required />{" "}
+                <strong>{brand.tiers.corresponding.name}</strong> — A$
+                {brand.tiers.corresponding.priceAud}/month · {brand.tiers.corresponding.tagline}
               </label>
             </div>
             <div>
@@ -256,8 +260,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             </div>
             <div>
               <label>
-                <input type="checkbox" name="why" value="remembered" /> I want the Society to
-                remember me.
+                <input type="checkbox" name="why" value="remembered" /> I want to be remembered.
               </label>
             </div>
             <div>
@@ -302,14 +305,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <option value="occasional">Occasional</option>
               <option value="monthly">About monthly</option>
               <option value="couple-per-month">A couple per month</option>
-              <option value="discretion">Society discretion</option>
+              <option value="discretion">Use our discretion</option>
             </select>
             <label for="cancellationStyle">Cancellation style</label>
             <select id="cancellationStyle" name="cancellationStyle">
               <option value="merciful">Merciful</option>
               <option value="traditional">Traditional</option>
               <option value="last-minute">Last minute</option>
-              <option value="discretion">Society discretion</option>
+              <option value="discretion">Use our discretion</option>
             </select>
             <label>
               <input type="checkbox" name="types" value="dinners" /> Dinners
@@ -368,12 +371,10 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : step.id === "memory" ? (
           <form class="form" method="post" action="/api/onboarding/memory">
             <p>
-              You may add facts the Society may use to personalise correspondence. You can edit or
-              remove any fact at any time from the portal.
+              You may add facts we can use to personalise correspondence. You can edit or remove any
+              fact at any time from the portal.
             </p>
-            <label for="memoryHint">
-              What should the Society remember about you? (free text, optional)
-            </label>
+            <label for="memoryHint">What should we remember about you? (free text, optional)</label>
             <textarea
               id="memoryHint"
               name="memoryHint"
@@ -382,7 +383,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               placeholder="My dog Frank; I am doing a pottery class; my birthday is in August."
             />
             <label for="doNotMention">
-              What should the Society <strong>never</strong> mention? (free text, optional)
+              What should we <strong>never</strong> mention? (free text, optional)
             </label>
             <textarea id="doNotMention" name="doNotMention" rows="3" maxlength="600" />
             <button type="submit">Save and continue</button>
@@ -410,8 +411,8 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : step.id === "gifts" ? (
           <form class="form" method="post" action="/api/onboarding/gifts">
             <label>
-              <input type="checkbox" name="gifts" value="enabled" checked /> Enable gifts (A$50+
-              tier only)
+              <input type="checkbox" name="gifts" value="enabled" checked /> Enable gifts (Deluxe
+              Member and above)
             </label>
             <label>
               <input type="checkbox" name="surprises" value="enabled" /> Surprises are OK
@@ -457,9 +458,9 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : step.id === "manufactured-commitments" ? (
           <form class="form" method="post" action="/api/onboarding/manufactured-commitments">
             <p>
-              A manufactured commitment is a consensual artificial social obligation. You ask the
-              Society to construct a plausible visitor. You confirm. The Society creates useful
-              pressure and then explicitly cancels. You can abort at any time. Nothing dangles.
+              A manufactured commitment is a consensual artificial social obligation. You ask us to
+              construct a plausible visitor. You confirm. We create useful pressure and then
+              explicitly cancel. You can abort at any time. Nothing dangles.
             </p>
             <label for="mcOptIn">
               <input id="mcOptIn" type="checkbox" name="mcOptIn" value="true" /> I may request
@@ -468,7 +469,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <p style="color: var(--fg-muted)">
               I understand the scenario is constructed. Fictional names may be used. No one is
               really travelling unless I separately book the appearance service. I can abort at any
-              time and the Society will cancel the scenario.
+              time and we will cancel the scenario.
             </p>
             <button type="submit">Save and continue</button>
           </form>
@@ -500,9 +501,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <li>ordinary events are intended to be cancelled;</li>
               <li>members are not expected to attend;</li>
               <li>some characters and references are fictional;</li>
-              <li>
-                AI and automation may assist personalisation within the rules the Society sets;
-              </li>
+              <li>AI and automation may assist personalisation within the rules we set;</li>
               <li>human operators perform selected real-world tasks;</li>
               <li>optional services are controllable.</li>
             </ul>
@@ -515,9 +514,9 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : step.id === "terms" ? (
           <form class="form" method="post" action="/api/onboarding/terms">
             <p>
-              The {brand.shortName} shows the exact document version, effective date, and content
-              hash for every acceptance. You can re-accept at any time. Re-acceptance of an updated
-              document does not by itself re-charge or change your membership.
+              {brand.name} shows the exact document version, effective date, and content hash for
+              every acceptance. You can re-accept at any time. Re-acceptance of an updated document
+              does not by itself re-charge or change your membership.
             </p>
             <p>
               The current terms and privacy policy are placeholders pending Australian-facing legal

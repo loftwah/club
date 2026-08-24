@@ -9,10 +9,26 @@ const chapters: Record<string, { name: string; status: "ACTIVE" | "COMING"; note
     status: "ACTIVE",
     note: "The opening chapter. Waitlist signups are accepted now.",
   },
-  sydney: { name: "Sydney", status: "COMING", note: "Coming soon." },
-  brisbane: { name: "Brisbane", status: "COMING", note: "Coming soon." },
-  adelaide: { name: "Adelaide", status: "COMING", note: "Coming soon." },
-  perth: { name: "Perth", status: "COMING", note: "Coming soon." },
+  sydney: {
+    name: "Sydney",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  brisbane: {
+    name: "Brisbane",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  adelaide: {
+    name: "Adelaide",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
+  perth: {
+    name: "Perth",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+  },
 };
 
 const chapter = chapters[slug];
@@ -27,21 +43,177 @@ if (!chapter) {
   description={`${chapter.name} chapter. ${chapter.note}`}
   canonicalPath={`/chapters/${slug}/`}
 >
-  <section class="section">
-    <div class="container">
-      <p><a href="/chapters/">← All chapters</a></p>
-      <h1>{chapter.name}</h1>
-      <p class={`pill ${chapter.status === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
-        {chapter.status === "ACTIVE" ? "Accepting waitlist" : "Coming"}
-      </p>
-      <p>{chapter.note}</p>
-      <p>
-        Even with a waitlist signup, membership is not yet active. The waiting list is separate from
-        the paid membership state machine, and it does not create fake active paid membership.
-      </p>
-      <p>
-        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
-      </p>
+  <section class="pwy-page pwy-chapter" aria-labelledby="chapter-heading">
+    <div class="pwy-shell">
+      <p class="pwy-breadcrumb"><a href="/chapters/">← All chapters</a></p>
+      <header class="pwy-hero">
+        <p class="pwy-kicker">
+          Chapter record / {chapter.status === "ACTIVE" ? "accepting waitlist" : "forming"}
+        </p>
+        <div class="pwy-hero__grid">
+          <div>
+            <p
+              class="pwy-status"
+              aria-label={`Chapter status: ${chapter.status === "ACTIVE" ? "accepting waitlist" : "forming"}`}
+            >
+              {chapter.status === "ACTIVE" ? "Accepting waitlist" : "Forming"}
+            </p>
+            <h1 id="chapter-heading">{chapter.name}</h1>
+          </div>
+          <p class="pwy-hero__lede">{chapter.note}</p>
+        </div>
+        <div class="pwy-hero__meta">
+          <span>Paid membership closed</span>
+          <span>Waitlist interest is free</span>
+        </div>
+      </header>
+
+      <section class="pwy-chapter-detail" aria-labelledby="detail-heading">
+        <div>
+          <p class="pwy-kicker">What this means</p>
+          <h2 id="detail-heading">A location in the register, not a promise of a venue.</h2>
+        </div>
+        <div class="pwy-prose">
+          <p>
+            A waitlist entry records truthful interest in {chapter.name}. It does not activate paid
+            membership, reserve a place at an event or create an operating partnership.
+          </p>
+          <p>
+            When this chapter is ready, its local correspondence and references will be grounded in
+            real operational work. Ordinary plans remain constructed and deliberately cancelled;
+            nobody is expected to attend them.
+          </p>
+        </div>
+      </section>
+
+      <section class="pwy-chapter-next" aria-labelledby="next-heading">
+        <p class="pwy-kicker">Next notice</p>
+        <h2 id="next-heading">Keep your place in the conversation.</h2>
+        <p>Join the free waitlist and include {chapter.name} as your chapter of interest.</p>
+        <a class="pwy-button" href={`/waiting-list/?chapter=${slug}`}
+          >Join the {chapter.name} waitlist <span aria-hidden="true">↗</span></a
+        >
+      </section>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-breadcrumb {
+    margin: 1.25rem 0 0;
+    font-size: 0.9rem;
+  }
+  .pwy-breadcrumb a {
+    color: var(--fg-muted);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-status {
+    display: inline-block;
+    margin: 0 0 1.25rem;
+    color: var(--accent);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .pwy-hero h1 {
+    margin: 0;
+    font: 400 clamp(4rem, 12vw, 11rem)/0.8 var(--font-serif);
+    letter-spacing: -0.065em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-chapter-detail {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 10vw, 10rem);
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-chapter-detail h2,
+  .pwy-chapter-next h2 {
+    margin: 0;
+    font: 400 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+  .pwy-prose {
+    max-width: 42rem;
+  }
+  .pwy-prose p {
+    margin: 0 0 1.25rem;
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+  }
+  .pwy-prose p:last-child {
+    margin-bottom: 0;
+  }
+  .pwy-chapter-next {
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0 5rem;
+  }
+  .pwy-chapter-next > p:not(.pwy-kicker) {
+    max-width: 34rem;
+    margin: 1rem 0 1.5rem;
+    color: var(--fg-muted);
+    font-size: 1.1rem;
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  @media (max-width: 680px) {
+    .pwy-hero__grid,
+    .pwy-chapter-detail {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

@@ -1,8 +1,10 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 import Base from "@layouts/Base.astro";
+import "../../../styles/app-surfaces.css";
 import { requireSession } from "../../../lib/portal-auth";
 
-const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+const ctx = await requireSession(Astro.request, runtimeEnv);
 if (!ctx) return Astro.redirect("/portal/login/");
 ---
 
@@ -11,31 +13,55 @@ if (!ctx) return Astro.redirect("/portal/login/");
   description="Stop future personalisation and request data removal."
   canonicalPath="/portal/account/delete/"
 >
-  <section class="section">
+  <section class="section app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/portal/">Portal</a> / Account / Delete
-      </p>
-      <h1>Account deletion</h1>
-      <p>
-        Account deletion stops future personalisation and triggers the data-removal workflow.
-        Required records (e.g. financial records) are kept for the minimum period required by law
-        and then removed.
-      </p>
-      <p style="color: var(--fg-muted)">
-        <strong>You can re-join at any time.</strong> The waiting list is always open.
-      </p>
-      <form class="form" method="post" action="/api/portal/account/delete">
-        <label for="confirm">
-          <input id="confirm" type="checkbox" name="confirm" value="true" required />
-          I understand my membership will end, my memory and timeline will be removed, and the Society
-          will email me a confirmation link to verify the request.
-        </label>
-        <button type="submit">Request account deletion</button>
-      </form>
-      <p>
-        <a href="/portal/">Cancel and return to portal</a>
-      </p>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Account / Delete</p>
+          <p class="app-kicker">Account control</p>
+          <h1>Account deletion</h1>
+          <p class="app-lede">
+            This stops future personalisation and starts the data-removal workflow. It is a
+            deliberate request, confirmed by email.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Required records</dt><dd>Kept only for the minimum legal period</dd><dt>
+            After closure
+          </dt><dd>You can re-join via the waitlist</dd>
+        </dl>
+      </header>
+
+      <section class="app-section" aria-labelledby="delete-heading">
+        <div class="app-danger-zone">
+          <div class="app-danger-zone__body">
+            <div class="app-callout app-callout--danger">
+              <strong>Review before continuing.</strong> Your membership will end, your memory and timeline
+              will be removed, and we will email a confirmation link to verify the request.
+            </div>
+            <form
+              class="form app-form app-form--danger"
+              method="post"
+              action="/api/portal/account/delete"
+            >
+              <div class="app-form__field">
+                <label for="confirm"
+                  ><input id="confirm" type="checkbox" name="confirm" value="true" required /> I understand
+                  the consequences described above.</label
+                >
+              </div>
+              <div class="app-form__actions">
+                <button class="app-action app-action--danger" type="submit"
+                  >Request account deletion</button
+                ><a class="app-action app-action--quiet" href="/portal/"
+                  >Cancel and return to portal</a
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+        <p class="app-note">The global waitlist is always open if you choose to re-join later.</p>
+      </section>
     </div>
   </section>
 </Base>

@@ -11,16 +11,14 @@ import { brand } from "../brand/config.js";
 
 function wrap(title: string, body: string): string {
   return `<!doctype html>
-<html><body style="font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #111; line-height: 1.6; max-width: 36rem; margin: 0 auto; padding: 2rem 1rem;">
-<p style="font-size:12px;color:#666">${escape(brand.shortName)} · operator task</p>
-<h1 style="font-family: 'Iowan Old Style', Palatino, Georgia, serif; font-weight: 400; font-size: 1.6rem; margin: 0 0 1rem;">${escape(title)}</h1>
-${body}
-<hr style="border:none;border-top:1px solid #e8e3d2;margin:2rem 0;" />
-<p style="font-size:11px;color:#666">
-  Direct action link: <a href="{{ACTION_URL}}">{{ACTION_LABEL}}</a><br />
-  This email is the task. Mark complete in the admin to silence the reminder.
-</p>
-</body></html>`;
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escape(title)}</title></head>
+<body style="margin:0;background:#f5f1e7;color:#12110f;font-family:Arial,sans-serif;line-height:1.55;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f1e7;"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;border:1px solid #12110f;background:#fbf9f3;">
+<tr><td style="padding:12px 20px;background:#12110f;color:#f5f1e7;font-family:monospace;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;">${escape(brand.shortName)} / Operator task</td></tr>
+<tr><td style="padding:36px 30px 20px;"><h1 style="font-family:Arial,sans-serif;font-weight:700;font-size:32px;line-height:1;letter-spacing:-1px;margin:0 0 24px;">${escape(title)}</h1>${body}</td></tr>
+<tr><td style="padding:16px 30px;border-top:1px solid #d5cfc1;color:#69655d;font-family:monospace;font-size:11px;line-height:1.5;">USE THE DIRECT ACTION IN THE TASK ABOVE.<br>MARK A TERMINAL OUTCOME IN ADMIN TO CLOSE THE REMINDER.</td></tr>
+</table></td></tr></table></body></html>`;
 }
 
 function escape(s: string): string {
@@ -115,7 +113,7 @@ export function renderGiftSelectionEmail(input: GiftInput): {
 <tr><td style="padding:0.4rem 0;color:#666;">AI suggestion</td><td>${escape(input.suggestion)}</td></tr>
 <tr><td style="padding:0.4rem 0;color:#666;">Action</td><td><a href="${escape(input.actionUrl)}">Approve or choose another</a></td></tr>
 </table>
-<p>The Society does not independently make expensive purchases. Your approval is required.</p>
+<p>Plans With You does not independently make expensive purchases. Your approval is required.</p>
 `;
   const html = wrap(title, body);
   const text = `${title}\n\nHello,\n\nSelect and approve a gift for ${input.memberName} (${input.occasion}). Budget A$${input.budgetAud.toFixed(2)}.\nAI suggestion: ${input.suggestion}\nAction: ${input.actionUrl}\n`;
@@ -169,7 +167,7 @@ export function renderCriticalCancellationEmail(input: CriticalCancellationInput
   const title = "CRITICAL: cancellation is overdue";
   const body = `
 <p style="color:#a12622"><strong>Operator action required.</strong></p>
-<p>The cancellation for the following event is overdue. Without an authoritative cancellation, the event would be live. The Society never lets that happen.</p>
+<p>The cancellation for the following event is overdue. Without an authoritative cancellation, the event would be live. Plans With You never lets that happen.</p>
 <table style="border-collapse:collapse;width:100%;font-size:0.95em;">
 <tr><td style="padding:0.4rem 0;color:#666;">Event</td><td>${escape(input.eventTitle)}</td></tr>
 <tr><td style="padding:0.4rem 0;color:#666;">Scheduled</td><td>${escape(input.scheduledAt)}</td></tr>

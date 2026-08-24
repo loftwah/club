@@ -1,16 +1,63 @@
 ---
 import Base from "@layouts/Base.astro";
 import { brand } from "../brand/config";
+
+const T = {
+  name: brand.name,
+  legal: brand.legalName,
+  year: new Date().getFullYear(),
+  docVersion: "0.9.0-draft",
+  effectiveOn: "TBD — pending Australian legal review",
+};
 ---
 
-<Base title="Privacy" description="How the Society handles your data." canonicalPath="/privacy/">
-  <section class="section">
-    <div class="container">
-      <h1>Privacy</h1>
-      <p>
-        The {brand.shortName} remembers what you choose to share, and nothing more. Member memory is transparent,
-        editable and removable. The {brand.shortName} does not silently enrich members from public sources.
-      </p>
+<Base
+  title="Privacy"
+  description={`How ${brand.name} handles your data.`}
+  canonicalPath="/privacy/"
+>
+  <section class="pwy-page pwy-legal" aria-labelledby="privacy-heading">
+    <div class="pwy-shell">
+      <header class="pwy-legal__head">
+        <p class="pwy-kicker">The record / privacy</p>
+        <h1 id="privacy-heading">Privacy</h1>
+        <p class="pwy-legal__lead">
+          {brand.copy.privacyLead} This is the plain-language preview; the formal policy is being finalised
+          with Australian legal review.
+        </p>
+        <p class="pwy-legal__status"><strong>Draft v{T.docVersion}</strong> · {T.effectiveOn}</p>
+      </header>
+
+      <h2>Plain-language summary</h2>
+      <ul>
+        <li>
+          <strong>We collect only what you give us.</strong> Your email, your name, your chapter, your
+          birthday (if you give it), your postal address (if you opt in), and the confirmed facts you
+          choose to share.
+        </li>
+        <li>
+          <strong>We do not enrich your record from public sources without asking.</strong> AI may propose
+          candidate facts (e.g. from inbound email), but candidate facts are stored separately and require
+          your confirmation before they are used.
+        </li>
+        <li>
+          <strong>We do not sell your data.</strong> We share it only with named providers when needed
+          to deliver the service. Resend and Cloudflare support the current waitlist launch; Stripe is
+          not active and no payment is collected.
+        </li>
+        <li>
+          <strong>We do not use your data to train general AI models.</strong> Member data is used to
+          run {brand.name}; it is not exported for model training.
+        </li>
+        <li>
+          <strong>We do not infer sensitive personal categories</strong> for personalisation (health,
+          political affiliation, religion, sexuality, etc.).
+        </li>
+        <li>
+          <strong>You can ask us to forget any of it.</strong> Account deletion stops future personalisation
+          and triggers the data-removal workflow.
+        </li>
+      </ul>
 
       <h2>What we keep</h2>
       <ul>
@@ -19,7 +66,12 @@ import { brand } from "../brand/config";
         <li>Your chapter or metro area, if you give it (so chapter letters are accurate)</li>
         <li>Your birthday, if you give it (so a card can be sent on the right day)</li>
         <li>Your postal address, if you opt in to physical mail (so we can post to you)</li>
-        <li>Any other facts you choose to share, plus your do-not-mention list</li>
+        <li>Confirmed facts you choose to share, plus your do-not-mention list</li>
+        <li>Membership record (tier, state, joined date, tenure)</li>
+        <li>Correspondence history (sent and received, with content for audit)</li>
+        <li>
+          Required financial records (kept for the minimum period required by law, then removed)
+        </li>
       </ul>
 
       <h2>What we do not do</h2>
@@ -27,33 +79,134 @@ import { brand } from "../brand/config";
         <li>We do not enrich your record from public sources without asking.</li>
         <li>
           We do not sell your data. We do not share it with third parties except as required to
-          deliver the service (Resend for email, Cloudflare for hosting, Stripe for billing when
-          billing is enabled).
+          deliver the service.
         </li>
         <li>We do not use your data to train general AI models.</li>
         <li>We do not infer sensitive personal categories for personalisation.</li>
+        <li>We do not invent facts about you.</li>
+        <li>We do not claim fictional characters, locations, or partnerships as real.</li>
       </ul>
 
       <h2>Your controls</h2>
       <p>
-        When the member portal is available, you will be able to see exactly what the
-        {brand.shortName} remembers about you, edit or remove any fact, mark any fact as "do not mention",
-        and export a copy of your data. Until the portal is available, you can ask the operator to do
-        this on your behalf.
+        In the member portal you can see exactly what we remember about you, edit or remove any
+        fact, mark any fact as "do not mention", export a copy of your data, and request account
+        deletion. You can ask us to forget any of it at any time. The operator can also action this
+        on your behalf.
       </p>
+
+      <h2>Provider relationships</h2>
+      <p>The third parties we share data with, and the reason:</p>
+      <ul>
+        <li>
+          <strong>Resend</strong> — to send and receive email. Resend receives your email address and
+          the content of correspondence. Resend is bound by its own privacy policy and data processing
+          terms.
+        </li>
+        <li>
+          <strong>Cloudflare</strong> — to host the application, store data in D1 and R2, and serve traffic.
+          Cloudflare is bound by its own privacy policy and data processing terms.
+        </li>
+        <li>
+          <strong>Stripe</strong> — planned for payment processing only when billing is enabled. Stripe
+          is currently disabled; the waitlist collects no payment method or billing history.
+        </li>
+      </ul>
 
       <h2>Retention</h2>
       <p>
-        When you ask to be forgotten, the {brand.shortName} stops future personalisation and removes your
-        personal data subject to legitimate retention requirements (for example, financial records we
-        are required to keep for a number of years).
+        When you ask to be forgotten, we stop future personalisation and remove your personal data
+        subject to legitimate retention requirements (for example, financial records we are required
+        to keep for a number of years).
       </p>
 
-      <h2>Full policy</h2>
+      <h2>Your rights</h2>
       <p>
-        The full privacy policy will be published before the paid launch. The summary above is not
-        the policy; it is the plain-language preview.
+        Under Australian Privacy Principles and applicable law, you have the right to: (a) request
+        access to the personal information we hold about you; (b) request correction of inaccurate
+        information; (c) request deletion of your information; (d) make a complaint. To exercise any
+        of these rights, contact us via the
+        <a href="/waiting-list/">waiting list</a> or by replying to any
+        {brand.name} email.
+      </p>
+
+      <h2>Status</h2>
+      <p class="pwy-legal__version">
+        Version: {T.docVersion} · Effective: {T.effectiveOn}<br />
+        © {T.year}
+        {T.legal}
       </p>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-legal {
+    padding: clamp(3.5rem, 8vw, 6rem) 0 5rem;
+  }
+  .pwy-legal__head {
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-legal h1 {
+    margin: 0 0 1rem;
+    font: 400 clamp(3.5rem, 10vw, 8rem)/0.84 var(--font-serif);
+    letter-spacing: -0.06em;
+  }
+  .pwy-legal__lead {
+    max-width: 48rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  }
+  .pwy-legal__status {
+    margin: 1.5rem 0 0;
+    color: var(--accent);
+    font: 0.75rem/1.4 var(--font-mono);
+    letter-spacing: 0.05em;
+  }
+  .pwy-legal > .pwy-shell > h2 {
+    margin-top: clamp(3rem, 7vw, 5rem);
+  }
+  .pwy-legal h2 {
+    font: 400 clamp(1.8rem, 3vw, 2.8rem)/1 var(--font-serif);
+    letter-spacing: -0.03em;
+  }
+  .pwy-legal h3 {
+    margin-top: 2.2rem;
+    font: 400 1.4rem/1.1 var(--font-serif);
+  }
+  .pwy-legal p,
+  .pwy-legal li {
+    max-width: 48rem;
+    color: var(--fg-muted);
+  }
+  .pwy-legal li {
+    margin: 0.7rem 0;
+  }
+  .pwy-legal strong {
+    color: var(--fg);
+  }
+  .pwy-legal__version {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--fg-faint) !important;
+    font: 0.75rem/1.6 var(--font-mono);
+  }
+</style>

@@ -1,86 +1,135 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 // Admin landing page.
-// Primary question: "What does the Society need from me?"
+// Primary question: "What needs my attention?"
 // Per MASTER_SPEC §11.2.
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { dailyOperations } from "../../lib/admin-data";
 
-const ops = await dailyOperations(Astro.locals?.runtime?.env);
+const ops = await dailyOperations(runtimeEnv);
 ---
 
 <Base
   title="Admin"
-  description="Operator landing page. What does the Society need from me?"
+  description="Operator landing page. What needs my attention?"
   canonicalPath="/admin/"
 >
-  <section class="section">
+  <section class="section app-surface app-operator">
     <div class="container">
-      <h1>What does the Society need from me?</h1>
-      <p class="muted" style="color: var(--fg-muted);">
-        The admin landing is intentionally short. If there is nothing to do, the page says so.
-      </p>
-
-      <h2>Today</h2>
-      {
-        ops.todayCount === 0 ? (
-          <p style="color: var(--success)">
-            <strong>No intervention required.</strong>
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb">Plans With You / Operator desk</p>
+          <p class="app-kicker">Daily control surface</p>
+          <h1>What needs my attention?</h1>
+          <p class="app-lede">
+            A short operational queue. Every item should resolve to a terminal state, a retry, or an
+            explicit human escalation.
           </p>
-        ) : (
-          <ul class="admin-list">
-            {ops.today.map((t) => (
-              <li>
-                <span class={`pill pill--${t.urgency}`}>{t.label}</span>
-                <span class="admin-list__detail">{t.detail}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Today</dt><dd>
+            {ops.todayCount} item{ops.todayCount === 1 ? "" : "s"} requiring review
+          </dd><dt>Principle</dt><dd>Nothing silently stays pending</dd>
+        </dl>
+      </header>
 
-      <h2>System</h2>
-      <ul class="admin-list">
-        <li>
-          <span class={`pill pill--${ops.dangerousEvents > 0 ? "danger" : "ok"}`}
-            >{ops.dangerousEvents}</span
-          >
-          <span class="admin-list__detail">dangerous uncancelled events</span>
-        </li>
-        <li>
-          <span class={`pill pill--${ops.retriedEmails > 0 ? "warn" : "ok"}`}
-            >{ops.retriedEmails}</span
-          >
-          <span class="admin-list__detail">retried emails</span>
-        </li>
-        <li>
-          <span class={`pill pill--${ops.overdueFulfilments > 0 ? "warn" : "ok"}`}
-            >{ops.overdueFulfilments}</span
-          >
-          <span class="admin-list__detail">overdue fulfilments</span>
-        </li>
-        <li>
-          <span class={`pill pill--${ops.deadLetters > 0 ? "danger" : "ok"}`}
-            >{ops.deadLetters}</span
-          >
-          <span class="admin-list__detail">dead-letter jobs (operator review required)</span>
-        </li>
-        <li>
-          <span class={`pill pill--${ops.inboundReview > 0 ? "warn" : "ok"}`}
-            >{ops.inboundReview}</span
-          >
-          <span class="admin-list__detail">inbound messages requiring review</span>
-        </li>
-      </ul>
+      <section class="app-section" aria-labelledby="today-heading">
+        <div class="app-section__head"><h2 id="today-heading">Today</h2><p>Priority queue</p></div>
+        {
+          ops.todayCount === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No intervention required</strong>
+                <span>
+                  The operating queue is clear. Continue to the system snapshot when you need a
+                  wider view.
+                </span>
+              </>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {ops.today.map((t) => (
+                <li>
+                  <span class="app-list__label">
+                    <span class={`pill pill--${t.urgency}`}>{t.urgency}</span>
+                  </span>
+                  <span class="app-list__detail">
+                    <strong>{t.label}</strong>
+                    <br />
+                    {t.detail}
+                  </span>
+                  <span class="pill pill--info">Queue item</span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
 
-      <h2>Quick links</h2>
-      <ul>
-        <li><a href="/admin/operations/">Operations digest</a></li>
-        <li><a href="/admin/tasks/">Fulfilment tasks</a></li>
-        <li><a href="/admin/inbound/">Inbound email</a></li>
-        <li><a href="/admin/events/">Events</a></li>
-        <li><a href="/admin/members/">Members</a></li>
-        <li><a href="/admin/appearance/">Appearance enquiries</a></li>
-      </ul>
+      <section class="app-section" aria-labelledby="system-heading">
+        <div class="app-section__head">
+          <h2 id="system-heading">System health</h2><p>Live counts</p>
+        </div>
+        <div class="app-summary-grid">
+          <article
+            class={`app-card ${ops.dangerousEvents > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.dangerousEvents}</span><span class="app-card__label"
+              >dangerous uncancelled events</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.retriedEmails > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.retriedEmails}</span><span class="app-card__label"
+              >retried emails</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.overdueFulfilments > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.overdueFulfilments}</span><span
+              class="app-card__label">overdue fulfilments</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.deadLetters > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.deadLetters}</span><span class="app-card__label"
+              >dead-letter jobs needing review</span
+            >
+          </article>
+          <article
+            class={`app-card ${ops.inboundReview > 0 ? "app-card--alert" : "app-card--clear"}`}
+          >
+            <span class="app-card__metric">{ops.inboundReview}</span><span class="app-card__label"
+              >inbound messages requiring review</span
+            >
+          </article>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="links-heading">
+        <div class="app-section__head">
+          <h2 id="links-heading">Operational surfaces</h2><p>Open a queue</p>
+        </div>
+        <ul class="app-link-grid">
+          <li>
+            <a href="/admin/operations/">Operations digest <span aria-hidden="true">→</span></a>
+          </li><li>
+            <a href="/admin/tasks/">Fulfilment tasks <span aria-hidden="true">→</span></a>
+          </li><li>
+            <a href="/admin/inbound/">Inbound email <span aria-hidden="true">→</span></a>
+          </li><li><a href="/admin/events/">Events <span aria-hidden="true">→</span></a></li><li>
+            <a href="/admin/members/">Members <span aria-hidden="true">→</span></a>
+          </li><li>
+            <a href="/admin/appearance/">Appearance enquiries <span aria-hidden="true">→</span></a>
+          </li><li>
+            <a href="/admin/creative/">Creative library <span aria-hidden="true">→</span></a>
+          </li>
+        </ul>
+      </section>
     </div>
   </section>
 </Base>

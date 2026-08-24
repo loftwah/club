@@ -26,8 +26,10 @@ export interface JobRecord {
   readonly claimedBy: string | null;
   readonly state: JobState;
   readonly failureReason: string | null;
-  readonly idempotencyKey: string;
+  readonly idempotencyKey: string | null;
   readonly correlationId: string | null;
+  /** The durable result, when a completed job has one. */
+  readonly result: unknown;
   readonly createdAt: string;
   readonly completedAt: string | null;
 }
@@ -37,7 +39,8 @@ export interface EnqueueJobInput {
   entityType?: string;
   entityId?: string;
   payload: unknown;
-  idempotencyKey: string;
+  /** Null/omitted keys intentionally opt out of deduplication. */
+  idempotencyKey?: string | null;
   priority?: number;
   availableAt?: string;
   correlationId?: string;
@@ -62,6 +65,13 @@ export interface JobQueue {
   listDeadLetters(): Promise<JobRecord[]>;
 }
 
+export class JobLeaseLostError extends Error {
+  constructor(readonly jobId: string) {
+    super(`Job lease is no longer owned for ${jobId}.`);
+    this.name = "JobLeaseLostError";
+  }
+}
+
 export class D1JobQueue implements JobQueue {
   constructor(
     private readonly db: D1Database,
@@ -71,28 +81,53 @@ export class D1JobQueue implements JobQueue {
   async enqueue(input: EnqueueJobInput): Promise<JobRecord> {
     const id = newJobId();
     const now = this.clock.nowIso();
-    await this.db
-      .prepare(
-        `INSERT INTO jobs (
-           id, type, entity_type, entity_id, payload_version, priority, attempt,
-           max_attempts, available_at, state, idempotency_key, correlation_id,
-           payload_json, created_at
-         ) VALUES (?, ?, ?, ?, '1', ?, 0, ?, ?, 'AVAILABLE', ?, ?, ?, ?)`,
-      )
-      .bind(
-        id,
-        input.type,
-        input.entityType ?? null,
-        input.entityId ?? null,
-        input.priority ?? 100,
-        input.maxAttempts ?? 5,
-        input.availableAt ?? now,
-        input.idempotencyKey,
-        input.correlationId ?? null,
-        JSON.stringify(input.payload),
-        now,
-      )
-      .run();
+    const idempotencyKey = input.idempotencyKey ?? null;
+
+    // The read makes the common retry path cheap. The insert remains the
+    // authority: two callers can race between this read and the insert, so
+    // the write path below re-reads the winner after a uniqueness failure.
+    if (idempotencyKey !== null) {
+      const existing = await this.getByIdempotencyKey(idempotencyKey);
+      if (existing) return existing;
+    }
+
+    try {
+      const inserted = await this.db
+        .prepare(
+          `INSERT INTO jobs (
+             id, type, entity_type, entity_id, payload_version, priority, attempt,
+             max_attempts, available_at, state, idempotency_key, correlation_id,
+             payload_json, created_at
+           ) VALUES (?, ?, ?, ?, '1', ?, 0, ?, ?, 'AVAILABLE', ?, ?, ?, ?)`,
+        )
+        .bind(
+          id,
+          input.type,
+          input.entityType ?? null,
+          input.entityId ?? null,
+          input.priority ?? 100,
+          input.maxAttempts ?? 5,
+          input.availableAt ?? now,
+          idempotencyKey,
+          input.correlationId ?? null,
+          JSON.stringify(input.payload),
+          now,
+        )
+        .run();
+      if (idempotencyKey !== null && (inserted.meta.changes ?? 0) === 0) {
+        const existing = await this.getByIdempotencyKey(idempotencyKey);
+        if (existing) return existing;
+      }
+    } catch (error) {
+      if (idempotencyKey !== null) {
+        // D1 may report a unique-constraint error after the competing write
+        // commits. Returning that row makes retries idempotent even when the
+        // initial request timed out after its insert was accepted.
+        const existing = await this.getByIdempotencyKey(idempotencyKey);
+        if (existing) return existing;
+      }
+      throw error;
+    }
     const row = await this.getById(id);
     if (!row) throw new Error(`Failed to load enqueued job ${id}`);
     return row;
@@ -127,42 +162,60 @@ export class D1JobQueue implements JobQueue {
     return {
       job: row,
       async complete(result: unknown): Promise<void> {
-        await db
+        const completedAt = clock.nowIso();
+        const updated = await db
           .prepare(
             `UPDATE jobs
-             SET state = 'COMPLETED', result_json = ?, completed_at = ?
-             WHERE id = ?`,
+             SET state = 'COMPLETED', result_json = ?, completed_at = ?,
+                 claimed_by = NULL, claimed_until = NULL
+             WHERE id = ? AND state IN ('CLAIMED', 'RUNNING')
+               AND claimed_by = ? AND claimed_until > ?`,
           )
-          .bind(result == null ? null : JSON.stringify(result), new Date().toISOString(), row.id)
+          .bind(
+            result == null ? null : JSON.stringify(result),
+            completedAt,
+            row.id,
+            agentId,
+            completedAt,
+          )
           .run();
+        if ((updated.meta.changes ?? 0) !== 1) throw new JobLeaseLostError(row.id);
       },
       async fail(reason: string): Promise<void> {
         const nextAttempt = row.attempt + 1;
+        const failedAt = clock.nowIso();
         if (nextAttempt >= row.maxAttempts) {
-          await db
+          const updated = await db
             .prepare(
               `UPDATE jobs
-               SET state = 'DEAD_LETTER', attempt = ?, failure_reason = ?, completed_at = ?
-               WHERE id = ?`,
+               SET state = 'DEAD_LETTER', attempt = ?, failure_reason = ?, completed_at = ?,
+                   claimed_by = NULL, claimed_until = NULL
+               WHERE id = ? AND state IN ('CLAIMED', 'RUNNING')
+                 AND claimed_by = ? AND claimed_until > ?`,
             )
-            .bind(nextAttempt, reason, clock.nowIso(), row.id)
+            .bind(nextAttempt, reason, failedAt, row.id, agentId, failedAt)
             .run();
+          if ((updated.meta.changes ?? 0) !== 1) throw new JobLeaseLostError(row.id);
         } else {
-          await db
+          const updated = await db
             .prepare(
               `UPDATE jobs
                SET state = 'AVAILABLE', attempt = ?, failure_reason = ?,
                    claimed_by = NULL, claimed_until = NULL,
                    available_at = ?
-               WHERE id = ?`,
+               WHERE id = ? AND state IN ('CLAIMED', 'RUNNING')
+                 AND claimed_by = ? AND claimed_until > ?`,
             )
             .bind(
               nextAttempt,
               reason,
               new Date(clock.now().getTime() + 2 ** nextAttempt * 1000).toISOString(),
               row.id,
+              agentId,
+              failedAt,
             )
             .run();
+          if ((updated.meta.changes ?? 0) !== 1) throw new JobLeaseLostError(row.id);
         }
       },
     };
@@ -193,6 +246,15 @@ export class D1JobQueue implements JobQueue {
     if (!row) return null;
     return rowToRecord(row as Record<string, unknown>);
   }
+
+  private async getByIdempotencyKey(key: string): Promise<JobRecord | null> {
+    const row = await this.db
+      .prepare(`SELECT * FROM jobs WHERE idempotency_key = ? LIMIT 1`)
+      .bind(key)
+      .first();
+    if (!row) return null;
+    return rowToRecord(row as Record<string, unknown>);
+  }
 }
 
 function rowToRecord(r: Record<string, unknown>): JobRecord {
@@ -210,8 +272,9 @@ function rowToRecord(r: Record<string, unknown>): JobRecord {
     claimedBy: (r.claimed_by as string | null) ?? null,
     state: r.state as JobState,
     failureReason: (r.failure_reason as string | null) ?? null,
-    idempotencyKey: r.idempotency_key as string,
+    idempotencyKey: (r.idempotency_key as string | null) ?? null,
     correlationId: (r.correlation_id as string | null) ?? null,
+    result: r.result_json ? JSON.parse(r.result_json as string) : null,
     createdAt: r.created_at as string,
     completedAt: (r.completed_at as string | null) ?? null,
   };
@@ -224,6 +287,11 @@ export class InMemoryJobQueue implements JobQueue {
   constructor(private readonly clock: Clock) {}
 
   async enqueue(input: EnqueueJobInput): Promise<JobRecord> {
+    const idempotencyKey = input.idempotencyKey ?? null;
+    if (idempotencyKey !== null) {
+      const existing = [...this.jobs.values()].find((job) => job.idempotencyKey === idempotencyKey);
+      if (existing) return existing;
+    }
     const id = newJobId();
     const now = this.clock.nowIso();
     const record: JobRecord = {
@@ -240,8 +308,9 @@ export class InMemoryJobQueue implements JobQueue {
       claimedBy: null,
       state: "AVAILABLE",
       failureReason: null,
-      idempotencyKey: input.idempotencyKey,
+      idempotencyKey,
       correlationId: input.correlationId ?? null,
+      result: null,
       createdAt: now,
       completedAt: null,
     };
@@ -291,12 +360,26 @@ export class InMemoryJobQueue implements JobQueue {
   private wrapClaim(job: JobRecord): ClaimedJob {
     const jobs = this.jobs;
     const clock = this.clock;
+    const stillOwnsLease = (): boolean => {
+      const current = jobs.get(job.id);
+      return Boolean(
+        current &&
+        (current.state === "CLAIMED" || current.state === "RUNNING") &&
+        current.claimedBy === job.claimedBy &&
+        current.claimedUntil &&
+        current.claimedUntil > clock.nowIso(),
+      );
+    };
     return {
       job,
       async complete(result: unknown): Promise<void> {
+        if (!stillOwnsLease()) throw new JobLeaseLostError(job.id);
         jobs.set(job.id, {
           ...job,
           state: "COMPLETED",
+          claimedBy: null,
+          claimedUntil: null,
+          result,
           completedAt: clock.nowIso(),
         });
         // result is informational in the in-memory queue; production uses
@@ -304,6 +387,7 @@ export class InMemoryJobQueue implements JobQueue {
         void result;
       },
       async fail(reason: string): Promise<void> {
+        if (!stillOwnsLease()) throw new JobLeaseLostError(job.id);
         const nextAttempt = job.attempt + 1;
         if (nextAttempt >= job.maxAttempts) {
           jobs.set(job.id, {
@@ -311,6 +395,8 @@ export class InMemoryJobQueue implements JobQueue {
             state: "DEAD_LETTER",
             attempt: nextAttempt,
             failureReason: reason,
+            claimedBy: null,
+            claimedUntil: null,
             completedAt: clock.nowIso(),
           });
         } else {

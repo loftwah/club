@@ -1,108 +1,345 @@
 ---
 import Base from "@layouts/Base.astro";
-import { brand, formatPrice } from "../brand/config";
+import { brand, formatPrice, ALL_TIERS } from "../brand/config";
+
+const tierSlug: Record<string, "member" | "corresponding" | "deluxe"> = {
+  [brand.tiers.member.name]: "member",
+  [brand.tiers.corresponding.name]: "corresponding",
+  [brand.tiers.deluxe.name]: "deluxe",
+};
 ---
 
 <Base
   title="Membership"
-  description="Three tiers. The same belonging, different physical and human intensity."
+  description="Three truthful tiers of Plans With You. Paid membership remains closed while the waitlist is open."
   canonicalPath="/membership/"
 >
-  <section class="section">
-    <div class="container">
-      <h1>Membership</h1>
-      <p>
-        All members are equal in belonging. Tiers differ in physical intensity and human time, not
-        in emotional worth. Pricing is per individual, per month, in Australian dollars.
-      </p>
-      <div class="tiers">
-        <article class="tier" aria-labelledby="tier-core-h">
-          <h3 id="tier-core-h">{brand.tiers.core.name}</h3>
-          <p class="tier__price">{formatPrice(brand.tiers.core.priceAud)}<small>/month</small></p>
-          <p class="tier__tagline">{brand.tiers.core.tagline}</p>
-          <ul>
-            <li>Real membership record and member number</li>
-            <li>Chapter and regional identity</li>
-            <li>Digital membership card</li>
-            <li>Invitations and cancellations</li>
-            <li>Personalised digital correspondence</li>
-            <li>Birthday and anniversary recognition</li>
-            <li>Member memory (with member-facing controls)</li>
-            <li>Digital archive</li>
-            <li>Ceremonial titles at milestones</li>
-            <li>Occasional economical physical item where policy allows</li>
-          </ul>
-        </article>
-        <article class="tier" aria-labelledby="tier-phys-h">
-          <h3 id="tier-phys-h">{brand.tiers.correspondence.name}</h3>
-          <p class="tier__price">
-            {formatPrice(brand.tiers.correspondence.priceAud)}<small>/month</small>
+  <section class="pwy-page pwy-membership" aria-labelledby="membership-heading">
+    <div class="pwy-shell">
+      <header class="pwy-hero">
+        <p class="pwy-kicker">The membership office / 02</p>
+        <div class="pwy-hero__grid">
+          <h1 id="membership-heading">Membership, without the performance.</h1>
+          <div>
+            <p class="pwy-hero__lede">
+              All three tiers offer the same belonging. The difference is what we can make, post and
+              do with more physical and human time.
+            </p>
+            <p class="pwy-hero__note">
+              Displayed prices are per person, per month, in Australian dollars.
+            </p>
+          </div>
+        </div>
+        <div class="pwy-hero__meta" aria-label="Membership availability">
+          <span class="pwy-stamp">Preview / A$5 · A$20 · A$50</span>
+          <span>Waitlist open</span>
+          <span>Payments closed</span>
+        </div>
+      </header>
+
+      <aside class="pwy-launch-note" aria-labelledby="launch-heading">
+        <div>
+          <p class="pwy-card-code">Launch status</p>
+          <h2 id="launch-heading">See the shape. Join the list.</h2>
+        </div>
+        <p>
+          Paid membership is not available yet. The prices below are a transparent preview, not a
+          checkout. Joining the waitlist is free, records interest only, and does not activate a
+          tier or charge anything.
+        </p>
+      </aside>
+
+      <section class="pwy-tiers" aria-labelledby="tiers-heading">
+        <div class="pwy-section-heading">
+          <p class="pwy-kicker">Three ways to be cared for</p>
+          <h2 id="tiers-heading">Equal belonging. Different fulfilment.</h2>
+        </div>
+        <div class="pwy-tier-grid">
+          {
+            ALL_TIERS.map((tier, index) => {
+              const slug = tierSlug[tier.name] ?? "member";
+              const headingId = `tier-${slug}-heading`;
+              return (
+                <article
+                  class={`pwy-tier${index === 1 ? " pwy-tier--featured" : ""}`}
+                  aria-labelledby={headingId}
+                >
+                  <div class="pwy-tier__topline">
+                    <span class="pwy-tier__index">0{index + 1}</span>
+                    {index === 1 && <span class="pwy-tier__mark">More in the post</span>}
+                  </div>
+                  <h3 id={headingId}>{tier.name}</h3>
+                  <p class="pwy-tier__price">
+                    {formatPrice(tier.priceAud)}
+                    <small>/month</small>
+                  </p>
+                  <p class="pwy-tier__tagline">{tier.tagline}</p>
+                  <p class="pwy-tier__positioning">{tier.positioning}</p>
+                  <ul>
+                    {tier.includes.map((line) => (
+                      <li>{line}</li>
+                    ))}
+                  </ul>
+                  <a
+                    class="pwy-button pwy-tier__cta"
+                    href={`/waiting-list/?tier=${slug}`}
+                    data-testid={`tier-cta-${slug}`}
+                  >
+                    Note my interest <span aria-hidden="true">↗</span>
+                  </a>
+                </article>
+              );
+            })
+          }
+        </div>
+      </section>
+
+      <section class="pwy-boundary" aria-labelledby="boundary-heading">
+        <div>
+          <p class="pwy-kicker">The boundary</p>
+          <h2 id="boundary-heading">No tier asks you to show up.</h2>
+        </div>
+        <div class="pwy-prose">
+          <p>
+            Ordinary plans are made and then cancelled. There is no attendance, RSVP, check-in or
+            no-show state for an ordinary plan. You do not pay per event, and silence does not make
+            you a worse member.
           </p>
-          <p class="tier__tagline">{brand.tiers.correspondence.tagline}</p>
-          <ul>
-            <li>Everything in {brand.tiers.core.name}</li>
-            <li>Physical welcome pack</li>
-            <li>Physical membership card</li>
-            <li>Quality stationery</li>
-            <li>Signed welcome letter</li>
-            <li>Posted birthday card</li>
-            <li>Anniversary letter and card</li>
-            <li>Periodic signed correspondence</li>
-            <li>Milestone artefacts</li>
-            <li>Selected human review of correspondence</li>
-            <li>Optional manufactured commitments</li>
-          </ul>
-        </article>
-        <article class="tier" aria-labelledby="tier-del-h">
-          <h3 id="tier-del-h">{brand.tiers.deluxe.name}</h3>
-          <p class="tier__price">{formatPrice(brand.tiers.deluxe.priceAud)}<small>/month</small></p>
-          <p class="tier__tagline">{brand.tiers.deluxe.tagline}</p>
-          <ul>
-            <li>Everything in {brand.tiers.correspondence.name}</li>
-            <li>Higher-quality welcome package</li>
-            <li>Hand-signed personal letters</li>
-            <li>Thoughtful gifts</li>
-            <li>Birthday gift and treatment according to policy</li>
-            <li>Anniversary gifts</li>
-            <li>Opted-in calls</li>
-            <li>Deeper operator involvement</li>
-            <li>Premium manufactured commitments</li>
-            <li>Priority handling</li>
-            <li>More substantial limited artefacts</li>
-            <li>More genuine continuity with the people behind it</li>
-          </ul>
-        </article>
-      </div>
+          <p>
+            Physical mail, gifts, calls and manufactured commitments are permissioned services with
+            real budgets and prerequisites. The separate real-world appearance service is not
+            included in any tier.
+          </p>
+        </div>
+      </section>
 
-      <h2>What is not included in any tier</h2>
-      <ul>
-        <li>Real attendance is not expected. Ordinary events are cancelled.</li>
-        <li>
-          Real-world appearance service is a separate paid service, not bundled with
-          {brand.tiers.deluxe.name}.
-        </li>
-        <li>
-          {formatPrice(brand.tiers.deluxe.priceAud)} a month is not unlimited human time. The
-          {brand.shortName} sets real, transparent budget and cadence limits.
-        </li>
-      </ul>
-
-      <h2>What every member agrees to</h2>
-      <p>
-        Before paid activation, every member acknowledges in plain language that the
-        {brand.shortName} is real, that ordinary events are constructed and intended to be cancelled,
-        that members are not expected to attend, that some {brand.shortName}
-        characters and references are fictional, that AI and automation assist personalisation, that real
-        human operators perform selected real-world tasks, and that optional services are controllable.
-      </p>
-      <p>
-        The full terms and privacy policy are versioned and recorded on acceptance. The current
-        waiting list does not create paid membership and does not require you to accept paid terms.
-      </p>
-
-      <p>
-        <a href="/waiting-list/" class="hero__cta">Join the waiting list</a>
-      </p>
+      <footer class="pwy-page-footer">
+        <p>The doors are not charging anyone yet.</p>
+        <a class="pwy-button" href="/waiting-list/"
+          >Join the waitlist <span aria-hidden="true">↗</span></a
+        >
+      </footer>
     </div>
   </section>
 </Base>
+
+<style>
+  .pwy-page {
+    color: var(--fg);
+  }
+  .pwy-shell {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 3rem);
+  }
+  .pwy-hero {
+    padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .pwy-kicker,
+  .pwy-card-code {
+    margin: 0 0 1rem;
+    color: var(--fg-faint);
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .pwy-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(16rem, 0.9fr);
+    gap: clamp(2rem, 8vw, 9rem);
+    align-items: end;
+  }
+  .pwy-hero h1 {
+    max-width: 12ch;
+    margin: 0;
+    font: 400 clamp(3rem, 8vw, 7rem)/0.88 var(--font-serif);
+    letter-spacing: -0.055em;
+  }
+  .pwy-hero__lede {
+    max-width: 38rem;
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: clamp(1.1rem, 1.8vw, 1.45rem);
+    line-height: 1.35;
+  }
+  .pwy-hero__note {
+    margin: 1.5rem 0 0;
+    color: var(--fg-faint);
+    font-size: 0.9rem;
+  }
+  .pwy-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 2.5rem;
+    color: var(--fg-faint);
+    font: 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-stamp {
+    color: var(--accent);
+  }
+  .pwy-launch-note {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 1.3fr);
+    gap: 2rem;
+    margin: clamp(2rem, 5vw, 4rem) 0 0;
+    padding: clamp(1.25rem, 3vw, 2.2rem);
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+  }
+  .pwy-launch-note h2,
+  .pwy-section-heading h2,
+  .pwy-boundary h2 {
+    margin: 0;
+    font: 400 clamp(2rem, 4vw, 3.5rem)/0.98 var(--font-serif);
+    letter-spacing: -0.035em;
+  }
+  .pwy-launch-note p:last-child {
+    max-width: 42rem;
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  .pwy-launch-note .pwy-card-code {
+    color: var(--accent-secondary);
+  }
+  .pwy-tiers {
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+  }
+  .pwy-section-heading {
+    max-width: 44rem;
+  }
+  .pwy-tier-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    margin-top: 3rem;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .pwy-tier {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 34rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--bg);
+  }
+  .pwy-tier--featured {
+    background: var(--bg-elev);
+  }
+  .pwy-tier__topline {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 1.2rem;
+    color: var(--fg-faint);
+    font: 0.68rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-tier__mark {
+    color: var(--accent);
+  }
+  .pwy-tier h3 {
+    margin: 2.2rem 0 0.6rem;
+    font: 400 clamp(1.5rem, 2.5vw, 2.25rem)/1 var(--font-serif);
+  }
+  .pwy-tier__price {
+    margin: 0 0 0.65rem;
+    color: var(--accent);
+    font: 400 clamp(2.5rem, 5vw, 4rem)/0.9 var(--font-serif);
+    letter-spacing: -0.045em;
+  }
+  .pwy-tier__price small {
+    margin-left: 0.3rem;
+    color: var(--fg-muted);
+    font: 0.95rem/1 var(--font-sans);
+    letter-spacing: 0;
+  }
+  .pwy-tier__tagline {
+    margin: 0 0 1rem;
+    font: italic 1rem/1.3 var(--font-serif);
+  }
+  .pwy-tier__positioning {
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--accent);
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+  }
+  .pwy-tier ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 1rem 0 2rem;
+    padding-left: 1.1rem;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+  .pwy-tier li::marker {
+    color: var(--accent);
+  }
+  .pwy-tier__cta {
+    width: fit-content;
+    margin-top: auto;
+  }
+  .pwy-button {
+    display: inline-flex;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.85rem 1.1rem;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 650;
+  }
+  .pwy-button:hover,
+  .pwy-button:focus-visible {
+    background: var(--accent-secondary);
+    color: #fff;
+  }
+  .pwy-boundary {
+    display: grid;
+    grid-template-columns: minmax(14rem, 0.8fr) minmax(0, 1.2fr);
+    gap: clamp(2rem, 10vw, 10rem);
+    padding: clamp(3.5rem, 8vw, 6.5rem) 0;
+    border-top: 1px solid var(--line);
+  }
+  .pwy-prose p {
+    margin: 0 0 1.25rem;
+    color: var(--fg-muted);
+    font-size: 1.05rem;
+  }
+  .pwy-prose p:last-child {
+    margin-bottom: 0;
+  }
+  .pwy-page-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0 4rem;
+  }
+  .pwy-page-footer p {
+    margin: 0;
+    color: var(--fg-muted);
+  }
+  @media (max-width: 800px) {
+    .pwy-tier-grid {
+      grid-template-columns: 1fr;
+    }
+    .pwy-tier {
+      min-height: 0;
+    }
+  }
+  @media (max-width: 680px) {
+    .pwy-hero__grid,
+    .pwy-launch-note,
+    .pwy-boundary {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,493 @@
+.threeui-bakeoff-page {
+  padding-block: clamp(2rem, 5vw, 5rem) 6rem;
+}
+
+.threeui-bakeoff-page__path {
+  margin: 0 0 1.5rem;
+  color: var(--ink-faint);
+  font-family: var(--font-data);
+  font-size: 0.65rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.threeui-bakeoff {
+  --bakeoff-ink: var(--ink);
+  --bakeoff-muted: var(--ink-soft);
+  --bakeoff-paper: var(--paper-light);
+  --bakeoff-line: rgb(18 17 15 / 20%);
+}
+
+.threeui-bakeoff__intro {
+  max-width: 62rem;
+  padding: clamp(2rem, 6vw, 5rem);
+  border: 1px solid var(--bakeoff-ink);
+  background: var(--calendar);
+  color: white;
+}
+
+.threeui-bakeoff__intro h2 {
+  margin: 1rem 0 1.5rem;
+  font-size: clamp(2.7rem, 7vw, 6.4rem);
+}
+
+.threeui-bakeoff__intro > p:not(.threeui-bakeoff__eyebrow) {
+  max-width: 48rem;
+  margin: 0;
+  font-family: var(--font-letter);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+}
+
+.threeui-bakeoff__intro code {
+  font-family: var(--font-data);
+  font-size: 0.78em;
+}
+
+.threeui-bakeoff__eyebrow,
+.threeui-bakeoff__index,
+.threeui-bakeoff__rules,
+.threeui-bakeoff__column figcaption span,
+.threeui-bakeoff__note,
+.threeui-bakeoff__fallback-note,
+.threeui-bakeoff__micro,
+.threeui-bakeoff__card-top > span,
+.threeui-bakeoff__card-bottom,
+.threeui-bakeoff__envelope-label {
+  font-family: var(--font-data);
+  font-size: 0.63rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.threeui-bakeoff__eyebrow {
+  margin: 0;
+  color: var(--ink-faint);
+}
+
+.threeui-bakeoff__intro .threeui-bakeoff__eyebrow {
+  color: #cdd4ff;
+}
+
+.threeui-bakeoff__rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 2.5rem;
+  color: #cdd4ff;
+}
+
+.threeui-bakeoff__rules span::before {
+  margin-right: 0.5rem;
+  color: var(--signal);
+  content: "●";
+}
+
+.threeui-bakeoff__candidates {
+  display: grid;
+  gap: 4rem;
+  margin-top: 4rem;
+}
+
+.threeui-bakeoff__candidate {
+  border-top: 1px solid var(--bakeoff-ink);
+}
+
+.threeui-bakeoff__candidate-head {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr) minmax(12rem, 18rem);
+  gap: 1.5rem;
+  align-items: start;
+  padding-block: 1.5rem 2rem;
+}
+
+.threeui-bakeoff__index {
+  color: var(--signal-text);
+}
+
+.threeui-bakeoff__candidate h3 {
+  margin: 0.4rem 0 0.7rem;
+  font-size: clamp(1.65rem, 3.2vw, 3rem);
+}
+
+.threeui-bakeoff__candidate-head div > p:last-child {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--bakeoff-muted);
+}
+
+.threeui-bakeoff__verdict {
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--bakeoff-line);
+  background: var(--paper-deep);
+  color: var(--bakeoff-muted);
+  font-family: var(--font-letter);
+  font-size: 0.95rem;
+}
+
+.threeui-bakeoff__comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid var(--bakeoff-ink);
+  background: var(--bakeoff-ink);
+}
+
+.threeui-bakeoff__column {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: var(--bakeoff-paper);
+}
+
+.threeui-bakeoff__column--three {
+  background: #181a20;
+  color: #f8f1e6;
+}
+
+.threeui-bakeoff__column figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed currentColor;
+}
+
+.threeui-bakeoff__column figcaption span {
+  opacity: 0.68;
+}
+
+.threeui-bakeoff__column figcaption strong {
+  text-align: right;
+}
+
+.threeui-bakeoff__visual,
+.threeui-bakeoff__scene {
+  position: relative;
+  width: 100%;
+  min-height: 20rem;
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.threeui-bakeoff__visual {
+  display: grid;
+  place-items: center;
+}
+
+.threeui-bakeoff__visual--html {
+  background:
+    linear-gradient(135deg, rgb(18 17 15 / 4%) 25%, transparent 25%) 0 0 / 1.1rem 1.1rem,
+    var(--paper-deep);
+}
+
+.threeui-bakeoff__scene {
+  isolation: isolate;
+  min-height: 20rem;
+  background: #ded6c2;
+}
+
+.threeui-bakeoff__scene[data-threeui-scene="fabric"] {
+  background: #171a24;
+}
+
+.threeui-bakeoff__scene[data-threeui-scene="data"] {
+  background: #f0ede7;
+}
+
+.threeui-bakeoff__scene > iframe,
+.threeui-bakeoff__scene > .bookshelf,
+.threeui-bakeoff__scene > .threeui-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.threeui-bakeoff__scene > iframe {
+  display: block;
+  max-width: none;
+}
+
+.threeui-bakeoff__fallback {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 20rem;
+  place-items: center;
+  padding: 1rem;
+}
+
+.threeui-bakeoff__fallback-note {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  max-width: 85%;
+  color: currentColor;
+  font-size: 0.55rem;
+  opacity: 0.62;
+  text-align: right;
+}
+
+.threeui-bakeoff__note {
+  margin: 1rem 0 0;
+  color: currentColor;
+  opacity: 0.7;
+}
+
+.threeui-bakeoff__card {
+  display: grid;
+  width: min(100%, 24rem);
+  min-height: 14rem;
+  grid-template-rows: auto 1fr auto;
+  padding: 1rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-light);
+  box-shadow: 0 1.2rem 2.7rem rgb(18 17 15 / 17%);
+  color: var(--ink);
+  transform: rotate(-2deg);
+}
+
+.threeui-bakeoff__card-top,
+.threeui-bakeoff__card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.threeui-bakeoff__card-top {
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--ink);
+}
+
+.threeui-bakeoff__calendar-mark {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  grid-template-rows: auto 1fr;
+  border: 1px solid var(--ink);
+  font-family: var(--font-data);
+  font-size: 0.48rem;
+  line-height: 1;
+  text-align: center;
+}
+
+.threeui-bakeoff__calendar-mark span {
+  padding: 0.25rem 0.1rem;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.threeui-bakeoff__calendar-mark strong {
+  align-self: center;
+  font-size: 1rem;
+}
+
+.threeui-bakeoff__card-body {
+  display: grid;
+  align-content: center;
+  gap: 0.4rem;
+}
+
+.threeui-bakeoff__card-body strong {
+  font-family: var(--font-letter);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+}
+
+.threeui-bakeoff__card-body span {
+  color: var(--signal-text);
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.threeui-bakeoff__card-bottom {
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--ink);
+}
+
+.threeui-bakeoff__stack {
+  position: relative;
+  width: min(100%, 25rem);
+  min-height: 15rem;
+}
+
+.threeui-bakeoff__stack-back,
+.threeui-bakeoff__stack-middle,
+.threeui-bakeoff__plan-sheet {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ink);
+  background: var(--paper-light);
+}
+
+.threeui-bakeoff__stack-back {
+  transform: translate(1.2rem, 1rem) rotate(5deg);
+  background: var(--signal-soft);
+}
+
+.threeui-bakeoff__stack-middle {
+  transform: translate(-0.7rem, 0.55rem) rotate(-3deg);
+  background: var(--calendar);
+}
+
+.threeui-bakeoff__plan-sheet {
+  display: grid;
+  align-content: center;
+  gap: 0.8rem;
+  padding: 1.5rem;
+  box-shadow: 0 1.2rem 2.5rem rgb(18 17 15 / 16%);
+  color: var(--ink);
+  transform: rotate(1.5deg);
+}
+
+.threeui-bakeoff__plan-sheet strong {
+  font-family: var(--font-letter);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+}
+
+.threeui-bakeoff__plan-rule {
+  height: 1px;
+  background: var(--ink);
+}
+
+.threeui-bakeoff__cancelled {
+  color: var(--signal-text);
+  font-family: var(--font-data);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.threeui-bakeoff__envelope {
+  position: relative;
+  width: min(100%, 25rem);
+  min-height: 15rem;
+  border: 1px solid var(--ink);
+  background: var(--signal-soft);
+  box-shadow: 0 1.2rem 2.7rem rgb(18 17 15 / 14%);
+  color: var(--ink);
+  transform: rotate(-1deg);
+}
+
+.threeui-bakeoff__letter {
+  position: absolute;
+  z-index: 1;
+  top: -1.2rem;
+  left: 10%;
+  display: grid;
+  width: 80%;
+  min-height: 13rem;
+  align-content: start;
+  gap: 0.5rem;
+  padding: 1.2rem;
+  border: 1px solid var(--ink);
+  background: var(--paper-light);
+  box-shadow: 0 0.8rem 2rem rgb(18 17 15 / 14%);
+  font-family: var(--font-letter);
+}
+
+.threeui-bakeoff__letter span,
+.threeui-bakeoff__letter strong {
+  font-family: var(--font-data);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.threeui-bakeoff__letter p {
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.threeui-bakeoff__envelope-flap {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  border-bottom: 1px solid var(--ink);
+  background: var(--signal-soft);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+.threeui-bakeoff__envelope-label {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+}
+
+.threeui-bakeoff__footer {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.4fr) minmax(0, 1fr);
+  gap: 2rem;
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--ink);
+}
+
+.threeui-bakeoff__footer p {
+  max-width: 48rem;
+  margin: 0;
+  font-family: var(--font-letter);
+  font-size: clamp(1.25rem, 2.2vw, 2rem);
+}
+
+@media (max-width: 48rem) {
+  .threeui-bakeoff__candidate-head,
+  .threeui-bakeoff__footer {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .threeui-bakeoff__verdict {
+    max-width: 25rem;
+  }
+
+  .threeui-bakeoff__comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .threeui-bakeoff__visual,
+  .threeui-bakeoff__scene,
+  .threeui-bakeoff__fallback {
+    min-height: 17rem;
+  }
+
+  .threeui-bakeoff__column figcaption {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .threeui-bakeoff__column figcaption strong {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threeui-bakeoff__card,
+  .threeui-bakeoff__plan-sheet,
+  .threeui-bakeoff__stack-back,
+  .threeui-bakeoff__stack-middle,
+  .threeui-bakeoff__envelope {
+    transform: none;
+  }
+}
+
+@media print {
+  .threeui-bakeoff__column--three {
+    background: white;
+    color: black;
+  }
+
+  .threeui-bakeoff__scene {
+    min-height: 10rem;
+  }
+}

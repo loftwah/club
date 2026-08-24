@@ -208,6 +208,30 @@ step("idempotency: re-applying migrations is a no-op", () => {
   return "ok (re-applied without error)";
 });
 
+step("waitlist_entries.interested_tier column is present", () => {
+  const r = run(wrangler, [
+    "d1",
+    "execute",
+    dbName,
+    "--local",
+    "--command",
+    "PRAGMA table_info(waitlist_entries);",
+    "--json",
+  ]);
+  if (r.status !== 0) {
+    return { error: "pragma table_info failed", output: r.stderr };
+  }
+  const rows = parseRows(r.stdout);
+  const hasColumn = rows.some((row) => row.name === "interested_tier");
+  if (!hasColumn) {
+    return {
+      error: "waitlist_entries.interested_tier column missing after migration",
+      output: `columns: ${rows.map((r) => r.name).join(", ")}`,
+    };
+  }
+  return "ok (interested_tier column present, nullable)";
+});
+
 let failed = false;
 for (const s of steps) {
   process.stdout.write(`  • ${s.name} ... `);

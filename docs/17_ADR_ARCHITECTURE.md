@@ -91,13 +91,16 @@ The actual Phase 1 acceptance script (`scripts/acceptance.mjs`) executes:
 6. `integration tests` (in-memory D1 mock with the real schema)
 7. `static schema check` (parity, forbidden event states, env naming)
 8. `production build` (`astro build`)
-9. `copy client assets to public/` (so wrangler dev can serve them)
+9. `browser bundle performance budgets` against `dist/client`
 10. `wrangler config dry-run` (config validation)
 11. `real Cloudflare local D1 fresh-migration proof` (wipes `.wrangler/state`, applies every migration via the current Wrangler CLI, verifies the schema + constraints against the real local D1)
-12. `browser E2E` (Playwright against a live `wrangler dev` process — covers public routes, form submission, mobile viewport, reduced motion, axe accessibility on four public routes, and the no-JS / ThreeUI-fallback path)
+12. `browser E2E` (Playwright against a live `wrangler dev` process — covers public routes, form submission, mobile viewport, reduced motion, accessibility, private-route boundaries, and the no-JS / ThreeUI-fallback path)
 
 CREDENTIALLED contract tests (Resend, MiniMax) live behind `mise run contracts` and are NOT part of the default acceptance run. The Resend contract verifies authentication, webhook-signature round-trip, and the received-email metadata/body HTTP API shape; the MiniMax contract is a future addition.
 
-ThreeUI integration: the home page mounts an `EngravedCertificate`-based seal as a React island. We verified in browser that the page renders the canonical proposition text and tier preview without any essential JS. ThreeUI's `sRGBEncoding` / `LinearEncoding` build warnings come from older shader files inside the package; we ship only components that do not use those constants, so the warnings are build-time only and do not affect the runtime.
+ThreeUI integration: no public production route imports ThreeUI. A protected
+internal bakeoff compares direct-import candidates with semantic HTML/CSS
+baselines; `docs/THREEUI_BAKEOFF.md` records the current do-not-ship verdict.
+The public bundle therefore carries no Three/WebGL runtime.
 
-Cron schedule: the `wrangler.jsonc` `triggers.crons` is `["*/5 * * * *"]` as a safe local/test default. Per AGENTS.md and docs/18, the exact production cadence and cancellation windows remain OPEN and must be approved by the user before production deploy.
+Cron schedule: `wrangler.jsonc` intentionally has no `triggers.crons`. Product cadence policy is locked in `src/brand/cadence.ts`; the exact production runtime trigger frequency remains operationally unselected and must not be inferred or deployed as a placeholder.

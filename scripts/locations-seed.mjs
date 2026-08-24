@@ -156,7 +156,7 @@ function seedData(db) {
     120,
     cancelDueAt,
     "DRAFT",
-    "A plausible invitation. The Society will cancel before the date.",
+    "A plausible invitation. We will cancel before the date.",
     null,
     "system-dev-seed",
     now,

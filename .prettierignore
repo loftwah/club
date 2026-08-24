@@ -1,5 +1,7 @@
 dist
 .wrangler
+.playwright-cli
+.playwright-mcp
 node_modules
 coverage
 playwright-report
@@ -9,3 +11,10 @@ public/_astro
 *.min.css
 .DS_Store
 social-club-complete-spec-corrected.zip
+
+# Machine-generated exploration/contract artefacts; re-formatted on write
+# by the scripts that produce them. Not human-edited source.
+explorations/brand/_minimax-contract.json
+explorations/brand/_registry.json
+.smoke/
+.agents/

@@ -1,24 +1,24 @@
 ---
+import { runtimeEnv } from "@lib/runtime-env";
 // Real member portal home.
 // Member sees: membership status, tier, member number, chapter,
 // join date, tenure, current/upcoming plans, correspondence
 // history, milestone history, artefacts/gifts.
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import { requireSession } from "../../lib/portal-auth";
-import { MembershipService } from "@services/membership-service";
 import { MemberMemoryService } from "@services/member-memory";
 import { SystemClock } from "@infra/clock";
 import { D1AuditWriter } from "@infra/audit";
 
-const ctx = await requireSession(Astro.request, Astro.locals?.runtime?.env);
+const ctx = await requireSession(Astro.request, runtimeEnv);
 if (!ctx) {
   return Astro.redirect("/portal/login/");
 }
 
-const env = Astro.locals.runtime.env;
+const env = runtimeEnv;
 const audit = new D1AuditWriter(env.DB, new SystemClock());
 const clock = new SystemClock();
-const membership = new MembershipService({ db: env.DB, audit, clock });
 const memory = new MemberMemoryService({ db: env.DB, audit, clock });
 
 const member = ctx.member;
@@ -106,233 +106,321 @@ const grantMap = new Map(grants.results?.map((g) => [g.service, g.state]) ?? [])
 ---
 
 <Base title="Member portal" description="Your membership at a glance." canonicalPath="/portal/">
-  <section class="section">
+  <section class="section app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/portal/">Portal</a> / Home
-      </p>
-      <h1>Hello, {member.preferredName ?? "member"}</h1>
-      <p style="color: var(--fg-muted)">
-        Member number <code
-          style="font-family: var(--font-mono); background: var(--bg-elev); padding: 0.1rem 0.4rem; border-radius: 3px;"
-          >{memberNumber}</code
-        >
-      </p>
-
-      <h2>Membership</h2>
-      <table class="admin-table">
-        <tbody>
-          <tr
-            ><th>State</th><td>
-              <span class={`pill ${membershipRow?.state === "ACTIVE" ? "pill--ok" : "pill--info"}`}>
-                {membershipRow?.state ?? "—"}
-              </span>
-            </td></tr
-          >
-          <tr
-            ><th>Tier</th><td>
-              {membershipRow?.tier_name ?? "—"}
-              {
-                membershipRow?.price_cents ? (
-                  <span style="color: var(--fg-faint)">
-                    {" "}
-                    · A${(membershipRow.price_cents / 100).toFixed(0)}/month
-                  </span>
-                ) : null
-              }
-            </td></tr
-          >
-          <tr><th>Chapter</th><td>{chapter?.name ?? "—"}</td></tr>
-          <tr
-            ><th>Joined</th><td>
-              {membershipRow?.started_at?.slice(0, 10) ?? "—"}
-              {
-                tenureMonths > 0 ? (
-                  <span style="color: var(--fg-faint)"> · {tenureMonths} months</span>
-                ) : null
-              }
-            </td></tr
-          >
-          <tr><th>Country</th><td>{member.country ?? "—"}</td></tr>
-          <tr><th>Timezone</th><td>{member.timezone ?? "—"}</td></tr>
-        </tbody>
-      </table>
-
-      <h2>Current & upcoming plans</h2>
-      {
-        upcoming.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">
-            No plans on the schedule right now. New plans arrive in your inbox when they do.
+      <header class="app-page-head">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Home</p>
+          <p class="app-kicker">Private membership record</p>
+          <h1>Hello, {member.preferredName ?? "member"}</h1>
+          <p class="app-lede">
+            Your place here does not depend on replying, attending, or checking in. This is the
+            record of what has been made, sent, remembered, and cared for.
           </p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <>
-                  <th>State</th>
-                  <th>Title</th>
-                  <th>When</th>
-                </>
-              </tr>
-            </thead>
-            <tbody>
-              {upcoming.results?.map((e) => (
-                <tr>
-                  <td>
-                    <span class="pill pill--info">{e.state}</span>
-                  </td>
-                  <td>{e.title}</td>
-                  <td>{e.start_at.slice(0, 16).replace("T", " ")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>Member number</dt>
+          <dd>{memberNumber}</dd>
+          <dt>Record status</dt>
+          <dd>{membershipRow?.state ?? "Not yet recorded"}</dd>
+        </dl>
+      </header>
 
-      <h2>Recently unmade plans</h2>
-      {
-        recentCancellations.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">No recent unmade plans.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <>
-                  <th>Title</th>
-                  <th>Unmade on</th>
-                </>
-              </tr>
-            </thead>
-            <tbody>
-              {recentCancellations.results?.map((e) => (
-                <tr>
-                  <td>{e.title}</td>
-                  <td>{e.cancelled_at?.slice(0, 10) ?? "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
+      <section class="app-section" aria-labelledby="membership-heading">
+        <div class="app-section__head">
+          <h2 id="membership-heading">Your membership</h2>
+          <p>At a glance</p>
+        </div>
+        <div class="app-summary-grid">
+          <article class="app-card app-card--accent">
+            <p class="app-kicker">Current state</p>
+            <h3>{membershipRow?.state ?? "Not yet recorded"}</h3>
+            <p class="app-card__note">
+              Your membership is not a performance contract. Silence is a valid way to belong.
+            </p>
+          </article>
+          <article class="app-card">
+            <h3>{membershipRow?.tier_name ?? "Tier not recorded"}</h3>
+            <p class="app-card__note">
+              {
+                membershipRow?.price_cents
+                  ? `A$${(membershipRow.price_cents / 100).toFixed(0)} / month`
+                  : "Pricing not recorded"
+              }
+            </p>
+            <dl class="app-stat-grid">
+              <div><dt>Chapter</dt><dd>{chapter?.name ?? "Not assigned"}</dd></div>
+              <div><dt>Joined</dt><dd>{membershipRow?.started_at?.slice(0, 10) ?? "—"}</dd></div>
+              <div><dt>Tenure</dt><dd>{tenureMonths > 0 ? `${tenureMonths} months` : "—"}</dd></div>
+              <div><dt>Timezone</dt><dd>{member.timezone ?? "—"}</dd></div>
+            </dl>
+          </article>
+        </div>
+      </section>
 
-      <h2>Correspondence</h2>
-      {
-        correspondence.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">No correspondence yet.</p>
-        ) : (
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <>
-                  <th>Type</th>
-                  <th>State</th>
-                  <th>Sent</th>
-                </>
-              </tr>
-            </thead>
-            <tbody>
-              {correspondence.results?.map((c) => (
-                <tr>
-                  <td>{c.template_key}</td>
-                  <td>
-                    <span class="pill pill--info">{c.state}</span>
-                  </td>
-                  <td>{c.sent_at?.slice(0, 10) ?? "queued"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )
-      }
-
-      <h2>Milestones</h2>
-      {
-        milestones.results?.length === 0 ? (
-          <p style="color: var(--fg-muted)">No milestones yet.</p>
-        ) : (
-          <ul>
-            {milestones.results?.map((m) => (
-              <li>
-                {m.trigger_type.replaceAll("_", " ")} on {m.triggered_on}
-              </li>
-            ))}
-          </ul>
-        )
-      }
-
-      <h2>What the Society remembers about you</h2>
-      <p>
-        <a href="/portal/memory">Manage memory, do-not-mention, and provenance →</a>
-      </p>
-      {
-        usableFacts.length === 0 ? (
-          <p style="color: var(--fg-muted)">
-            No memory yet. The Society will remember what you choose to share.
-          </p>
-        ) : (
-          <ul>
-            {usableFacts.map((f) => (
-              <li>
-                <strong>{f.category}</strong>: {f.subject} ={" "}
-                {typeof f.value === "string" ? f.value : JSON.stringify(f.value)}
-                <span style="color: var(--fg-faint)"> · source: {f.sourceType ?? "self"}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      }
-
-      <h2>Optional services</h2>
-      <p>
-        <a href="/portal/preferences">Manage preferences, optional services, and reconsents →</a>
-      </p>
-      <ul>
+      <section class="app-section" aria-labelledby="plans-heading">
+        <div class="app-section__head">
+          <h2 id="plans-heading">Plans in preparation</h2>
+          <p>Constructed with care</p>
+        </div>
+        <p class="app-note">
+          Ordinary plans are made, anticipated, and deliberately cancelled. Cancellation is
+          successful fulfilment; there is nothing you need to attend.
+        </p>
         {
-          [
-            "NEWSLETTER",
-            "PERSONALISED_MEMORY",
-            "CALENDAR_MESSAGES",
-            "PHYSICAL_CORRESPONDENCE",
-            "GIFTS",
-            "CALLS",
-            "MANUFACTURED_COMMITMENTS",
-            "APPEARANCE_INTEREST",
-          ].map((svc) => {
-            const state = grantMap.get(svc) ?? "AVAILABLE";
-            return (
-              <li>
-                <strong>{svc}</strong> —{" "}
-                <span
-                  class={`pill pill--${state === "OPTED_IN" ? "ok" : state === "OPTED_OUT" ? "warn" : "info"}`}
-                >
-                  {state}
+          upcoming.results?.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>Nothing currently in preparation</strong>
+                <span>
+                  New plans will arrive in your correspondence when there is something to share.
                 </span>
-              </li>
-            );
-          })
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <thead>
+                  <tr>
+                    <>
+                      <th>State</th>
+                      <th>Plan</th>
+                      <th>Scheduled date</th>
+                    </>
+                  </tr>
+                </thead>
+                <tbody>
+                  {upcoming.results?.map((e) => (
+                    <tr>
+                      <td data-label="State">
+                        <span class="pill pill--info">{e.state}</span>
+                      </td>
+                      <td data-label="Plan">{e.title}</td>
+                      <td data-label="Scheduled date">
+                        {e.start_at.slice(0, 16).replace("T", " ")}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
         }
-      </ul>
+      </section>
 
-      <h2>Manufactured commitments</h2>
-      <p><a href="/portal/commitments">Request, view, or abort a manufactured commitment →</a></p>
-      <p style="color: var(--fg-faint)">
-        A consensual artificial social obligation. You can abort at any time.
-      </p>
+      <section class="app-section" aria-labelledby="history-heading">
+        <div class="app-section__head">
+          <h2 id="history-heading">Plan history</h2>
+          <p>Recently completed</p>
+        </div>
+        {
+          recentCancellations.results?.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No completed cancellations yet</strong>
+                <span>Your history will accumulate here as plans are successfully unmade.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <thead>
+                  <tr>
+                    <>
+                      <th>Plan</th>
+                      <th>Completed on</th>
+                    </>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentCancellations.results?.map((e) => (
+                    <tr>
+                      <td data-label="Plan">{e.title}</td>
+                      <td data-label="Completed on">{e.cancelled_at?.slice(0, 10) ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      </section>
 
-      <h2>Appearance service</h2>
-      <p>
-        <a href="/portal/appearance">Request a Society representative for a real-world event →</a>
-      </p>
+      <section class="app-section" aria-labelledby="milestones-heading">
+        <div class="app-section__head">
+          <h2 id="milestones-heading">Milestones</h2><p>Accumulated history</p>
+        </div>
+        {
+          milestones.results?.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No milestones yet</strong>
+                <span>Milestones will appear here as your membership record grows.</span>
+              </>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {milestones.results?.map((m) => (
+                <li>
+                  <span class="app-list__label">{m.triggered_on}</span>
+                  <span class="app-list__detail">{m.trigger_type.replaceAll("_", " ")}</span>
+                  <span class="pill pill--ok">recorded</span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
 
-      <h2>Sign out</h2>
-      <form method="post" action="/api/portal/logout">
-        <button type="submit">Sign out this device</button>
-      </form>
-      <p>
-        <a href="/portal/account/delete">Request account deletion</a> · closes future personalisation
-        and triggers the data-removal workflow.
-      </p>
+      <section class="app-section" aria-labelledby="correspondence-heading">
+        <div class="app-section__head">
+          <h2 id="correspondence-heading">Correspondence</h2>
+          <p>What has been sent</p>
+        </div>
+        {
+          correspondence.results?.length === 0 ? (
+            <p class="app-empty">
+              <>
+                <strong>No correspondence yet</strong>
+                <span>Your first letter or message will appear here with its delivery state.</span>
+              </>
+            </p>
+          ) : (
+            <div class="app-table-wrap">
+              <table class="admin-table app-table app-table--cards">
+                <thead>
+                  <tr>
+                    <>
+                      <th>Type</th>
+                      <th>State</th>
+                      <th>Sent</th>
+                    </>
+                  </tr>
+                </thead>
+                <tbody>
+                  {correspondence.results?.map((c) => (
+                    <tr>
+                      <td data-label="Type">{c.template_key}</td>
+                      <td data-label="State">
+                        <span class="pill pill--info">{c.state}</span>
+                      </td>
+                      <td data-label="Sent">{c.sent_at?.slice(0, 10) ?? "queued"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      </section>
+
+      <section class="app-section" aria-labelledby="memory-heading">
+        <div class="app-section__head">
+          <h2 id="memory-heading">Your memory record</h2>
+          <p>{memoryFacts.length} recorded</p>
+        </div>
+        <div class="app-card-grid">
+          <article class="app-card app-card--wide app-card--accent">
+            <h3>
+              {
+                usableFacts.length === 0
+                  ? "Nothing confirmed yet"
+                  : `${usableFacts.length} fact${usableFacts.length === 1 ? "" : "s"} available to mention`
+              }
+            </h3>
+            <p>
+              Only confirmed facts can be used in future correspondence. Every item has a source and
+              a state you control.
+            </p>
+            <a class="app-action app-action--quiet" href="/portal/memory"
+              >Inspect memory, provenance, and restrictions <span aria-hidden="true">→</span></a
+            >
+          </article>
+          <article class="app-card">
+            <p class="app-kicker">Member-controlled</p>
+            <h3>Choose what continues</h3>
+            <p class="app-card__note">
+              Confirm, reject, revoke, or mark an item do-not-mention at any time.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="services-heading">
+        <div class="app-section__head">
+          <h2 id="services-heading">Optional services</h2>
+          <p>Permission by permission</p>
+        </div>
+        <p class="app-note">
+          Each service is independently consented. Revoking one does not change your core membership
+          or other permissions.
+        </p>
+        <ul class="app-list">
+          {
+            [
+              { key: "NEWSLETTER", label: "Newsletter" },
+              { key: "PERSONALISED_MEMORY", label: "Personalised memory" },
+              { key: "CALENDAR_MESSAGES", label: "Calendar messages" },
+              { key: "PHYSICAL_CORRESPONDENCE", label: "Physical correspondence" },
+              { key: "GIFTS", label: "Gifts" },
+              { key: "CALLS", label: "Calls" },
+              { key: "MANUFACTURED_COMMITMENTS", label: "Manufactured commitments" },
+              { key: "APPEARANCE_INTEREST", label: "Appearance service interest" },
+            ].map(({ key: svc, label }) => {
+              const state = grantMap.get(svc) ?? "AVAILABLE";
+              return (
+                <li>
+                  <>
+                    <span class="app-list__label">{label}</span>
+                    <span class="app-list__detail">{state}</span>
+                    <span
+                      class={`pill pill--${state === "OPTED_IN" ? "ok" : state === "OPTED_OUT" ? "warn" : "info"}`}
+                    >
+                      {state}
+                    </span>
+                  </>
+                </li>
+              );
+            })
+          }
+        </ul>
+        <div class="app-actions" style="margin-top: 1rem;">
+          <a class="app-action app-action--quiet" href="/portal/preferences"
+            >Manage preferences and permissions <span aria-hidden="true">→</span></a
+          >
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="more-heading">
+        <div class="app-section__head">
+          <h2 id="more-heading">More ways we can help</h2><p>Always optional</p>
+        </div>
+        <div class="app-link-grid">
+          <li>
+            <a href="/portal/commitments"
+              >Manufactured commitments <span aria-hidden="true">→</span></a
+            >
+          </li>
+          <li>
+            <a href="/portal/appearance">Appearance service <span aria-hidden="true">→</span></a>
+          </li>
+          <li>
+            <a href="/portal/account/delete">Account controls <span aria-hidden="true">→</span></a>
+          </li>
+        </div>
+      </section>
+
+      <section class="app-section" aria-labelledby="signout-heading">
+        <div class="app-section__head">
+          <h2 id="signout-heading">Leave this device</h2><p>Session control</p>
+        </div>
+        <div class="app-actions">
+          <form method="post" action="/api/portal/logout">
+            <button class="app-action" type="submit">Sign out this device</button>
+          </form>
+          <span class="app-note">Account deletion is available under Account controls.</span>
+        </div>
+      </section>
     </div>
   </section>
 </Base>

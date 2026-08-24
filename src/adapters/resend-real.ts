@@ -21,6 +21,12 @@ export interface RealResendOptions {
   readonly fetchImpl?: typeof fetch;
   /** Override the Resend API base URL. Defaults to https://api.resend.com. */
   readonly baseUrl?: string;
+  /** Exact HTTPS origins allowed to serve attachment bytes. Defaults to the API origin. */
+  readonly attachmentDownloadOrigins?: readonly string[];
+  /** Maximum decoded attachment size. Defaults to 25 MiB. */
+  readonly maxAttachmentBytes?: number;
+  /** Attachment download timeout in milliseconds. Defaults to 15 seconds. */
+  readonly attachmentTimeoutMs?: number;
 }
 
 interface ResendErrorResponse {
@@ -56,12 +62,19 @@ export class RealResendAdapter implements ResendAdapter {
   private readonly fetchImpl: typeof fetch;
   private readonly baseUrl: string;
   private readonly apiKey: string;
+  private readonly attachmentDownloadOrigins: ReadonlySet<string>;
+  private readonly maxAttachmentBytes: number;
+  private readonly attachmentTimeoutMs: number;
 
   constructor(opts: RealResendOptions) {
     this.apiKey = opts.apiKey;
     this.client = new Resend(opts.apiKey);
     this.fetchImpl = opts.fetchImpl ?? fetch;
     this.baseUrl = opts.baseUrl ?? "https://api.resend.com";
+    const apiOrigin = new URL(this.baseUrl).origin;
+    this.attachmentDownloadOrigins = new Set(opts.attachmentDownloadOrigins ?? [apiOrigin]);
+    this.maxAttachmentBytes = opts.maxAttachmentBytes ?? 25 * 1024 * 1024;
+    this.attachmentTimeoutMs = opts.attachmentTimeoutMs ?? 15_000;
   }
 
   async send(email: OutboundEmail): Promise<OutboundResult> {
@@ -154,11 +167,30 @@ export class RealResendAdapter implements ResendAdapter {
       };
     }
     if (attachment.download_url) {
-      const response = await this.fetchImpl(attachment.download_url);
+      const downloadUrl = new URL(attachment.download_url);
+      if (
+        downloadUrl.protocol !== "https:" ||
+        downloadUrl.username ||
+        downloadUrl.password ||
+        !this.attachmentDownloadOrigins.has(downloadUrl.origin)
+      ) {
+        throw new ResendError("PERMANENT", "Attachment download origin is not allowlisted");
+      }
+      const response = await this.fetchImpl(downloadUrl, {
+        redirect: "error",
+        signal: AbortSignal.timeout(this.attachmentTimeoutMs),
+      });
       if (!response.ok) {
         throw new ResendError("PERMANENT", `Resend attachment fetch failed (${response.status})`);
       }
+      const advertisedLength = Number(response.headers.get("content-length"));
+      if (Number.isFinite(advertisedLength) && advertisedLength > this.maxAttachmentBytes) {
+        throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
+      }
       const buf = new Uint8Array(await response.arrayBuffer());
+      if (buf.byteLength > this.maxAttachmentBytes) {
+        throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
+      }
       return {
         id: attachment.id,
         filename: attachment.filename ?? "untitled",

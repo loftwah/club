@@ -13,7 +13,11 @@
 
 import type { D1Database } from "@cloudflare/workers-types";
 import { newInboundId } from "../infra/ids.js";
-import type { ResendAdapter } from "../adapters/resend.js";
+import type {
+  ReceivedEmailBody,
+  ReceivedEmailMetadata,
+  ResendAdapter,
+} from "../adapters/resend.js";
 import type { AuditWriter } from "../infra/audit.js";
 import type { Clock } from "../infra/clock.js";
 import {
@@ -164,75 +168,68 @@ export class InboundEmailService {
     // Fetch the body via the Resend Received Emails API.
     const emailId = payload.data.email_id;
     let matched = false;
+    await this.transition(id, "FETCH_BODY");
     try {
       const metadata = await this.deps.resend.getReceivedMetadata(emailId);
       const body = await this.deps.resend.getReceivedBody(emailId);
-
-      await this.deps.db
-        .prepare(
-          `UPDATE inbound_messages
-           SET from_name = ?, body_text = ?, body_html = ?, raw_metadata_json = ?, state = 'STORED'
-           WHERE id = ?`,
-        )
-        .bind(
-          metadata.fromName,
-          body.text,
-          body.html,
-          JSON.stringify({ metadata, headers: body.headers }),
-          id,
-        )
-        .run();
-
-      // Match sender to a known member.
-      const member = await this.deps.db
-        .prepare(`SELECT id FROM members WHERE email = ?`)
-        .bind(metadata.from.toLowerCase())
-        .first<{ id: string }>();
-
-      if (member) {
-        await this.deps.db
-          .prepare(
-            `UPDATE inbound_messages SET match_member_id = ?, state = 'MATCHED' WHERE id = ?`,
-          )
-          .bind(member.id, id)
-          .run();
-        await this.transition(id, "MATCH_SENDER");
-        matched = true;
-      } else {
-        await this.deps.db
-          .prepare(`UPDATE inbound_messages SET state = 'UNMATCHED' WHERE id = ?`)
-          .bind(id)
-          .run();
-        await this.transition(id, "MARK_UNMATCHED");
-      }
-
-      // Classify and route.
-      await this.transition(id, "CLASSIFY");
-      // For the foundation phase, we route to human review on a heuristic:
-      // unknown senders go to human review, matched senders auto-handle.
-      if (matched) {
-        await this.transition(id, "AUTO_HANDLE");
-      } else {
-        await this.transition(id, "ROUTE_TO_HUMAN");
-      }
-      await this.transition(id, "CLOSE");
+      matched = await this.persistAndRoute(id, metadata, body);
     } catch {
-      await this.deps.db
-        .prepare(`UPDATE inbound_messages SET state = 'FETCH_FAILED' WHERE id = ?`)
-        .bind(id)
-        .run();
       await this.transition(id, "BODY_FETCH_FAILED");
       // Single retry once; escalation if that fails.
       try {
-        await this.deps.resend.getReceivedMetadata(emailId);
         await this.transition(id, "RETRY_FETCH");
-        await this.transition(id, "CLOSE");
+        const metadata = await this.deps.resend.getReceivedMetadata(emailId);
+        const body = await this.deps.resend.getReceivedBody(emailId);
+        matched = await this.persistAndRoute(id, metadata, body);
       } catch {
+        await this.transition(id, "BODY_FETCH_FAILED");
         await this.transition(id, "ESCALATE_FETCH");
       }
     }
 
     return { status: "processed", inboundId: id, matched };
+  }
+
+  private async persistAndRoute(
+    id: string,
+    metadata: ReceivedEmailMetadata,
+    body: ReceivedEmailBody,
+  ): Promise<boolean> {
+    await this.deps.db
+      .prepare(
+        `UPDATE inbound_messages
+         SET from_name = ?, body_text = ?, body_html = ?, raw_metadata_json = ?
+         WHERE id = ?`,
+      )
+      .bind(
+        metadata.fromName,
+        body.text,
+        body.html,
+        JSON.stringify({ metadata, headers: body.headers }),
+        id,
+      )
+      .run();
+    await this.transition(id, "BODY_FETCHED");
+
+    const member = await this.deps.db
+      .prepare(`SELECT id FROM members WHERE email = ?`)
+      .bind(metadata.from.toLowerCase())
+      .first<{ id: string }>();
+    const matched = Boolean(member);
+    if (member) {
+      await this.deps.db
+        .prepare(`UPDATE inbound_messages SET match_member_id = ? WHERE id = ?`)
+        .bind(member.id, id)
+        .run();
+      await this.transition(id, "MATCH_SENDER");
+    } else {
+      await this.transition(id, "MARK_UNMATCHED");
+    }
+
+    await this.transition(id, "CLASSIFY");
+    await this.transition(id, matched ? "AUTO_HANDLE" : "ROUTE_TO_HUMAN");
+    await this.transition(id, "CLOSE");
+    return matched;
   }
 
   private async transition(id: string, event: InboundEvent): Promise<void> {
