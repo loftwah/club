@@ -1,1 +1,15 @@
-<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    Plans With You favicon: a scheduled date deliberately struck through.
+    The broad geometry is designed to remain legible at 16 CSS pixels.
+  -->
+  <rect width="64" height="64" rx="12" fill="#F5F1E7"/>
+  <rect x="5" y="5" width="54" height="54" rx="9" fill="#12110F"/>
+  <rect x="9" y="9" width="46" height="46" rx="6" fill="#F5F1E7"/>
+  <rect x="9" y="16" width="46" height="8" fill="#1932BE"/>
+  <rect x="17" y="3" width="6" height="17" rx="3" fill="#12110F"/>
+  <rect x="41" y="3" width="6" height="17" rx="3" fill="#12110F"/>
+  <path d="M15 29h9v5h-9zm13 0h9v5h-9zm13 0h8v5h-8zM15 39h9v5h-9zm13 0h9v5h-9zm13 0h8v5h-8z" fill="#12110F"/>
+  <path d="m8 47 45-19 4 10-45 19Z" fill="#E94616"/>
+  <path d="m12 50 42-18 1 3-42 18Z" fill="#B9340E"/>
+</svg>
