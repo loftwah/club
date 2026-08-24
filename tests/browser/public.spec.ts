@@ -159,8 +159,7 @@ test.describe("reduced motion", () => {
     // are suppressed.
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/made|unmade/);
     await expect(page.getByText(/You were on the list/i)).toBeVisible();
-    // The ThreeUI canvas (or its fallback) is in the DOM but does not
-    // hide the form links.
+    // Progressive enhancement never hides the form links.
     await expect(page.locator(".hero__cta").first()).toBeVisible();
     // Waiting-list form is usable.
     await page.goto("/waiting-list/");
@@ -229,7 +228,7 @@ test.describe("accessibility (axe)", () => {
   });
 });
 
-test.describe("ThreeUI fallback path", () => {
+test.describe("no-JavaScript fallback path", () => {
   test("the home page does not require JavaScript for essential content", async ({ browser }) => {
     const context = await browser.newContext({
       javaScriptEnabled: false,

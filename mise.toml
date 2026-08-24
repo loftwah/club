@@ -13,7 +13,8 @@ pnpm = "11.23.0"
 description = "Run the local Astro dev server backed by workerd (wrangler dev under the hood)."
 run = """
 set -euo pipefail
-node node_modules/wrangler/bin/wrangler.js dev --persist-to .wrangler/state
+pnpm build
+node node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --persist-to .wrangler/state
 """
 
 [tasks.check]
@@ -55,7 +56,7 @@ description = "Run acceptance, then deploy to production."
 run = """
 set -euo pipefail
 mise run acceptance
-node node_modules/wrangler/bin/wrangler.js deploy
+node node_modules/wrangler/bin/wrangler.js deploy --config dist/server/wrangler.json
 """
 
 [tasks.reset-local]

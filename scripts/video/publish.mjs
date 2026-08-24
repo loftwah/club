@@ -1,6 +1,6 @@
 import { lstat, readFile, realpath } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { extname, resolve } from "node:path";
+import { extname, resolve, sep } from "node:path";
 import {
   artifactPaths,
   fileSha256,
@@ -48,11 +48,29 @@ const awsEnv = {
 const selected = selectedCanonical(process.argv.slice(2));
 const fingerprint = await sourceFingerprint();
 const inventory = await loadInventory();
+const docsRoot = resolve("docs");
 
 for (const item of selected) {
   const asset = inventory.assets.find((entry) => entry.id === item.id);
   if (asset.approvalState !== "approved" || asset.sourceFingerprint !== fingerprint)
     throw new Error(`${item.id} must be current and approved before publishing.`);
+  if (asset.qc?.status !== "PASS") throw new Error(`${item.id} must pass QC before publishing.`);
+
+  const review = typeof asset.review === "string" ? resolve(asset.review) : "";
+  if (!review.startsWith(`${docsRoot}${sep}`) || !review.endsWith(".md"))
+    throw new Error(`${item.id} has no canonical approval review.`);
+  const reviewInfo = await lstat(review);
+  if (!reviewInfo.isFile() || reviewInfo.isSymbolicLink() || (await realpath(review)) !== review)
+    throw new Error(`${item.id} approval review must be a regular canonical file.`);
+  const reviewText = await readFile(review, "utf8");
+  if (
+    !/^Decision: APPROVED$/m.test(reviewText) ||
+    !/^Review pass: 2$/m.test(reviewText) ||
+    !reviewText.includes(`Source fingerprint: \`${fingerprint}\``) ||
+    !reviewText.includes(`- \`${item.id}\``)
+  ) {
+    throw new Error(`${item.id} approval review does not match the current render.`);
+  }
 
   const expected = artifactPaths(item, fingerprint);
   const manifest = JSON.parse(await readFile(expected.renderManifest, "utf8"));

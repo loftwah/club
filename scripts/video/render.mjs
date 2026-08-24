@@ -36,20 +36,6 @@ for (const item of selected) {
     "--concurrency=50%",
     "--overwrite",
   ]);
-  run("ffmpeg", [
-    "-hide_banner",
-    "-loglevel",
-    "error",
-    "-y",
-    "-i",
-    paths.poster,
-    "-vf",
-    `scale=${item.width / 2}:${item.height / 2}:flags=lanczos`,
-    "-q:v",
-    "3",
-    paths.thumbnail,
-  ]);
-
   if (!deliveryOnly) {
     run("pnpm", [
       "exec",
@@ -77,6 +63,19 @@ for (const item of selected) {
     "--image-format=jpeg",
     "--jpeg-quality=92",
     "--overwrite",
+  ]);
+  run("ffmpeg", [
+    "-hide_banner",
+    "-loglevel",
+    "error",
+    "-y",
+    "-i",
+    paths.poster,
+    "-vf",
+    `scale=${item.width / 2}:${item.height / 2}:flags=lanczos`,
+    "-q:v",
+    "3",
+    paths.thumbnail,
   ]);
 
   const renderedAt = new Date().toISOString();

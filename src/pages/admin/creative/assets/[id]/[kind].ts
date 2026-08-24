@@ -44,7 +44,7 @@ export const prerender = false;
 
 export const GET: APIRoute = async ({ params, request, locals }) => {
   const kind = params.kind as Kind;
-  if (!(kind in MIME)) return new Response("Not found", { status: 404 });
+  if (!Object.hasOwn(MIME, kind)) return new Response("Not found", { status: 404 });
 
   const asset = (inventoryData.assets as Asset[]).find((entry) => entry.id === params.id);
   if (

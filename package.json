@@ -11,7 +11,7 @@
   "packageManager": "pnpm@11.23.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/clean-build-output.mjs && astro build",
+    "build": "node scripts/clean-build-output.mjs && astro build && node scripts/secure-build-output.mjs",
     "perf:budget": "node scripts/performance/check-bundle-budget.mjs --dir dist/client",
     "test:performance": "node --test scripts/performance/check-bundle-budget.test.mjs",
     "preview": "astro preview",
@@ -23,7 +23,7 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:state": "vitest run tests/unit/state-machines",
-    "wrangler:dev": "wrangler dev",
+    "wrangler:dev": "wrangler dev --config dist/server/wrangler.json",
     "wrangler:deploy:dry": "wrangler deploy --dry-run --outdir=dist",
     "d1:migrate:local": "wrangler d1 migrations apply social-club --local",
     "d1:migrate:remote": "wrangler d1 migrations apply social-club --remote",

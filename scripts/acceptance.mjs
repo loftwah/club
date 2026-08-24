@@ -73,6 +73,10 @@ const steps = [
     cmd: ["node", "node_modules/astro/bin/astro.mjs", "build"],
   },
   {
+    name: "remove generated build secret copy",
+    cmd: ["node", "scripts/secure-build-output.mjs"],
+  },
+  {
     name: "generate canonical OG / social SVG images",
     cmd: ["node", "scripts/og-generate.mjs"],
   },

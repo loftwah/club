@@ -69,6 +69,7 @@ test.describe("onboarding", () => {
     // Astro's built-in cross-site form protection may reject first; the
     // application boundary returns 401 for same-origin unauthenticated POSTs.
     expect([401, 403]).toContain(response.status());
+    expect(response.headers()["x-content-type-options"]).toBe("nosniff");
   });
 });
 

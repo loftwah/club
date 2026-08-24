@@ -19,7 +19,17 @@ const timeoutMs = parseInt(process.env.READY_TIMEOUT_MS ?? "60000", 10);
 
 const child = spawn(
   wrangler,
-  ["dev", "--port", port, "--persist-to", ".wrangler/state", "--ip", "127.0.0.1"],
+  [
+    "dev",
+    "--config",
+    "dist/server/wrangler.json",
+    "--port",
+    port,
+    "--persist-to",
+    ".wrangler/state",
+    "--ip",
+    "127.0.0.1",
+  ],
   { cwd: repoRoot, stdio: ["ignore", "inherit", "inherit"] },
 );
 

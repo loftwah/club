@@ -13,9 +13,10 @@
 ## Build path
 
 `scripts/clean-build-output.mjs` removes only generated `dist/` and
-`public/_astro/`. Astro builds fresh hashed assets, then
-`scripts/copy-assets.mjs` copies the new `_astro` directory for Wrangler's
-public-assets binding. This prevents stale bundles from surviving a new build.
+`public/_astro/`. Astro 7 builds fresh hashed client assets into `dist/client`
+and generates the Cloudflare Worker configuration in `dist/server`; no source
+asset-copy step exists. `scripts/secure-build-output.mjs` removes Astro's local
+secret copy before testing or deployment.
 
 The performance checker warns above 350 KiB per viewport image and can make
 that threshold strict. Production images must declare dimensions; viewport

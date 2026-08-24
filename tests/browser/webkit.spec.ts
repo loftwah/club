@@ -18,7 +18,7 @@ test.describe("targeted WebKit production-shape evidence", () => {
   test("core promise and waitlist path survive reduced motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Plans were made");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Plans are made");
     await expect(page.getByRole("link", { name: /waitlist/i }).first()).toBeVisible();
 
     await page.goto("/waiting-list/");

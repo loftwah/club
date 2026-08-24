@@ -54,10 +54,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const onboarding = await requireOnboardingSession(context.request, runtimeEnv);
     if (!onboarding) {
       if (isOnboardingApi) {
-        return new Response("Sign in to continue onboarding.", {
-          status: 401,
-          headers: { "cache-control": "no-store", "x-robots-tag": PRIVATE_ROBOTS },
-        });
+        return withSecurityHeaders(
+          new Response("Sign in to continue onboarding.", {
+            status: 401,
+            headers: { "cache-control": "no-store", "x-robots-tag": PRIVATE_ROBOTS },
+          }),
+        );
       }
       return redirectToLogin(context.request, pathname);
     }

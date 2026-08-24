@@ -159,11 +159,12 @@ export class RealResendAdapter implements ResendAdapter {
       throw new ResendError("PERMANENT", `Unknown attachment_id: ${input.attachmentId}`);
     }
     if (attachment.content) {
+      const bytes = base64ToBytes(attachment.content, this.maxAttachmentBytes);
       return {
         id: attachment.id,
         filename: attachment.filename ?? "untitled",
         contentType: attachment.content_type ?? "application/octet-stream",
-        bytes: base64ToBytes(attachment.content),
+        bytes,
       };
     }
     if (attachment.download_url) {
@@ -187,10 +188,7 @@ export class RealResendAdapter implements ResendAdapter {
       if (Number.isFinite(advertisedLength) && advertisedLength > this.maxAttachmentBytes) {
         throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
       }
-      const buf = new Uint8Array(await response.arrayBuffer());
-      if (buf.byteLength > this.maxAttachmentBytes) {
-        throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
-      }
+      const buf = await readBoundedBytes(response, this.maxAttachmentBytes);
       return {
         id: attachment.id,
         filename: attachment.filename ?? "untitled",
@@ -222,9 +220,44 @@ function mapMetadata(data: ResendReceivedResponse): ReceivedEmailMetadata {
   };
 }
 
-function base64ToBytes(b64: string): Uint8Array {
-  const clean = b64.replace(/^data:[^;]+;base64,/, "");
-  return Uint8Array.from(Buffer.from(clean, "base64"));
+function base64ToBytes(b64: string, maxBytes: number): Uint8Array {
+  const clean = b64.replace(/^data:[^;]+;base64,/, "").replaceAll(/\s/g, "");
+  if (clean.length > Math.ceil(maxBytes / 3) * 4) {
+    throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
+  }
+  const bytes = Uint8Array.from(Buffer.from(clean, "base64"));
+  if (bytes.byteLength > maxBytes) {
+    throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
+  }
+  return bytes;
+}
+
+async function readBoundedBytes(response: Response, maxBytes: number): Promise<Uint8Array> {
+  if (!response.body) return new Uint8Array();
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel("attachment size limit exceeded");
+        throw new ResendError("PERMANENT", "Resend attachment exceeds the size limit");
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
 }
 
 function classifyError(error: { statusCode?: number; name?: string }): ResendError["code"] {
