@@ -65,10 +65,9 @@ test.describe("onboarding", () => {
   test("POST /api/onboarding/identity rejects unauthenticated writes", async ({ request }) => {
     const response = await request.post("/api/onboarding/identity", {
       form: { preferredName: "Attacker" },
+      headers: { origin: "http://127.0.0.1:8788" },
     });
-    // Astro's built-in cross-site form protection may reject first; the
-    // application boundary returns 401 for same-origin unauthenticated POSTs.
-    expect([401, 403]).toContain(response.status());
+    expect(response.status()).toBe(401);
     expect(response.headers()["x-content-type-options"]).toBe("nosniff");
   });
 });

@@ -11,30 +11,34 @@
 
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
+import { createLocalRuntimeEnvFile } from "./local-runtime-env.mjs";
 
 const repoRoot = process.cwd();
 const wrangler = resolve(repoRoot, "node_modules/wrangler/bin/wrangler.js");
 const port = process.env.PORT ?? "8788";
 const timeoutMs = parseInt(process.env.READY_TIMEOUT_MS ?? "60000", 10);
+const localRuntimeEnv = await createLocalRuntimeEnvFile({ source: resolve(repoRoot, ".env") });
+const wranglerArgs = [
+  "dev",
+  "--config",
+  "dist/server/wrangler.json",
+  "--port",
+  port,
+  "--persist-to",
+  ".wrangler/state",
+  "--ip",
+  "127.0.0.1",
+];
+if (localRuntimeEnv.path) wranglerArgs.push("--env-file", localRuntimeEnv.path);
 
-const child = spawn(
-  wrangler,
-  [
-    "dev",
-    "--config",
-    "dist/server/wrangler.json",
-    "--port",
-    port,
-    "--persist-to",
-    ".wrangler/state",
-    "--ip",
-    "127.0.0.1",
-  ],
-  { cwd: repoRoot, stdio: ["ignore", "inherit", "inherit"] },
-);
+const child = spawn(wrangler, wranglerArgs, {
+  cwd: repoRoot,
+  stdio: ["ignore", "inherit", "inherit"],
+});
 
 const cleanup = () => {
   if (!child.killed) child.kill("SIGTERM");
+  void localRuntimeEnv.cleanup();
 };
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
@@ -65,6 +69,7 @@ waitForReady()
     process.exit(1);
   });
 
-child.on("exit", (code) => {
+child.on("exit", async (code) => {
+  await localRuntimeEnv.cleanup();
   process.exit(code ?? 0);
 });

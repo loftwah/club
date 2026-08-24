@@ -1,17 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
 import { requireOnboardingSession, requireOperator } from "./lib/portal-auth";
+import { withBrowserSecurityHeaders } from "./lib/request-security";
 import { runtimeEnv } from "./lib/runtime-env";
 
 const PRIVATE_ROBOTS = "noindex, nofollow, noarchive";
-const SECURITY_HEADERS = {
-  "content-security-policy":
-    "base-uri 'self'; frame-ancestors 'none'; form-action 'self'; object-src 'none'",
-  "permissions-policy": "camera=(), geolocation=(), microphone=()",
-  "referrer-policy": "strict-origin-when-cross-origin",
-  "x-content-type-options": "nosniff",
-  "x-frame-options": "DENY",
-} as const;
-
 /**
  * Central route boundary for operator and onboarding surfaces. Individual
  * routes still re-check ownership before state changes, but no admin page or
@@ -21,7 +13,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const requestUrl = new URL(context.request.url);
   const pathname = normalizePathname(requestUrl.pathname);
   if (!pathname) {
-    return withSecurityHeaders(new Response("Invalid request path.", { status: 400 }));
+    return withBrowserSecurityHeaders(new Response("Invalid request path.", { status: 400 }));
   }
   const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
   const isOnboarding = pathname === "/onboarding" || pathname.startsWith("/onboarding/");
@@ -54,7 +46,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const onboarding = await requireOnboardingSession(context.request, runtimeEnv);
     if (!onboarding) {
       if (isOnboardingApi) {
-        return withSecurityHeaders(
+        return withBrowserSecurityHeaders(
           new Response("Sign in to continue onboarding.", {
             status: 401,
             headers: { "cache-control": "no-store", "x-robots-tag": PRIVATE_ROBOTS },
@@ -67,11 +59,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
   if (!isAdmin && !isOnboarding && !isOnboardingApi && !isPortal && !isPortalApi && !isInternal)
-    return withSecurityHeaders(response);
+    return withBrowserSecurityHeaders(response);
   const headers = new Headers(response.headers);
   headers.set("cache-control", "private, no-store");
   headers.set("x-robots-tag", PRIVATE_ROBOTS);
-  return withSecurityHeaders(
+  return withBrowserSecurityHeaders(
     new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -108,22 +100,12 @@ function normalizePathname(rawPathname: string): string | null {
   return `/${segments.join("/")}${trailingSlash}`;
 }
 
-function withSecurityHeaders(response: Response): Response {
-  const headers = new Headers(response.headers);
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) headers.set(name, value);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
-
 function redirectToLogin(request: Request, pathname: string): Response {
   const source = new URL(request.url);
   const login = new URL("/portal/login/", source.origin);
   const next = `${pathname}${source.search}`;
   login.searchParams.set("next", next);
-  return withSecurityHeaders(
+  return withBrowserSecurityHeaders(
     new Response(null, {
       status: 302,
       headers: {

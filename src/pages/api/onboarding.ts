@@ -15,19 +15,19 @@ import { MembershipService } from "../../services/membership-service";
 import { D1AuditWriter } from "../../infra/audit";
 import { SystemClock } from "../../infra/clock";
 import { requireOnboardingSession } from "../../lib/portal-auth";
-import { isSameOriginMutation } from "../../lib/request-security";
+import { isSameOriginMutation, privateTextResponse } from "../../lib/request-security";
 
 export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
   const env = getRuntimeEnv(locals);
-  if (!env?.DB) return new Response("DB not available", { status: 500 });
+  if (!env?.DB) return privateTextResponse("DB not available", 500);
   if (!isSameOriginMutation(request)) {
-    return new Response("Cross-origin request rejected.", { status: 403 });
+    return privateTextResponse("Cross-origin request rejected.", 403);
   }
   const ctx = await requireOnboardingSession(request, env);
-  if (!ctx) return new Response("Sign in to continue onboarding.", { status: 401 });
+  if (!ctx) return privateTextResponse("Sign in to continue onboarding.", 401);
   const step = (url.pathname.split("/").pop() ?? "") as OnboardingStepId;
   if (!ONBOARDING_STEPS.find((s) => s.id === step)) {
-    return new Response("Unknown step", { status: 404 });
+    return privateTextResponse("Unknown step", 404);
   }
   const audit = new D1AuditWriter(env.DB, new SystemClock());
   const clock = new SystemClock();
@@ -159,8 +159,7 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
     }
     case "plain-language": {
       const acked = form.get("acknowledged") === "true";
-      if (!acked)
-        return new Response("You must acknowledge the plain-language terms.", { status: 400 });
+      if (!acked) return privateTextResponse("You must acknowledge the plain-language terms.", 400);
       await ms.advanceAlignment(applicant.id, audit);
       await onboarding.storeStepData(applicant.id, step, { acknowledged: acked });
       break;
@@ -170,7 +169,7 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
       const privacy = form.get("privacyAccepted") === "true";
       const theatrical = form.get("theatricalAccepted") === "true";
       if (!(terms && privacy && theatrical)) {
-        return new Response("All three acceptances are required.", { status: 400 });
+        return privateTextResponse("All three acceptances are required.", 400);
       }
       // Look up (or create) the legal document rows. In MVP we
       // upsert placeholders with the current date.
@@ -200,7 +199,7 @@ export const POST: APIRoute = async ({ request, locals, url, redirect }) => {
       break;
     }
     default:
-      return new Response("Unknown step", { status: 404 });
+      return privateTextResponse("Unknown step", 404);
   }
 
   // Advance to next step in the canonical order.
