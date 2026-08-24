@@ -24,6 +24,13 @@
     "APP_BASE_URL": "https://club.loftwah.com",
   },
 
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "fe39a4b46d554822a48759cb7cb884db",
+    },
+  ],
+
   "d1_databases": [
     {
       "binding": "DB",
