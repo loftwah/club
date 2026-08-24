@@ -1,7 +1,7 @@
 # Canonical video art-direction review
 
 Review date: 2026-08-24  
-Review pass: 2  
+Review pass: 2
 Source fingerprint: `767b7e603e23452c`
 
 Reviewed assets:

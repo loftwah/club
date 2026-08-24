@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": null,
+  "updatedAt": "2026-08-24T09:29:45.607Z",
   "assets": [
     {
       "id": "the-plan-landscape",
@@ -11,7 +11,68 @@
       "height": 1080,
       "fps": 30,
       "safeZoneProfile": "landscape-editorial-v1",
-      "approvalState": "missing"
+      "approvalState": "approved",
+      "durationSeconds": 20.010667,
+      "sourceCommit": "5024c7bbb8c2876cc0579945e6173426b082d003",
+      "sourceFingerprint": "767b7e603e23452c",
+      "renderedAt": "2026-08-24T09:25:05.015Z",
+      "renderManifest": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/render-manifest.json",
+      "local": {
+        "delivery": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/the-plan-landscape.mp4",
+        "master": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/the-plan-landscape-master.mov",
+        "poster": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/the-plan-landscape-poster.jpg",
+        "thumbnail": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/the-plan-landscape-thumbnail.jpg",
+        "contactSheet": "/Users/deanlofts/gits/club/artifacts/video/the-plan-landscape/767b7e603e23452c/the-plan-landscape-contact-sheet.jpg"
+      },
+      "qc": {
+        "id": "the-plan-landscape",
+        "status": "PASS",
+        "failures": [],
+        "durationSeconds": 20.010667,
+        "fileSizeBytes": 1510349,
+        "video": {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "r_frame_rate": "30/1",
+          "side_data_list": [
+            {}
+          ]
+        },
+        "audio": {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0"
+        },
+        "maxVolumeDb": -3.4,
+        "integratedLufs": -23.3,
+        "truePeakDbfs": -3.4,
+        "checkedAt": "2026-08-24T09:26:29.591Z",
+        "manualChecksRequired": [
+          "font and copy correctness",
+          "safe zones and platform preview",
+          "text clipping and hierarchy",
+          "first/last frame composition",
+          "motion determinism and flicker",
+          "audio mix, clipping and abrupt cut",
+          "debug overlays absent"
+        ]
+      },
+      "locations": {
+        "master": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/the-plan-landscape-master.mov",
+        "delivery": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/the-plan-landscape.mp4",
+        "poster": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/the-plan-landscape-poster.jpg",
+        "thumbnail": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/the-plan-landscape-thumbnail.jpg",
+        "contactSheet": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/the-plan-landscape-contact-sheet.jpg",
+        "renderManifest": "r2://social-club-artifacts/creative/approved/the-plan-landscape/767b7e603e23452c/render-manifest.json"
+      },
+      "fileSizeBytes": 1510349,
+      "approvedAt": "2026-08-24T09:26:58.461Z",
+      "review": "docs/VIDEO_ART_DIRECTION_REVIEW.md",
+      "publishedAt": "2026-08-24T09:27:59.912Z"
     },
     {
       "id": "the-plan-vertical",
@@ -22,7 +83,68 @@
       "height": 1920,
       "fps": 30,
       "safeZoneProfile": "social-ui-variable-v1",
-      "approvalState": "missing"
+      "approvalState": "approved",
+      "durationSeconds": 16.021333,
+      "sourceCommit": "5024c7bbb8c2876cc0579945e6173426b082d003",
+      "sourceFingerprint": "767b7e603e23452c",
+      "renderedAt": "2026-08-24T09:25:28.423Z",
+      "renderManifest": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/render-manifest.json",
+      "local": {
+        "delivery": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/the-plan-vertical.mp4",
+        "master": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/the-plan-vertical-master.mov",
+        "poster": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/the-plan-vertical-poster.jpg",
+        "thumbnail": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/the-plan-vertical-thumbnail.jpg",
+        "contactSheet": "/Users/deanlofts/gits/club/artifacts/video/the-plan-vertical/767b7e603e23452c/the-plan-vertical-contact-sheet.jpg"
+      },
+      "qc": {
+        "id": "the-plan-vertical",
+        "status": "PASS",
+        "failures": [],
+        "durationSeconds": 16.021333,
+        "fileSizeBytes": 1529856,
+        "video": {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1080,
+          "height": 1920,
+          "r_frame_rate": "30/1",
+          "side_data_list": [
+            {}
+          ]
+        },
+        "audio": {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0"
+        },
+        "maxVolumeDb": -3.4,
+        "integratedLufs": -23.2,
+        "truePeakDbfs": -3.4,
+        "checkedAt": "2026-08-24T09:26:30.128Z",
+        "manualChecksRequired": [
+          "font and copy correctness",
+          "safe zones and platform preview",
+          "text clipping and hierarchy",
+          "first/last frame composition",
+          "motion determinism and flicker",
+          "audio mix, clipping and abrupt cut",
+          "debug overlays absent"
+        ]
+      },
+      "locations": {
+        "master": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/the-plan-vertical-master.mov",
+        "delivery": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/the-plan-vertical.mp4",
+        "poster": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/the-plan-vertical-poster.jpg",
+        "thumbnail": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/the-plan-vertical-thumbnail.jpg",
+        "contactSheet": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/the-plan-vertical-contact-sheet.jpg",
+        "renderManifest": "r2://social-club-artifacts/creative/approved/the-plan-vertical/767b7e603e23452c/render-manifest.json"
+      },
+      "fileSizeBytes": 1529856,
+      "approvedAt": "2026-08-24T09:26:58.464Z",
+      "review": "docs/VIDEO_ART_DIRECTION_REVIEW.md",
+      "publishedAt": "2026-08-24T09:28:37.767Z"
     },
     {
       "id": "the-relationship-landscape",
@@ -33,7 +155,68 @@
       "height": 1080,
       "fps": 30,
       "safeZoneProfile": "landscape-editorial-v1",
-      "approvalState": "missing"
+      "approvalState": "approved",
+      "durationSeconds": 21.013333,
+      "sourceCommit": "5024c7bbb8c2876cc0579945e6173426b082d003",
+      "sourceFingerprint": "767b7e603e23452c",
+      "renderedAt": "2026-08-24T09:25:55.556Z",
+      "renderManifest": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/render-manifest.json",
+      "local": {
+        "delivery": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape.mp4",
+        "master": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-master.mov",
+        "poster": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-poster.jpg",
+        "thumbnail": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-thumbnail.jpg",
+        "contactSheet": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-contact-sheet.jpg"
+      },
+      "qc": {
+        "id": "the-relationship-landscape",
+        "status": "PASS",
+        "failures": [],
+        "durationSeconds": 21.013333,
+        "fileSizeBytes": 1271538,
+        "video": {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1920,
+          "height": 1080,
+          "r_frame_rate": "30/1",
+          "side_data_list": [
+            {}
+          ]
+        },
+        "audio": {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0"
+        },
+        "maxVolumeDb": -4.2,
+        "integratedLufs": -23.1,
+        "truePeakDbfs": -4.1,
+        "checkedAt": "2026-08-24T09:26:30.716Z",
+        "manualChecksRequired": [
+          "font and copy correctness",
+          "safe zones and platform preview",
+          "text clipping and hierarchy",
+          "first/last frame composition",
+          "motion determinism and flicker",
+          "audio mix, clipping and abrupt cut",
+          "debug overlays absent"
+        ]
+      },
+      "locations": {
+        "master": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-master.mov",
+        "delivery": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape.mp4",
+        "poster": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-poster.jpg",
+        "thumbnail": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-thumbnail.jpg",
+        "contactSheet": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/the-relationship-landscape-contact-sheet.jpg",
+        "renderManifest": "r2://social-club-artifacts/creative/approved/the-relationship-landscape/767b7e603e23452c/render-manifest.json"
+      },
+      "fileSizeBytes": 1271538,
+      "approvedAt": "2026-08-24T09:26:58.464Z",
+      "review": "docs/VIDEO_ART_DIRECTION_REVIEW.md",
+      "publishedAt": "2026-08-24T09:29:16.654Z"
     },
     {
       "id": "the-relationship-vertical",
@@ -44,7 +227,68 @@
       "height": 1920,
       "fps": 30,
       "safeZoneProfile": "social-ui-variable-v1",
-      "approvalState": "missing"
+      "approvalState": "approved",
+      "durationSeconds": 16.021333,
+      "sourceCommit": "5024c7bbb8c2876cc0579945e6173426b082d003",
+      "sourceFingerprint": "767b7e603e23452c",
+      "renderedAt": "2026-08-24T09:26:19.056Z",
+      "renderManifest": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/render-manifest.json",
+      "local": {
+        "delivery": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical.mp4",
+        "master": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-master.mov",
+        "poster": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-poster.jpg",
+        "thumbnail": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-thumbnail.jpg",
+        "contactSheet": "/Users/deanlofts/gits/club/artifacts/video/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-contact-sheet.jpg"
+      },
+      "qc": {
+        "id": "the-relationship-vertical",
+        "status": "PASS",
+        "failures": [],
+        "durationSeconds": 16.021333,
+        "fileSizeBytes": 1168659,
+        "video": {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1080,
+          "height": 1920,
+          "r_frame_rate": "30/1",
+          "side_data_list": [
+            {}
+          ]
+        },
+        "audio": {
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0"
+        },
+        "maxVolumeDb": -3.8,
+        "integratedLufs": -22.6,
+        "truePeakDbfs": -3.8,
+        "checkedAt": "2026-08-24T09:26:31.236Z",
+        "manualChecksRequired": [
+          "font and copy correctness",
+          "safe zones and platform preview",
+          "text clipping and hierarchy",
+          "first/last frame composition",
+          "motion determinism and flicker",
+          "audio mix, clipping and abrupt cut",
+          "debug overlays absent"
+        ]
+      },
+      "locations": {
+        "master": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-master.mov",
+        "delivery": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical.mp4",
+        "poster": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-poster.jpg",
+        "thumbnail": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-thumbnail.jpg",
+        "contactSheet": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/the-relationship-vertical-contact-sheet.jpg",
+        "renderManifest": "r2://social-club-artifacts/creative/approved/the-relationship-vertical/767b7e603e23452c/render-manifest.json"
+      },
+      "fileSizeBytes": 1168659,
+      "approvedAt": "2026-08-24T09:26:58.464Z",
+      "review": "docs/VIDEO_ART_DIRECTION_REVIEW.md",
+      "publishedAt": "2026-08-24T09:29:45.607Z"
     }
   ]
 }
