@@ -36,9 +36,7 @@
           "width": 1920,
           "height": 1080,
           "r_frame_rate": "30/1",
-          "side_data_list": [
-            {}
-          ]
+          "side_data_list": [{}]
         },
         "audio": {
           "codec_name": "aac",
@@ -108,9 +106,7 @@
           "width": 1080,
           "height": 1920,
           "r_frame_rate": "30/1",
-          "side_data_list": [
-            {}
-          ]
+          "side_data_list": [{}]
         },
         "audio": {
           "codec_name": "aac",
@@ -180,9 +176,7 @@
           "width": 1920,
           "height": 1080,
           "r_frame_rate": "30/1",
-          "side_data_list": [
-            {}
-          ]
+          "side_data_list": [{}]
         },
         "audio": {
           "codec_name": "aac",
@@ -252,9 +246,7 @@
           "width": 1080,
           "height": 1920,
           "r_frame_rate": "30/1",
-          "side_data_list": [
-            {}
-          ]
+          "side_data_list": [{}]
         },
         "audio": {
           "codec_name": "aac",
