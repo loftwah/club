@@ -12,27 +12,26 @@
 
 import type { D1Database } from "@cloudflare/workers-types";
 
-export interface CancellationCounter {
-  /** Number of ordinary events that reached the CANCELLED state. */
-  readonly cancelledEvents: number;
-  /**
-   * Sum of (event.duration_minutes × invited_member_count) for
-   * cancelled events. This is the estimate of attendance hours
-   * avoided. Labelled "estimate" everywhere it appears publicly.
-   */
-  readonly estimatedHoursAvoided: number;
-}
+export type CancellationCounter =
+  | {
+      readonly status: "available";
+      /** Number of ordinary events that reached a completed cancellation state. */
+      readonly cancelledEvents: number;
+    }
+  | {
+      readonly status: "unavailable";
+      readonly cancelledEvents: null;
+    };
 
 /**
- * Read the cancellation counter from D1. Returns zeros if the
- * database is unavailable so the homepage degrades gracefully
- * without throwing during local dev or in an early production
- * cold start.
+ * Read the cancellation counter from D1. An unavailable database
+ * is distinct from a confirmed zero so the public page never turns
+ * an outage into a factual claim.
  */
 export async function readCancellationCounter(
   db: D1Database | undefined,
 ): Promise<CancellationCounter> {
-  if (!db) return { cancelledEvents: 0, estimatedHoursAvoided: 0 };
+  if (!db) return { status: "unavailable", cancelledEvents: null };
   try {
     const cancelledRow = await db
       .prepare(
@@ -40,26 +39,11 @@ export async function readCancellationCounter(
       )
       .first<{ n: number }>();
     const cancelled = Number(cancelledRow?.n ?? 0);
-
-    const hoursRow = await db
-      .prepare(
-        `SELECT COALESCE(SUM(e.duration_minutes * inv.cnt), 0) AS total_minutes
-           FROM events e
-           LEFT JOIN (
-             SELECT event_id, COUNT(*) AS cnt
-             FROM event_invitations
-             GROUP BY event_id
-           ) inv ON inv.event_id = e.id
-          WHERE e.state IN ('CANCELLED', 'CALENDAR_CANCELLATION_PROCESSED', 'ARCHIVED')`,
-      )
-      .first<{ total_minutes: number }>();
-    const totalMinutes = Number(hoursRow?.total_minutes ?? 0);
-    const estimatedHoursAvoided = Math.round(totalMinutes / 6) / 10; // one decimal place
-    return { cancelledEvents: cancelled, estimatedHoursAvoided };
-  } catch {
-    // Tables might not exist on a fresh deploy before migrations
-    // have run. The homepage must not 500.
-    return { cancelledEvents: 0, estimatedHoursAvoided: 0 };
+    return { status: "available", cancelledEvents: cancelled };
+  } catch (error) {
+    // The homepage remains usable, but it must not present an outage as a real zero.
+    console.error("public cancellation counter unavailable", error);
+    return { status: "unavailable", cancelledEvents: null };
   }
 }
 

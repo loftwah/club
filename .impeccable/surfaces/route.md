@@ -39,4 +39,4 @@ Implementation inventory:
 | Functional icons             | Lucide Astro/React                                  | Consistent stroke; not brand identity                     |
 | Paper material               | CSS colour and restrained texture asset if approved | No faux heritage or wax motifs                            |
 
-Constraints: no RSVP/check-in/attendance language; no fake counters, partnerships or bookings; no essential WebGL; payments remain disabled; performance and WCAG 2.2 AA targets apply.
+Constraints: no RSVP/check-in/attendance language; no fake counters, partnerships or bookings; no implementation or provider terminology in reader-facing copy; no essential WebGL; payments remain disabled; performance and WCAG 2.2 AA targets apply.

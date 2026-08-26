@@ -45,10 +45,10 @@ const tierName = validTier ? slugToName[validTier] : null;
             <a class="pwy-hero__cta" href="#wl-form">Join the free waitlist</a>
           </div>
         </div>
-        <div class="pwy-hero__meta" aria-label="Launch status">
+        <div class="pwy-hero__meta" aria-label="Membership availability">
           <span class="pwy-stamp">Waitlist open</span>
           <span>Paid membership closed</span>
-          <span>Stripe disabled</span>
+          <span>No payments</span>
         </div>
       </header>
 
@@ -57,7 +57,7 @@ const tierName = validTier ? slugToName[validTier] : null;
           <h2 id="brief-heading">Keep the arrangement in view.</h2>
           <ol>
             <li>
-              <span>01</span><p>We record your interest and chosen chapter, if you give one.</p>
+              <span>01</span><p>You tell us your interest and chosen chapter, if you have one.</p>
             </li>
             <li><span>02</span><p>We send a confirmation. Nothing has been charged.</p></li>
             <li>
@@ -82,7 +82,7 @@ const tierName = validTier ? slugToName[validTier] : null;
                     <strong>{chapterName}</strong> chapter
                   </p>
                 )}
-                <p>These are preferences for the waitlist only. They do not activate membership.</p>
+                <p>These are waitlist preferences only. They do not start membership.</p>
               </aside>
             )
           }
@@ -177,10 +177,13 @@ const tierName = validTier ? slugToName[validTier] : null;
           body: JSON.stringify(payload),
         });
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          const errMsg = body && typeof body.error === "string" ? body.error : null;
           status.className = "form__status form__status--error";
-          status.textContent = errMsg ?? `Submission failed (${res.status})`;
+          status.textContent =
+            res.status === 400
+              ? "Please check your email address and try again."
+              : res.status === 429
+                ? "Too many attempts. Please wait a minute and try again."
+                : "We couldn’t add you to the list. Please try again.";
           submit.disabled = false;
           return;
         }
@@ -195,7 +198,8 @@ const tierName = validTier ? slugToName[validTier] : null;
         submit.disabled = false;
       } catch {
         status.className = "form__status form__status--error";
-        status.textContent = "Network error. Please try again.";
+        status.textContent =
+          "We couldn’t add you to the list. Please check your connection and try again.";
         submit.disabled = false;
       }
     });

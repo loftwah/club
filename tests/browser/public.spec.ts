@@ -104,6 +104,30 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
     await expect(page.getByRole("link", { name: "Melbourne", exact: true })).toBeVisible();
   });
 
+  test("public marketing pages use reader language, not implementation language", async ({
+    page,
+  }) => {
+    const routes = [
+      "/",
+      "/how-it-works/",
+      "/membership/",
+      "/correspondence/",
+      "/chapters/",
+      "/faq/",
+      "/journal/",
+      "/waiting-list/",
+    ];
+    const implementationLanguage =
+      /\b(?:D1|the system|state machine|terminal result|provenance|auditable|audit trail|workflow|Stripe|entitlement|prerequisites|operational email|database binding|internal error|successful fulfilment|physical fulfilment|separate gates|candidate facts|launch status)\b/i;
+
+    for (const route of routes) {
+      const response = await page.goto(route);
+      expect(response?.status(), route).toBe(200);
+      const visibleCopy = await page.locator("main").innerText();
+      expect(visibleCopy, route).not.toMatch(implementationLanguage);
+    }
+  });
+
   test("GET /unknown returns 404", async ({ page }) => {
     const response = await page.goto("/this-route-does-not-exist/");
     expect(response?.status()).toBe(404);
@@ -130,6 +154,23 @@ test.describe("waiting-list form submission", () => {
     await page.locator('input[type="email"]').fill("not-an-email");
     await page.locator('button[type="submit"]').click();
     await expect(page.getByText(/You are on the list/)).not.toBeVisible();
+  });
+
+  test("server diagnostics are never shown in the waitlist form", async ({ page }) => {
+    await page.route("**/api/waitlist", async (route) => {
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "database binding not available" }),
+      });
+    });
+    await page.goto("/waiting-list/");
+    await page.locator('input[type="email"]').fill("reader@example.com");
+    await page.locator('button[type="submit"]').click();
+    await expect(
+      page.getByText("We couldn’t add you to the list. Please try again."),
+    ).toBeVisible();
+    await expect(page.getByText(/database binding/i)).not.toBeVisible();
   });
 });
 

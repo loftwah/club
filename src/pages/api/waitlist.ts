@@ -5,7 +5,6 @@
 
 import type { APIRoute } from "astro";
 import { getRuntimeEnv } from "@lib/runtime-env";
-import { z } from "zod";
 import { WaitlistService, waitlistSubmissionSchema } from "@services/waitlist";
 import { RealResendAdapter } from "@adapters/resend-real";
 import { D1AuditWriter } from "@infra/audit";
@@ -15,21 +14,22 @@ import { isSameOriginMutation } from "../../lib/request-security";
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = getRuntimeEnv(locals);
   if (!env?.DB) {
-    return json({ error: "database binding not available" }, 500);
+    return json({ error: "Waitlist requests are temporarily unavailable." }, 500);
   }
-  if (!isSameOriginMutation(request)) return json({ error: "cross-origin request rejected" }, 403);
+  if (!isSameOriginMutation(request))
+    return json({ error: "This request could not be accepted." }, 403);
   if (!env?.RESEND_API_KEY || !env?.RESEND_WEBHOOK_SIGNING_SECRET) {
-    return json({ error: "email provider not configured" }, 503);
+    return json({ error: "Waitlist requests are temporarily unavailable." }, 503);
   }
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return json({ error: "invalid JSON body" }, 400);
+    return json({ error: "Please send a valid waitlist request." }, 400);
   }
   const parsed = waitlistSubmissionSchema.safeParse(body);
   if (!parsed.success) {
-    return json({ error: zodErrorMessage(parsed.error) }, 400);
+    return json({ error: "Please check the details and try again." }, 400);
   }
   const [clientKey, emailKey] = await waitlistRateLimitKeys(request, parsed.data.email);
   const [clientLimit, emailLimit] = await Promise.all([
@@ -59,7 +59,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return json({ ok: true }, 202);
   } catch (err) {
     console.error("waitlist submit failed", err);
-    return json({ error: "internal error" }, 500);
+    return json({ error: "We couldn’t add you to the list. Please try again." }, 500);
   }
 };
 
@@ -68,10 +68,6 @@ function json(body: unknown, status: number): Response {
     status,
     headers: { "content-type": "application/json" },
   });
-}
-
-function zodErrorMessage(err: z.ZodError): string {
-  return err.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
 }
 
 export async function waitlistRateLimitKeys(

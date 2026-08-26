@@ -213,7 +213,7 @@ export const brand: Brand = {
         "Personalised digital correspondence",
         "Birthday and anniversary recognition",
         "Memory of the things you choose to share",
-        "Optional economical real item per policy",
+        "An occasional small item, when available",
       ],
     },
     corresponding: {
@@ -227,8 +227,8 @@ export const brand: Brand = {
         "Posted anniversary card",
         "Signed letters",
         "Milestone artefacts",
-        "Optional manufactured commitments",
-        "Greater human review",
+        "Optional help with a commitment you choose",
+        "More personal attention from our team",
       ],
     },
     deluxe: {
@@ -241,9 +241,9 @@ export const brand: Brand = {
         "Thoughtful gifts",
         "Opted-in calls",
         "Premium milestone treatment",
-        "Premium manufactured commitments",
+        "More involved help with a commitment you choose",
         "Higher-quality physical items",
-        "Deeper operator involvement",
+        "Deeper personal attention from our team",
       ],
     },
   },
@@ -275,7 +275,7 @@ export const brand: Brand = {
     },
     howItWorks: {
       headline: "How it works",
-      lede: "You join. Plans With You remembers you. From time to time we send you a plausible invitation to a small, ordinary, deliberately constructed event. The plan is real. The date approaches. We cancel it. The relationship continues.",
+      lede: "You join. Plans With You remembers you. From time to time we send you a plausible invitation to a small, ordinary plan. The date approaches. We cancel it on purpose. The relationship continues.",
     },
     emotionalArc: [
       "I was on the list",
@@ -286,7 +286,7 @@ export const brand: Brand = {
       "I am still on the list",
     ],
     aboutClosing:
-      "Optional services — physical mail, gifts, calls, manufactured commitments, real-world representative services — are intensity, not belonging.",
+      "Optional extras — physical mail, gifts, calls, help with a commitment, or agreed in-person help — add attention, not belonging.",
     correspondence: {
       headline: "Correspondence",
       lede: "We write to you. We write properly. Letters are signed. Envelopes are real. We don't send you four emails a week about nothing.",

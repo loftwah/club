@@ -110,7 +110,7 @@ shipped public routes and their final desktop/mobile captures.
 
 **Key Characteristics:**
 
-- Administrative objects first: docket, date, rail, barcode, counter, and archive.
+- Administrative objects first: docket, date, rail, barcode, public truth, and archive.
 - Square-to-small-radius controls, hairlines, dashed separators, and restrained paper depth.
 - Cancellation is a successful terminal outcome, represented with a clear vermilion intervention.
 - Warm correspondence supports the contemporary schedule world; it never becomes heritage cosplay.
@@ -175,7 +175,7 @@ font CDN.
 ### Hierarchy
 
 - **Display** (680, `clamp(3rem, 7vw, 5.8rem)`, `0.95`): Hero and section statements; homepage hero remains capped below 6rem.
-- **Headline** (680, `clamp(2.2rem, 4vw, 4.2rem)`, `0.95`): Section titles, counter statements, and major explanatory anchors.
+- **Headline** (680, `clamp(2.2rem, 4vw, 4.2rem)`, `0.95`): Section titles, public-truth statements, and major explanatory anchors.
 - **Title** (650–720, `clamp(1.35rem, 3vw, 3rem)`, `0.95–1.2`): Cards, tier names, navigation items, and lifecycle titles.
 - **Body** (400, `1rem`, `1.5`): Default interface and explanatory copy; colour shifts to soft ink for supporting prose.
 - **Letter** (400, `clamp(1.1rem, 1.7vw, 1.45rem)`, `1.3–1.5`): Human correspondence and longer proposition text.
@@ -209,7 +209,7 @@ The homepage is a deliberate sequence, not a generic card grid:
 3. The Dispatch Wall hero pairs the statement, explanatory letter copy, waitlist CTA, and one illustrative plan strip.
 4. A cobalt manifesto field introduces the supporting letter world.
 5. The lifecycle panel makes cancellation visibly terminal and successful.
-6. A dark D1-backed counter wall reports real production records or an explicit zero state.
+6. A dark public-truth wall states completed-plan reality in reader language, including an honest zero state, without exposing storage or workflow terminology.
 7. Two world panels place the calendar beside correspondence.
 8. Tier panels explain increasing physical/human fulfilment without increasing belonging.
 9. Quiet belonging, trust/provenance, final invitation, and the dark footer close the relationship.
@@ -357,7 +357,7 @@ distinct, truthful, and never hidden behind colour alone.
 
 ### Content surfaces
 
-Manifesto letters, the D1-backed counter, two-world panels, tier panels, quiet
+Manifesto letters, the public-truth wall, two-world panels, tier panels, quiet
 belonging rules, trust/provenance, and the final invitation are compositional
 surfaces built from the same shell, typography, lines, and tonal fields. Tier
 cards may use a pale cobalt tint or correspondence blush to distinguish
@@ -394,6 +394,9 @@ navigation/actions while keeping semantic content.
 - **Do** keep “cancellation is successful fulfilment” visible wherever a plan state is shown.
 - **Do** label examples, fixtures, illustrative dates, and plausible places so they cannot be mistaken for production facts.
 - **Do** use D1/runtime truth for counters, chapters, member facts, venue data, and workflow state; state zero or unavailable explicitly.
+- **Do** translate implementation truth into language a visitor can understand; storage engines,
+  state machines, audit mechanics, provider names, and internal workflow terms stay out of public
+  product copy.
 - **Do** keep belonging equal across Member, Corresponding Member, and Deluxe Member; higher tiers may add physical/human intensity only.
 - **Do** preserve semantic text and keyboard/focus/reduced-motion paths when adding visual polish.
 - **Do** keep the calendar mark, cobalt schedule logic, vermilion cancellation signal, and Source Serif correspondence warmth in their named roles.

@@ -63,27 +63,27 @@ export const PLAN_LIFECYCLE_STEPS: readonly PlanLifecycleStep[] = [
   {
     state: "invited",
     label: "Invited",
-    description: "The invitation is prepared.",
+    description: "The invitation is on its way.",
   },
   {
     state: "planned",
     label: "Planned",
-    description: "The plan is held with care.",
+    description: "The plan has a date.",
   },
   {
     state: "approaching",
     label: "Approaching",
-    description: "The plan is nearing its deliberate window.",
+    description: "The date is getting closer.",
   },
   {
     state: "cancelled",
     label: "Cancelled",
-    description: "The plan is intentionally cancelled; that is successful fulfilment.",
+    description: "The plan is cancelled on purpose. The promise has been kept.",
   },
   {
     state: "archived",
     label: "Archived",
-    description: "The correspondence is kept as a quiet record.",
+    description: "The invitation and cancellation stay together in your history.",
   },
 ];
 
@@ -167,7 +167,7 @@ export default function PlanLifecycle({
 
       <header className="plan-lifecycle__header">
         <div className="plan-lifecycle__heading">
-          <p className="plan-lifecycle__kicker">Plan lifecycle</p>
+          <p className="plan-lifecycle__kicker">What happens</p>
           <h2 id={`plan-lifecycle-title-${event.id}`} className="plan-lifecycle__title">
             {event.title}
           </h2>
@@ -205,7 +205,7 @@ export default function PlanLifecycle({
 
       <div className="plan-lifecycle__timeline-wrap">
         <p className="plan-lifecycle__timeline-label">The sequence</p>
-        <ol className="plan-lifecycle__timeline" aria-label="Plan lifecycle sequence">
+        <ol className="plan-lifecycle__timeline" aria-label="Plan sequence">
           {PLAN_LIFECYCLE_STEPS.map((step, index) => {
             const isCurrent = step.state === state;
             const isComplete = index <= currentIndex;

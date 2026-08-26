@@ -8,7 +8,6 @@ import { brand, formatPrice } from "../brand/config";
 import { withCounter } from "../lib/counter";
 
 const stats = await withCounter(runtimeEnv);
-const hasCompletedPlans = stats.cancelledEvents > 0;
 
 const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe];
 ---
@@ -22,7 +21,7 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
   <section class="dispatch-hero" aria-labelledby="hero-title">
     <div class="shell dispatch-hero__docket" aria-label="Product summary">
       <span>Membership / Melbourne</span>
-      <span>Ordinary plans / Cancellation fulfilled</span>
+      <span>Ordinary plans / Cancelled as promised</span>
       <span>Issue 001 / Waitlist</span>
     </div>
 
@@ -70,7 +69,7 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         <div class="dispatch-card__cancelled">
           <span>Plan update</span>
           <strong>Cancelled, as promised.</strong>
-          <span>Fulfilment complete</span>
+          <span>Promise kept</span>
         </div>
         <ol class="dispatch-card__rail" aria-label="A plan's sequence">
           <li><span>01</span> Invitation arrives</li>
@@ -111,9 +110,9 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         <h2 id="lifecycle-title">Cancellation is the destination.</h2>
       </div>
       <p>
-        This is an illustrative lifecycle, not a real event or venue booking. In the product, every
-        ordinary plan has an accountable state and must end in cancellation, archive, or explicit
-        human escalation.
+        This is an example, not a real event or venue booking. Every ordinary plan is made with a
+        clear date, then cancelled before you ever have to go. If something gets in the way, a
+        person steps in.
       </p>
     </div>
     <div class="shell lifecycle-section__stage">
@@ -123,47 +122,47 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         event={{
           id: "illustrative-ordinary-plan",
           title: "An ordinary plan, successfully unmade",
-          date: "A future date supplied with the invitation",
-          chapter: "Member's resolved chapter",
-          status: "Cancelled intentionally",
+          date: "A future date from the invitation",
+          chapter: "Your chosen chapter",
+          status: "Cancelled on purpose",
           location: "A plausible place, confirmed before use",
           detail:
-            "A transparent example of the state machine. No real venue, endorsement, partnership, or booking is claimed.",
+            "An example only. No real venue, booking, endorsement, or partnership is implied.",
         }}
       />
     </div>
     <div class="shell lifecycle-section__key">
-      <p><span aria-hidden="true">●</span> Required terminal result</p>
-      <p>No RSVP / No check-in / No no-show state / No attendance record</p>
+      <p><span aria-hidden="true">●</span> The promised result</p>
+      <p>No RSVP / No check-in / No no-show / No attendance required</p>
     </div>
   </section>
 
   <section class="counter-wall" aria-labelledby="counter-title">
     <div class="shell counter-wall__grid">
-      <div class="counter-wall__number">
-        <span class="eyebrow">D1-backed production record</span>
-        <strong data-testid="public-cancelled-counter">{stats.cancelledEvents}</strong>
-        <span>plans<br />unmade</span>
-      </div>
-      <div class="counter-wall__copy">
-        <h2 id="counter-title">A truthful counter, even when the number is quiet.</h2>
+      <h2 id="counter-title">We won’t pretend there’s a crowd.</h2>
+      <div
+        class="counter-wall__copy"
+        data-testid="public-cancelled-counter"
+        data-counter-status={stats.status}
+        data-counter-value={stats.status === "available" ? stats.cancelledEvents : undefined}
+      >
         {
-          hasCompletedPlans ? (
+          stats.status === "unavailable" ? (
             <p>
-              Production records currently contain {stats.cancelledEvents} completed ordinary plans
-              and an estimated{" "}
-              <strong data-testid="public-hours-avoided">{stats.estimatedHoursAvoided}</strong>{" "}
-              attendance hours avoided. The estimate is derived from recorded duration and
-              invitation counts.
+              We can’t confirm the number right now, so we’re leaving it unreported until the record
+              is available again.
+            </p>
+          ) : stats.cancelledEvents > 0 ? (
+            <p>
+              So far, <strong>{stats.cancelledEvents}</strong> ordinary{" "}
+              {stats.cancelledEvents === 1 ? "plan has" : "plans have"} been made and deliberately
+              cancelled. That is {stats.cancelledEvents === 1 ? "one promise" : "a set of promises"}{" "}
+              kept without asking anyone to turn up.
             </p>
           ) : (
             <p>
-              There are no completed production plans to report yet. We show zero instead of
-              inventing momentum. The counter will move only when real D1 records reach a successful
-              cancellation state.
-              <span class="visually-hidden" data-testid="public-hours-avoided">
-                {stats.estimatedHoursAvoided}
-              </span>
+              No ordinary plans have been completed yet. When that changes, we’ll say so. Until
+              then, zero is the honest number.
             </p>
           )
         }
@@ -182,8 +181,8 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         </div>
         <h3>The calendar is the artefact.</h3>
         <p>
-          Invitations, approaching dates, clear status changes, cancellation windows, and a record
-          of plans fulfilled by being unmade.
+          Invitations, approaching dates, clear updates, cancellation windows, and a history of
+          plans that ended exactly as promised.
         </p>
         <a href="/how-it-works/">Follow a plan <ArrowUpRight size={15} aria-hidden="true" /></a>
       </article>
@@ -192,7 +191,7 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         <h3>Care takes physical form.</h3>
         <p>
           Correspondence, cards, milestone objects, and human attention become more tangible at
-          higher tiers—only with the right entitlement and permission.
+          higher tiers—only when your membership includes them and you have asked for them.
         </p>
         <a href="/correspondence/"
           >See what may arrive <ArrowUpRight size={15} aria-hidden="true" /></a
@@ -207,8 +206,8 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         <h2 id="membership-title">More tangible.<br />Never more belonging.</h2>
       </div>
       <p>
-        Every member is equally wanted. Higher tiers fund increasing physical and human
-        fulfilment—not status, access to belonging, or an obligation to engage.
+        Every member is equally wanted. Higher tiers add more physical mail and human attention—not
+        status, greater belonging, or an obligation to engage.
       </p>
     </div>
     <div class="shell tiers tiers--home">
@@ -237,7 +236,7 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
       }
     </div>
     <p class="shell membership-section__note">
-      Displayed prices are not an offer to transact. Stripe and paid activation remain disabled.
+      These are preview prices. Paid membership is not open, and we will not ask for a card.
     </p>
   </section>
 
@@ -259,13 +258,13 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
           </p>
         </article>
         <article>
-          <span>03</span><h3>Consent stays specific</h3><p>
-            Post, gifts, calls, commitments, and appearances each have separate gates.
+          <span>03</span><h3>You choose each extra</h3><p>
+            Post, gifts, calls, help with commitments, and in-person help are separate choices.
           </p>
         </article>
         <article>
-          <span>04</span><h3>Automation has limits</h3><p>
-            AI can assist within policy. It cannot invent you or override permission.
+          <span>04</span><h3>AI stays in its place</h3><p>
+            AI may help with a draft. It cannot invent things about you or ignore your choices.
           </p>
         </article>
       </div>
@@ -276,13 +275,13 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
     <div class="shell trust-section__grid">
       <div>
         <ShieldCheck size={34} stroke-width={1.4} aria-hidden="true" />
-        <h2 id="trust-title">No mystery about what the system knows.</h2>
+        <h2 id="trust-title">Nothing remembered behind your back.</h2>
       </div>
       <div>
         <p>
-          Confirmed facts need provenance. Candidate memories stay candidates. Rejected and revoked
-          facts remain out of personalisation. Important actions are auditable, and every workflow
-          ends or reaches a human.
+          We only use details you have confirmed. Suggestions stay separate until you approve them,
+          and anything you reject or withdraw is left alone. You can see, change, or remove what we
+          remember. If something cannot be completed safely, a person steps in.
         </p>
         <a href="/privacy/" class="button button--paper"
           >Read the privacy approach <ArrowUpRight size={15} aria-hidden="true" /></a
@@ -296,8 +295,8 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
       <h2 id="final-title">Put your name on a list you never have to perform for.</h2>
       <div>
         <p>
-          Register truthful interest in Member, Corresponding Member, or Deluxe Member. We will
-          write when there is something real to say.
+          Register your interest in Member, Corresponding Member, or Deluxe Member. We will write
+          when there is something real to say.
         </p>
         <a href="/waiting-list/" class="hero__cta button--signal">
           Join the waitlist <ArrowUpRight size={16} aria-hidden="true" />
@@ -586,40 +585,25 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
   }
   .counter-wall__grid {
     display: grid;
-    grid-template-columns: 1fr 0.8fr;
+    grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
     gap: clamp(3rem, 10vw, 10rem);
     align-items: end;
   }
-  .counter-wall__number {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: end;
-  }
-  .counter-wall__number .eyebrow {
-    grid-column: 1 / -1;
-    color: #96938c;
-  }
-  .counter-wall__number strong {
-    font-size: clamp(4.8rem, 8vw, 5.8rem);
-    font-weight: 700;
-    letter-spacing: -0.12em;
-    line-height: 0.68;
-  }
-  .counter-wall__number > span:last-child {
-    padding-bottom: 0.5rem;
-    color: var(--signal);
-    font-family: var(--font-data);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-  }
-  .counter-wall__copy h2 {
-    margin: 0 0 2rem;
+  .counter-wall h2 {
+    max-width: 12ch;
+    margin: 0;
     font-size: clamp(2.2rem, 4vw, 4.2rem);
   }
   .counter-wall__copy p {
+    max-width: 34rem;
+    margin: 0;
     color: #c9c4b9;
     font-family: var(--font-letter);
     font-size: 1.1rem;
+  }
+  .counter-wall__copy strong {
+    color: var(--signal);
+    font-family: var(--font-display);
   }
   .two-worlds {
     padding-block: var(--section-space);
@@ -825,9 +809,6 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
     .quiet-belonging__grid {
       grid-template-columns: 1fr;
     }
-    .counter-wall__number strong {
-      font-size: clamp(4.8rem, 10vw, 5.8rem);
-    }
     .final-invitation__grid {
       grid-template-columns: 1fr;
     }
@@ -920,9 +901,6 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
     .lifecycle-section__key {
       align-items: flex-start;
       flex-direction: column;
-    }
-    .counter-wall__number strong {
-      font-size: clamp(4.8rem, 24vw, 5.8rem);
     }
     .world-card {
       min-height: auto;
