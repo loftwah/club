@@ -561,7 +561,14 @@ export const POST: APIRoute = async (ctx) => {
     if (persona === "member") result = await seedMemberFixture(env, ctx.request);
     else if (persona === "onboarding") result = await seedOnboardingFixture(env, ctx.request);
     else {
-      const opEmail = (body.operatorEmail ?? env.OPERATOR_EMAIL ?? "operator@local.test").trim();
+      // The operator email must match the configured
+      // `OPERATOR_EMAIL` binding for `requireOperator` to grant
+      // admin access. An empty or unset body falls back to the
+      // worker's configured email so a test-side default
+      // cannot fail the operator guard. The `||` operator
+      // matches both `undefined` and `""`, which the `??`
+      // operator would not.
+      const opEmail = (body.operatorEmail || env.OPERATOR_EMAIL || "operator@local.test").trim();
       result = await seedOperatorFixture(env, ctx.request, opEmail);
     }
     return json(result, 200);

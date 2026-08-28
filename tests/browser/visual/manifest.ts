@@ -361,7 +361,7 @@ const OPERATOR_SURFACES: ReadonlyArray<VisualSurface> = [
     auth: "operator",
     setup: "operator",
     viewports: ALL_VIEWPORTS,
-    ready: { heading: /Admin|Operator/i },
+    ready: { heading: /What needs my attention|Admin|Operator/i },
     snapshot: true,
     geometry: true,
   },
