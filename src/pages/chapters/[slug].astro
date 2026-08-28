@@ -1,80 +1,24 @@
 ---
 import Base from "@layouts/Base.astro";
-import { formatLocality, formatInZone, type ChapterGeography } from "@lib/geography";
+import { formatLocality, formatInZone } from "@lib/geography";
+import { getChapter, listChapters, type Chapter } from "@lib/chapters";
 
+// Issue #12: the chapter catalogue is the single source of
+// truth (src/lib/chapters.ts). This page derives both the
+// detail rendering AND the static slug list for the
+// getStaticPaths/equivalent build from the same function.
 const slug = Astro.params.slug ?? "";
-
-const chapters: Record<string, ChapterGeography & { status: "ACTIVE" | "COMING"; note: string }> = {
-  melbourne: {
-    slug: "melbourne",
-    name: "Melbourne",
-    status: "ACTIVE",
-    note: "The opening chapter. Waitlist signups are accepted now.",
-    countryCode: "AU",
-    region: "VIC",
-    timezone: "Australia/Melbourne",
-    locale: "en-AU",
-  },
-  sydney: {
-    slug: "sydney",
-    name: "Sydney",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "NSW",
-    timezone: "Australia/Sydney",
-    locale: "en-AU",
-  },
-  brisbane: {
-    slug: "brisbane",
-    name: "Brisbane",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "QLD",
-    timezone: "Australia/Brisbane",
-    locale: "en-AU",
-  },
-  adelaide: {
-    slug: "adelaide",
-    name: "Adelaide",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "SA",
-    timezone: "Australia/Adelaide",
-    locale: "en-AU",
-  },
-  perth: {
-    slug: "perth",
-    name: "Perth",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "WA",
-    timezone: "Australia/Perth",
-    locale: "en-AU",
-  },
-  auckland: {
-    slug: "auckland",
-    name: "Auckland",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "NZ",
-    region: "Auckland",
-    timezone: "Pacific/Auckland",
-    locale: "en-NZ",
-  },
-};
-
-const chapter = chapters[slug];
+const chapter: Chapter | null =
+  getChapter(slug) ?? listChapters().find((c) => c.slug === slug) ?? null;
 
 if (!chapter) {
   return Astro.redirect("/chapters/");
 }
 const chapterLocality = formatLocality(chapter);
 const sampleTimestamp = "2026-09-15T08:00:00.000Z";
-const sampleLocal = formatInZone(sampleTimestamp, chapter.timezone, chapter.locale);
+const sampleLocal = chapter.timezone
+  ? formatInZone(sampleTimestamp, chapter.timezone, chapter.locale)
+  : sampleTimestamp;
 ---
 
 <Base

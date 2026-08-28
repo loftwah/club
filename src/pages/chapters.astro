@@ -2,87 +2,14 @@
 import Base from "@layouts/Base.astro";
 import { brand } from "../brand/config";
 import { formatLocality } from "@lib/geography";
+import { listChapters } from "@lib/chapters";
 
-interface Chapter {
-  readonly slug: string;
-  readonly name: string;
-  readonly status: "ACTIVE" | "COMING";
-  readonly note: string;
-  readonly countryCode: string;
-  readonly region?: string;
-  readonly timezone: string;
-  readonly locale: string;
-}
-
-// Issue #12: the chapter catalogue carries structured
-// geography (country, region, timezone, locale) so a new
-// non-Australian chapter can be added without changing the
-// page-local template. The five Australian cities remain for
-// compatibility; a non-Australian fixture (Auckland) is
-// included to prove the catalogue is genuinely geography-
-// independent.
-const chapters: ReadonlyArray<Chapter> = [
-  {
-    slug: "melbourne",
-    name: "Melbourne",
-    status: "ACTIVE",
-    note: "The opening chapter. Waitlist signups are accepted now.",
-    countryCode: "AU",
-    region: "VIC",
-    timezone: "Australia/Melbourne",
-    locale: "en-AU",
-  },
-  {
-    slug: "sydney",
-    name: "Sydney",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "NSW",
-    timezone: "Australia/Sydney",
-    locale: "en-AU",
-  },
-  {
-    slug: "brisbane",
-    name: "Brisbane",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "QLD",
-    timezone: "Australia/Brisbane",
-    locale: "en-AU",
-  },
-  {
-    slug: "adelaide",
-    name: "Adelaide",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "SA",
-    timezone: "Australia/Adelaide",
-    locale: "en-AU",
-  },
-  {
-    slug: "perth",
-    name: "Perth",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "AU",
-    region: "WA",
-    timezone: "Australia/Perth",
-    locale: "en-AU",
-  },
-  {
-    slug: "auckland",
-    name: "Auckland",
-    status: "COMING",
-    note: "Locations under research. Waitlist open for expressions of interest.",
-    countryCode: "NZ",
-    region: "Auckland",
-    timezone: "Pacific/Auckland",
-    locale: "en-NZ",
-  },
-];
+// Issue #12: the chapter catalogue is a single source of
+// truth (src/lib/chapters.ts). Adding a new non-Australian
+// chapter is a one-line change in that file (or a row in the
+// `chapters` table) — neither this page nor
+// `chapters/[slug].astro` need to be edited.
+const chapters = listChapters();
 ---
 
 <Base
