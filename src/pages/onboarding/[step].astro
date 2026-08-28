@@ -19,6 +19,13 @@ import { SystemClock } from "../../infra/clock";
 import { D1AuditWriter } from "../../infra/audit";
 import { brand } from "../../brand/config";
 import { requireOnboardingSession } from "../../lib/portal-auth";
+import { listChapters } from "@lib/chapters";
+
+// Issue #12: the chapter catalogue is the single source of
+// truth. The onboarding "chapter" step renders one <option> per
+// canonical chapter; adding a non-Australian chapter to
+// `listChapters()` automatically exposes it here.
+const chapterOptions = listChapters();
 
 const stepId = (Astro.params.step ?? "identity") as OnboardingStepId;
 const step = ONBOARDING_STEPS.find((s) => s.id === stepId);
@@ -209,42 +216,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
           <form class="app-form" method="post" action="/api/onboarding/chapter">
             <label for="chapterId">Chapter</label>
             <select id="chapterId" name="chapterId" required>
-              <option
-                value="chap_melbourne"
-                selected={
-                  (stepData as Record<string, string> | null)?.chapterId === "chap_melbourne"
-                }
-              >
-                Melbourne — accepting waitlist
-              </option>
-              <option
-                value="chap_sydney"
-                selected={(stepData as Record<string, string> | null)?.chapterId === "chap_sydney"}
-              >
-                Sydney — coming
-              </option>
-              <option
-                value="chap_brisbane"
-                selected={
-                  (stepData as Record<string, string> | null)?.chapterId === "chap_brisbane"
-                }
-              >
-                Brisbane — coming
-              </option>
-              <option
-                value="chap_adelaide"
-                selected={
-                  (stepData as Record<string, string> | null)?.chapterId === "chap_adelaide"
-                }
-              >
-                Adelaide — coming
-              </option>
-              <option
-                value="chap_perth"
-                selected={(stepData as Record<string, string> | null)?.chapterId === "chap_perth"}
-              >
-                Perth — coming
-              </option>
+              {chapterOptions.map((chapter) => (
+                <option
+                  value={chapter.slug}
+                  selected={(stepData as Record<string, string> | null)?.chapterId === chapter.slug}
+                >
+                  {chapter.name} — {chapter.status === "ACTIVE" ? "accepting waitlist" : "coming"}
+                </option>
+              ))}
             </select>
             <div class="app-form__actions">
               <button type="submit" class="app-action">

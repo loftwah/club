@@ -70,12 +70,19 @@ export async function seedOperator(
  * up authenticated for the requested surface. The devUrl is only
  * minted when APP_BASE_URL is localhost/127.0.0.1; production
  * URLs would simply return 404 from the magic-link service.
+ *
+ * The `operatorEmail` argument is forwarded to the dev-fixture
+ * endpoint's request body. An empty string lets the dev-fixture
+ * fall back to the worker's configured `OPERATOR_EMAIL` binding
+ * — which is the only email `requireOperator` will accept for
+ * admin route access, so any test-side default would fail the
+ * admin guard.
  */
 export async function applySetup(
   page: import("@playwright/test").Page,
   api: APIRequestContext,
   setup: "none" | "member" | "onboarding" | "operator",
-  operatorEmail = "operator@local.test",
+  operatorEmail = "",
 ): Promise<void> {
   if (setup === "none") return;
   let persona: VisualPersona;

@@ -335,23 +335,43 @@ export function safeInternalPath(value: string | null | undefined): string | nul
   }
 }
 
-export function buildSessionCookie(sessionId: string, maxAgeSec: number): string {
-  return [
+/**
+ * True when the cookie is being set for a non-loopback origin
+ * that requires HTTPS. Local-loopback wrangler dev runs on
+ * plain HTTP and the browser refuses to set `Secure` cookies
+ * over HTTP, so the visual suite (which lives on 127.0.0.1)
+ * needs a non-Secure cookie. Production and any deployed
+ * hostname always keep the `Secure` attribute.
+ */
+function isLoopbackAppBaseUrl(url: string | undefined): boolean {
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    return u.hostname === "localhost" || u.hostname === "127.0.0.1" || u.hostname === "::1";
+  } catch {
+    return false;
+  }
+}
+
+export function buildSessionCookie(
+  sessionId: string,
+  maxAgeSec: number,
+  appBaseUrl?: string,
+): string {
+  const secure = !isLoopbackAppBaseUrl(appBaseUrl);
+  const parts = [
     `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}`,
     "Path=/",
     "HttpOnly",
-    "Secure",
     "SameSite=Lax",
     `Max-Age=${maxAgeSec}`,
-  ].join("; ");
+  ];
+  if (secure) parts.push("Secure");
+  return parts.join("; ");
 }
-export function buildClearSessionCookie(path = "/"): string {
-  return [
-    `${SESSION_COOKIE}=`,
-    `Path=${path}`,
-    "HttpOnly",
-    "Secure",
-    "SameSite=Lax",
-    "Max-Age=0",
-  ].join("; ");
+export function buildClearSessionCookie(path = "/", appBaseUrl?: string): string {
+  const secure = !isLoopbackAppBaseUrl(appBaseUrl);
+  const parts = [`${SESSION_COOKIE}=`, `Path=${path}`, "HttpOnly", "SameSite=Lax", "Max-Age=0"];
+  if (secure) parts.push("Secure");
+  return parts.join("; ");
 }

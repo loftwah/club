@@ -33,9 +33,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await service.revokeSession(sessionId, "MEMBER_LOGOUT");
   }
   const headers = new Headers({ Location: "/portal/login/" });
-  headers.append("Set-Cookie", buildClearSessionCookie("/"));
+  headers.append("Set-Cookie", buildClearSessionCookie("/", env.APP_BASE_URL));
   // Clear the pre-onboarding cookie scope as well so a session issued by an
   // older deployment cannot survive logout on portal-only paths.
-  headers.append("Set-Cookie", buildClearSessionCookie("/portal"));
+  headers.append("Set-Cookie", buildClearSessionCookie("/portal", env.APP_BASE_URL));
   return new Response(null, { status: 302, headers });
 };

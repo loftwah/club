@@ -41,7 +41,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
       status: 302,
       headers: {
         Location: safeInternalPath(url.searchParams.get("next")) ?? "/portal/",
-        "Set-Cookie": buildSessionCookie(session.id, maxAgeSec),
+        "Set-Cookie": buildSessionCookie(session.id, maxAgeSec, env.APP_BASE_URL),
       },
     });
   } catch (err) {

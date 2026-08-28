@@ -24,6 +24,13 @@
     "APP_BASE_URL": "https://club.loftwah.com",
   },
 
+  // Local dev override lives in `.dev.vars` (gitignored). It
+  // forces APP_BASE_URL to the canonical loopback origin so
+  // the local dev-fixture endpoint and the magic-link service
+  // both see a loopback URL and surface the devUrl that the
+  // visual suite uses. Production deploys use the top-level
+  // `vars` value and are never affected.
+
   "kv_namespaces": [
     {
       "binding": "SESSION",

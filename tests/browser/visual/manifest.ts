@@ -27,6 +27,7 @@
 //      the only place API/internal routes are excluded.
 
 import { ONBOARDING_STEPS } from "../../../src/services/onboarding";
+import { listChapters } from "../../../src/lib/chapters";
 
 export interface Viewport {
   readonly id: string;
@@ -135,58 +136,21 @@ const PUBLIC_SURFACES: ReadonlyArray<VisualSurface> = [
     snapshot: true,
     geometry: true,
   },
-  // All five chapter detail variants are listed explicitly so the
-  // template is exercised with different text lengths.
-  {
-    id: "chapters-melbourne",
-    path: "/chapters/melbourne/",
+  // Chapter detail variants are derived from the canonical
+  // chapter catalogue (`listChapters()`) so a newly configured
+  // non-Australian chapter is automatically picked up. The
+  // catalogue is the single source of truth; do not hard-code
+  // slugs here.
+  ...listChapters().map<VisualSurface>((chapter) => ({
+    id: `chapters-${chapter.slug}`,
+    path: `/chapters/${chapter.slug}/`,
     auth: "public",
     setup: "none",
     viewports: ALL_VIEWPORTS,
-    ready: { heading: /Melbourne/i },
+    ready: { heading: new RegExp(chapter.name, "i") },
     snapshot: true,
     geometry: true,
-  },
-  {
-    id: "chapters-sydney",
-    path: "/chapters/sydney/",
-    auth: "public",
-    setup: "none",
-    viewports: ALL_VIEWPORTS,
-    ready: { heading: /Sydney/i },
-    snapshot: true,
-    geometry: true,
-  },
-  {
-    id: "chapters-brisbane",
-    path: "/chapters/brisbane/",
-    auth: "public",
-    setup: "none",
-    viewports: ALL_VIEWPORTS,
-    ready: { heading: /Brisbane/i },
-    snapshot: true,
-    geometry: true,
-  },
-  {
-    id: "chapters-adelaide",
-    path: "/chapters/adelaide/",
-    auth: "public",
-    setup: "none",
-    viewports: ALL_VIEWPORTS,
-    ready: { heading: /Adelaide/i },
-    snapshot: true,
-    geometry: true,
-  },
-  {
-    id: "chapters-perth",
-    path: "/chapters/perth/",
-    auth: "public",
-    setup: "none",
-    viewports: ALL_VIEWPORTS,
-    ready: { heading: /Perth/i },
-    snapshot: true,
-    geometry: true,
-  },
+  })),
   {
     id: "journal",
     path: "/journal/",
@@ -291,15 +255,6 @@ const PUBLIC_SURFACES: ReadonlyArray<VisualSurface> = [
     geometry: true,
   },
 ];
-
-const ALL_VIEWPORTS_UNUSED_DUPLICATE: ReadonlyArray<VisualViewportId> = [
-  "desktop",
-  "compact",
-  "boundary",
-  "mobile",
-  "minimum",
-];
-void ALL_VIEWPORTS_UNUSED_DUPLICATE;
 
 // ---------------------------------------------------------------------------
 // Member surfaces
