@@ -10,13 +10,13 @@ import "../../styles/app-surfaces.css";
 // meeting looks like a real prior commitment in the
 // member's calendar.
 import { runtimeEnv } from "@lib/runtime-env";
-import { requireOnboardingSession } from "../../lib/portal-auth";
+import { requireSession } from "../../lib/portal-auth";
 import { ClubMeetingService } from "../../services/club-meeting-service";
 import { SystemClock } from "../../infra/clock";
 import { D1AuditWriter } from "../../infra/audit";
 
 const env = runtimeEnv;
-const ctx = await requireOnboardingSession(Astro.request, env);
+const ctx = await requireSession(Astro.request, env);
 if (!ctx) {
   return Astro.redirect("/portal/login/?next=/portal/club-meetings/");
 }

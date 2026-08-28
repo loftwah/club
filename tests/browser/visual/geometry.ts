@@ -498,6 +498,21 @@ function runInvariants(
       scrollable > 0 &&
       (el.computed.overflowX === "hidden" || el.computed.overflowX === "clip")
     ) {
+      // Skip accessibility-hidden elements: a `.sr-only` span
+      // (or any element that is visually clipped to 1×1 with
+      // overflow:hidden / clip:rect(0,0,0,0)) intentionally
+      // contains text that is wider than its visible rect so it
+      // is available to assistive technology. The "clipping"
+      // here is the standard screen-reader pattern, not a real
+      // visual defect.
+      const isAccessibilityHidden =
+        el.classes.includes("sr-only") ||
+        el.classes.some((c) => c === "visually-hidden" || c === "a11y-hidden") ||
+        el.computed.position === "absolute" ||
+        el.computed.position === "fixed"
+          ? el.rect.width <= 1 && el.rect.height <= 1
+          : false;
+      if (isAccessibilityHidden) continue;
       violations.push({
         kind: "text-clipping",
         message: `text overflows clientWidth by ${scrollable}px while overflow-x is ${el.computed.overflowX}`,

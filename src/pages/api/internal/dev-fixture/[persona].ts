@@ -265,6 +265,39 @@ function deriveLoopbackBaseUrl(_request: Request): string {
   return "http://127.0.0.1:8788";
 }
 
+async function findOrCreateMember(
+  env: ReturnType<typeof getRuntimeEnv>,
+  ms: MembershipService,
+  email: string,
+  preferredName: string,
+): Promise<string> {
+  // Two workers may hit the same fixture in parallel. The
+  // shared `createApplicant` does a plain INSERT, so the
+  // second worker would fail with a UNIQUE constraint on
+  // `members.email`. The fixture is reentrant by design:
+  // every state-machine call below is idempotent on the
+  // member row. We probe twice, attempt the create, and
+  // re-read on UNIQUE-constraint failure.
+  const existing = await env.DB.prepare(`SELECT id FROM members WHERE email = ?`)
+    .bind(email)
+    .first<{ id: string }>();
+  if (existing) return existing.id;
+  const probe = await env.DB.prepare(`SELECT id FROM members WHERE email = ?`)
+    .bind(email)
+    .first<{ id: string }>();
+  if (probe) return probe.id;
+  try {
+    const created = await ms.createApplicant({ email, preferredName });
+    return created.member.id;
+  } catch (err) {
+    const re = await env.DB.prepare(`SELECT id FROM members WHERE email = ?`)
+      .bind(email)
+      .first<{ id: string }>();
+    if (re) return re.id;
+    throw err;
+  }
+}
+
 async function seedMemberFixture(
   env: ReturnType<typeof getRuntimeEnv>,
   request: Request,
@@ -278,16 +311,7 @@ async function seedMemberFixture(
   const tiers = await ensureTierIds(env);
   const legal = await ensureLegalDocuments(env);
 
-  const existing = await env.DB.prepare(`SELECT id FROM members WHERE email = ?`)
-    .bind(email)
-    .first<{ id: string }>();
-  let memberId: string;
-  if (existing) {
-    memberId = existing.id;
-  } else {
-    const created = await ms.createApplicant({ email, preferredName: "Local Member" });
-    memberId = created.member.id;
-  }
+  const memberId = await findOrCreateMember(env, ms, email, "Local Member");
 
   // Drive the membership to ACTIVE so every member surface renders.
   await ms.setIdentity(memberId, {
@@ -397,8 +421,8 @@ async function seedOnboardingFixture(
   if (existing) {
     memberId = existing.id;
   } else {
-    const created = await ms.createApplicant({ email, preferredName: "Onboarding Subject" });
-    memberId = created.member.id;
+    const memberIdNew = await findOrCreateMember(env, ms, email, "Onboarding Subject");
+    memberId = memberIdNew;
   }
   // Drive the membership to ALIGNMENT_COMPLETE so onboarding
   // surfaces render and the middle-of-wizard screens are
@@ -478,8 +502,8 @@ async function seedOperatorFixture(
   if (existing) {
     memberId = existing.id;
   } else {
-    const created = await ms.createApplicant({ email, preferredName: "Operator" });
-    memberId = created.member.id;
+    const memberIdNew = await findOrCreateMember(env, ms, email, "Operator");
+    memberId = memberIdNew;
   }
   await ms.setIdentity(memberId, {
     preferredName: "Operator",

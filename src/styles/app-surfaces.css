@@ -449,6 +449,14 @@
   padding: 1rem 1.15rem;
   border-left: 0.35rem solid var(--signal);
   background: var(--signal-soft);
+  /* Long blocker keys like `membership_state:ALIGNMENT_COMPLETE`
+     must be allowed to break inside the callout at the
+     narrowest viewport. Without `overflow-wrap: anywhere` a
+     single technical token pushes the callout wider than the
+     page and triggers the geometry detector's text-clipping
+     invariant. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .app-callout--calm {

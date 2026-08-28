@@ -307,6 +307,18 @@ main {
   overflow: clip;
 }
 
+/* The hero headings across the public pages use a `max-width:
+   12ch` cap. At the narrowest viewport (320px) the cap can
+   still be wider than the shell's content area when a long
+   word or punctuation pair sits next to kerning. Allow
+   overflow-wrap on the hero headings so the page reflows
+   rather than pushing the page wider than the viewport. The
+   cap stays — the headings still respect the editorial
+   width at every other viewport. */
+.pwy-hero h1 {
+  overflow-wrap: break-word;
+}
+
 .eyebrow,
 .kicker,
 .section-label {

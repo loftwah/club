@@ -161,7 +161,21 @@ if (!devReady) {
 }
 console.info(`✓ wrangler dev ready`);
 
-const e2eCmd = ["node", "node_modules/@playwright/test/cli.js", "test", "--reporter=list"];
+const e2eCmd = [
+  "node",
+  "node_modules/@playwright/test/cli.js",
+  "test",
+  "--reporter=list",
+  // The visual baselines project is opt-in only; it runs via
+  // `pnpm test:visual` and `pnpm test:visual:update`. Default
+  // acceptance must not compare against baselines (a reviewer
+  // must approve each baseline before it lands in git) and
+  // must not pull the long-running visual matrix into the
+  // gate. The default projects are `chromium` and
+  // `webkit-targeted` only.
+  "--project=chromium",
+  "--project=webkit-targeted",
+];
 console.info(`\n→ browser E2E (Playwright)`);
 const e2eStart = Date.now();
 const e2e = spawnSync(e2eCmd[0], e2eCmd.slice(1), {

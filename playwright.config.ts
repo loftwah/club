@@ -16,7 +16,6 @@ export default defineConfig({
   // `pnpm acceptance` must not regenerate baselines from a
   // current page state; reviewers must approve each baseline
   // before it lands in git.
-  testIgnore: /visual\/baselines\.spec\.ts/,
   fullyParallel: true,
   reporter: [["list"], ["html", { open: "never" }]],
   timeout: 30_000,
@@ -30,6 +29,9 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      // The default acceptance project excludes the visual
+      // baselines suite (opt-in only) and the WebKit targeted
+      // tests (run on the `webkit-targeted` project).
       testIgnore: /webkit\.spec\.ts|visual\/baselines\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
@@ -43,6 +45,10 @@ export default defineConfig({
     },
     {
       name: "visual",
+      // The visual baselines project only runs baselines.spec.ts.
+      // The opt-in entry points are `pnpm test:visual` and
+      // `pnpm test:visual:update`. Reviewers must approve each
+      // baseline PNG before it lands in git.
       testMatch: /visual\/baselines\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],

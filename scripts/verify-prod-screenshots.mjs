@@ -98,12 +98,12 @@ let failed = 0;
 for (const r of results) {
   const ok = r.status === 200 && r.overflow <= 1 && (r.h1Size == null || r.h1CapOk);
   if (!ok) failed++;
-  console.log(
+  console.info(
     `${ok ? "OK  " : "FAIL"}  ${r.name.padEnd(32)}  ${r.viewport.padEnd(11)}  ` +
       `status=${r.status}  overflow=${r.overflow}  ` +
       `shell=${r.shellWidth?.toFixed(0) ?? "-"}  heroCols=${r.heroColumns ?? "-"}  ` +
       `h1=${r.h1Size ?? "-"}${r.h1CapOk === false ? " !OVER" : ""}  dt=${r.dt}ms`,
   );
 }
-console.log(`\n${results.length - failed}/${results.length} viewports passed`);
+console.info(`\n${results.length - failed}/${results.length} viewports passed`);
 process.exit(failed > 0 ? 1 : 0);
