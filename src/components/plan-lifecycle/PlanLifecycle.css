@@ -2,45 +2,27 @@
  * PlanLifecycle is intentionally self-contained. Import this file once at
  * the Astro integration point; the component itself has no CSS side effect.
  * The DOM remains complete and legible when this file or JavaScript is absent.
+ *
+ * Issue #9: the component now consumes the canonical Dispatch Wall
+ * design tokens defined in src/styles/global.css rather than a
+ * local mini-palette. Pill/999px radii and decorative gradient
+ * washes are removed so the component reads like a schedule
+ * artefact, not a SaaS card.
  */
 
 .plan-lifecycle {
-  --plan-lifecycle-paper: #f5f2ea;
-  --plan-lifecycle-paper-raised: #fbf9f3;
-  --plan-lifecycle-ink: #171612;
-  --plan-lifecycle-muted: #69645a;
-  --plan-lifecycle-line: rgba(23, 22, 18, 0.18);
-  --plan-lifecycle-line-soft: rgba(23, 22, 18, 0.1);
-  --plan-lifecycle-signal: #b23a12;
-  --plan-lifecycle-signal-soft: #f1d9c9;
-  --plan-lifecycle-success: #2f6742;
+  /* Width cap matches the surrounding 90rem shell but is bounded
+     to a reasonable component width so a long fixture cannot
+     produce a giant horizontal card. */
   --plan-lifecycle-width: min(100%, 66rem);
   position: relative;
-  isolation: isolate;
   display: grid;
   width: var(--plan-lifecycle-width);
-  overflow: hidden;
-  color: var(--plan-lifecycle-ink);
-  background: var(--plan-lifecycle-paper);
-  border: 1px solid var(--plan-lifecycle-line);
-  border-radius: 0.45rem;
-  box-shadow: 0 1.2rem 3rem rgba(28, 21, 14, 0.08);
-  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
-}
-
-.plan-lifecycle__wash {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 93% 0%, rgba(178, 58, 18, 0.1), transparent 28%),
-    linear-gradient(
-      125deg,
-      transparent 0 48%,
-      rgba(255, 255, 255, 0.32) 48.1% 48.3%,
-      transparent 48.4%
-    );
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
 }
 
 .plan-lifecycle__header,
@@ -48,7 +30,6 @@
 .plan-lifecycle__timeline-wrap,
 .plan-lifecycle__footer {
   position: relative;
-  z-index: 1;
   padding-inline: clamp(1.15rem, 4vw, 3rem);
 }
 
@@ -69,8 +50,8 @@
 .plan-lifecycle__timeline-label,
 .plan-lifecycle__current-label {
   margin: 0;
-  color: var(--plan-lifecycle-muted);
-  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--ink-soft);
+  font-family: var(--font-data);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -80,9 +61,11 @@
 
 .plan-lifecycle__title {
   margin: 0.6rem 0 0;
-  font-family: var(--font-serif, Georgia, serif);
-  font-size: clamp(1.8rem, 5vw, 3.7rem);
-  font-weight: 400;
+  /* Display face — the lifecycle is a product/status interface,
+     not a letter, so it lives in the display grammar. */
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 680;
   letter-spacing: -0.035em;
   line-height: 0.98;
   text-wrap: balance;
@@ -91,21 +74,22 @@
 .plan-lifecycle__detail {
   max-width: 36rem;
   margin: 1rem 0 0;
-  color: var(--plan-lifecycle-muted);
+  color: var(--ink-soft);
   font-size: 0.98rem;
   line-height: 1.5;
 }
 
+/* Current state — a small status docket, not a pill. */
 .plan-lifecycle__current {
   display: grid;
   flex: 0 0 auto;
   justify-items: end;
   gap: 0.35rem;
   margin: 0;
-  padding: 0.7rem 0.85rem;
-  color: var(--plan-lifecycle-signal);
-  border: 1px solid rgba(178, 58, 18, 0.33);
-  border-radius: 999px;
+  padding: 0.55rem 0.7rem;
+  color: var(--signal-text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
   text-align: right;
 }
 
@@ -121,8 +105,8 @@
   margin: 0;
   padding-top: 1rem;
   padding-bottom: 1rem;
-  border-top: 1px solid var(--plan-lifecycle-line-soft);
-  border-bottom: 1px solid var(--plan-lifecycle-line-soft);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
 }
 
 .plan-lifecycle__fact {
@@ -131,8 +115,8 @@
 
 .plan-lifecycle__fact dt {
   margin-bottom: 0.3rem;
-  color: var(--plan-lifecycle-muted);
-  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--ink-soft);
+  font-family: var(--font-data);
   font-size: 0.63rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -172,13 +156,13 @@
 
 .plan-lifecycle__timeline::before {
   right: 0.55rem;
-  background: var(--plan-lifecycle-line);
+  background: var(--line);
 }
 
 .plan-lifecycle__timeline::after {
   right: auto;
   width: var(--plan-lifecycle-progress);
-  background: var(--plan-lifecycle-signal);
+  background: var(--signal);
   transition: width 460ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -197,9 +181,9 @@
   width: 0.9rem;
   height: 0.9rem;
   margin-bottom: 0.85rem;
-  border: 1px solid var(--plan-lifecycle-line);
+  border: 1px solid var(--line);
   border-radius: 50%;
-  background: var(--plan-lifecycle-paper);
+  background: var(--paper);
   transition:
     background-color 220ms ease,
     border-color 220ms ease,
@@ -215,11 +199,11 @@
 }
 
 .plan-lifecycle__step--complete .plan-lifecycle__marker {
-  border-color: var(--plan-lifecycle-signal);
+  border-color: var(--signal);
 }
 
 .plan-lifecycle__step--complete .plan-lifecycle__marker span {
-  background: var(--plan-lifecycle-signal);
+  background: var(--signal);
 }
 
 .plan-lifecycle__step--current .plan-lifecycle__marker {
@@ -227,7 +211,7 @@
 }
 
 .plan-lifecycle__step--current .plan-lifecycle__marker span {
-  background: var(--plan-lifecycle-signal);
+  background: var(--signal);
 }
 
 .plan-lifecycle__step-copy {
@@ -241,7 +225,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
-  font-family: var(--font-mono, ui-monospace, monospace);
+  font-family: var(--font-data);
   font-size: 0.73rem;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -251,13 +235,13 @@
 
 .plan-lifecycle__step-description {
   max-width: 12rem;
-  color: var(--plan-lifecycle-muted);
+  color: var(--ink-soft);
   font-size: 0.78rem;
   line-height: 1.4;
 }
 
 .plan-lifecycle__step-current {
-  color: var(--plan-lifecycle-signal);
+  color: var(--signal);
   font-size: 0.58rem;
   letter-spacing: 0.08em;
 }
@@ -269,23 +253,22 @@
   gap: 1rem;
   padding-top: 1rem;
   padding-bottom: 1.3rem;
-  background: rgba(255, 255, 255, 0.22);
-  border-top: 1px solid var(--plan-lifecycle-line-soft);
+  border-top: 1px solid var(--line);
 }
 
 .plan-lifecycle__message {
   margin: 0;
-  color: var(--plan-lifecycle-muted);
+  color: var(--ink-soft);
   font-size: 0.88rem;
 }
 
 .plan-lifecycle__advance {
   flex: 0 0 auto;
   padding: 0.65rem 0.85rem;
-  color: var(--plan-lifecycle-paper-raised);
-  background: var(--plan-lifecycle-ink);
-  border: 1px solid var(--plan-lifecycle-ink);
-  border-radius: 999px;
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius);
   cursor: pointer;
   font: inherit;
   font-size: 0.78rem;
@@ -296,25 +279,28 @@
 }
 
 .plan-lifecycle__advance:hover {
-  color: var(--plan-lifecycle-ink);
-  background: transparent;
+  color: var(--ink);
+  background: var(--paper);
   transform: translateY(-1px);
 }
 
 .plan-lifecycle__advance:focus-visible {
-  outline: 3px solid var(--plan-lifecycle-signal-soft);
+  outline: 3px solid var(--signal-soft);
   outline-offset: 3px;
 }
 
+/* Cancellation is successful fulfilment — the canonical --ok
+   colour carries it. Both cancelled and archived states are
+   terminal, so they share the same success treatment. */
 .plan-lifecycle[data-state="cancelled"] .plan-lifecycle__current,
 .plan-lifecycle[data-state="archived"] .plan-lifecycle__current {
-  color: var(--plan-lifecycle-success);
-  border-color: rgba(47, 103, 66, 0.35);
+  color: var(--ok);
+  border-color: var(--line-strong);
 }
 
 .plan-lifecycle[data-state="cancelled"] .plan-lifecycle__timeline::after,
 .plan-lifecycle[data-state="archived"] .plan-lifecycle__timeline::after {
-  background: var(--plan-lifecycle-success);
+  background: var(--ok);
 }
 
 .plan-lifecycle[data-static="true"] .plan-lifecycle__timeline::after,

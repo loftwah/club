@@ -739,6 +739,104 @@ main {
   padding-top: 1rem;
   border-top: 1px solid var(--line);
 }
+
+/* Issue #5: the 15-step progress list must not consume the first
+ * viewport on a phone. The list is wrapped in a native <details>
+ * element with a compact summary so a member can see the current
+ * step's heading and form first, and only open the full list when
+ * they want to jump to a different step. The <details> is closed
+ * by default on narrow viewports; the wider layout auto-expands
+ * it so the wizard reads as one continuous flow on desktop. */
+.onboarding-progress-details {
+  margin: 1.5rem 0 2rem;
+  border-block: 1px solid var(--line);
+}
+.onboarding-progress-details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-data);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.onboarding-progress-details > summary::-webkit-details-marker {
+  display: none;
+}
+.onboarding-progress-details > summary::before {
+  content: "+";
+  display: inline-grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.6rem;
+  border: 1px solid var(--line-strong);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+.onboarding-progress-details[open] > summary::before {
+  content: "−";
+}
+.onboarding-progress__summary-label {
+  flex: 1 1 auto;
+  font-weight: 700;
+}
+.onboarding-progress__summary-hint {
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+.onboarding-progress-details[open] {
+  padding-bottom: 1.5rem;
+}
+.onboarding-progress-details .onboarding-progress {
+  margin: 0.5rem 0 0;
+}
+
+/* On wider viewports the wizard shows the full progress grid
+ * alongside the current step (one column above the form). We
+ * only suppress the disclosure on viewports that can actually
+ * fit the 12rem tracks horizontally — at 1024px and above the
+ * five-by-three grid fits cleanly. */
+@media (min-width: 64rem) {
+  .onboarding-progress-details > summary {
+    display: none;
+  }
+  .onboarding-progress-details {
+    border: 0;
+    margin: 1.5rem 0 0;
+  }
+  .onboarding-progress-details[open] .onboarding-progress,
+  .onboarding-progress-details .onboarding-progress {
+    display: grid;
+  }
+}
+/* On narrow viewports the progress details starts collapsed so
+ * the current step heading + first form control are the dominant
+ * content in the first viewport. The <details> remains keyboard
+ * and assistive-technology reachable. */
+@media (max-width: 63.99rem) {
+  .onboarding-progress-details {
+    /* native <details> defaults to closed; we keep the default. */
+  }
+}
+
+/* The onboarding page head is a one-column stack on narrow
+ * viewports so the breadcrumb, h1 and the Step X of Y lede all
+ * arrive before the form. */
+.app-page-head--onboarding {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.app-page-head--onboarding .app-page-head__aside {
+  border-left-color: var(--calendar);
+  align-self: start;
+  min-width: 12rem;
+}
 .pill {
   display: inline-flex;
   padding: 0.25rem 0.45rem;

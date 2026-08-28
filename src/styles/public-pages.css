@@ -1,0 +1,55 @@
+/*
+ * Public pages (Dispatch Wall) — shared ordinary-route grammar.
+ *
+ * Imported by the secondary public routes so they all share the
+ * same canonical shell, type hierarchy and responsive behaviour
+ * defined in DESIGN.md. The waiting-list route is a documented
+ * focus exception and intentionally keeps its own 78rem/680px
+ * grammar (see /waiting-list/).
+ *
+ * Canonical rules:
+ *   - ordinary public shell: 90rem (--shell) with --gutter padding;
+ *   - primary h1: Archivo Variable, weight 680, line-height 0.95,
+ *     letter-spacing -0.045em, capped at clamp(3rem, 7vw, 5.8rem);
+ *   - ordinary public collapse: 48rem (768px).
+ *
+ * Page-specific layouts, content and styles still live in each
+ * route; this file is the shared chassis only.
+ */
+
+.pwy-page {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+}
+
+.pwy-shell {
+  max-width: var(--shell); /* 90rem */
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* Primary public h1 — canonical Dispatch Wall display grammar.
+ *
+ * No ordinary public route primary heading may exceed 5.8rem
+ * without a documented exception. Routes that intentionally use
+ * a smaller fluid term should override the max, not the cap. */
+.pwy-page h1 {
+  font-family: var(--font-display);
+  font-weight: 680;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  font-size: clamp(3rem, 7vw, 5.8rem);
+  margin: 0;
+}
+
+/* Documented narrow composition for ordinary public routes. */
+@media (max-width: 48rem) {
+  .pwy-page .pwy-hero__grid,
+  .pwy-page .pwy-two-column,
+  .pwy-page .pwy-schedule__grid,
+  .pwy-page .pwy-operator {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}

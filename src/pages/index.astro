@@ -14,32 +14,36 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
 
 <Base
   title={brand.name}
-  description={brand.seo.description}
+  description={brand.shortProposition}
   canonicalPath="/"
   ogImagePath="/og/default.svg"
 >
   <section class="dispatch-hero" aria-labelledby="hero-title">
     <div class="shell dispatch-hero__docket" aria-label="Product summary">
-      <span>Membership / Melbourne</span>
-      <span>Ordinary plans / Cancelled as promised</span>
+      <span>Calendar protection + planned cancellation</span>
+      <span>Real commitments / Credibly cancelled</span>
       <span>Issue 001 / Waitlist</span>
     </div>
 
     <div class="shell dispatch-hero__grid">
       <div class="dispatch-hero__copy">
         <h1 id="hero-title">
-          Plans are made.<br />
-          <span>Then unmade.</span><br />
-          You remain.
+          A real commitment,<br />
+          <span>credibly cancelled</span><br />
+          on time.
         </h1>
-        <div class="dispatch-mobile-status" aria-label="Illustrative plan status">
-          <span>A future date / No attendance required</span>
+        <div class="dispatch-mobile-status" aria-label="Sample meeting status">
+          <span>A scheduled block / Nobody needs to turn up</span>
           <strong>Cancelled, as promised.</strong>
         </div>
         <div class="dispatch-hero__intro">
           <p>
-            A real membership built around invitations you are never expected to accept. We make
-            thoughtful plans with you, cancel them on purpose, and keep the relationship going.
+            Plans With You reserves a real block in your calendar, sends a credible email confirming
+            the commitment, and cancels the meeting at the configured time so your week is unbroken.
+            Use it as a plausible prior commitment, or simply to keep the time yours.
+          </p>
+          <p class="dispatch-hero__lede-source" data-testid="dispatch-proposition">
+            Protected time with a commitment that looks the part — and predictably gets cancelled.
           </p>
           <a href="/waiting-list/" class="hero__cta">
             Join the waitlist <ArrowUpRight size={16} stroke-width={1.8} aria-hidden="true" />
@@ -48,7 +52,7 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
         </div>
       </div>
 
-      <aside class="dispatch-card" aria-label="Illustration of a typical plan being cancelled">
+      <aside class="dispatch-card" aria-label="Illustration of a typical meeting being cancelled">
         <div class="dispatch-card__top">
           <span>PWY / Ordinary plan</span>
           <span>Illustrative plan only</span>
@@ -88,16 +92,16 @@ const tiers = [brand.tiers.member, brand.tiers.corresponding, brand.tiers.deluxe
     </dl>
   </section>
 
-  <section class="manifesto" aria-labelledby="manifesto-title">
+  <section class="manifesto" aria-labelledby="manifesto-title" data-testid="dispatch-uses">
     <div class="shell manifesto__grid">
       <div>
         <h2 id="manifesto-title">You were on the list the whole time.</h2>
       </div>
       <div class="manifesto__letter">
         <p>
-          Most clubs ask you to prove you belong by turning up. Plans With You does not. The
-          invitation carries the feeling; the cancellation carries the relief; the memory carries
-          the relationship.
+          Two practical reasons people use Plans With You: as a credible prior commitment when they
+          need to say no to something else, and as a quiet way to keep a block of time their own so
+          the rest of the week does not fill it in.
         </p>
         <p class="manifesto__signoff">Warmly,<br /><em>Plans With You</em></p>
       </div>

@@ -29,6 +29,8 @@
     "d1:migrate:remote": "wrangler d1 migrations apply social-club --remote",
     "migrate:reset:local": "rm -rf .wrangler/state && pnpm d1:migrate:local",
     "acceptance": "node scripts/acceptance.mjs",
+    "test:visual": "node node_modules/@playwright/test/cli.js test --project=visual",
+    "test:visual:update": "node node_modules/@playwright/test/cli.js test --project=visual --update-snapshots",
     "video:studio": "remotion studio video/index.ts --no-open",
     "video:status": "node scripts/video/status.mjs",
     "video:render": "node scripts/video/render.mjs",

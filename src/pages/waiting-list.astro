@@ -236,9 +236,14 @@ const tierName = validTier ? slugToName[validTier] : null;
     text-decoration: none;
     text-transform: uppercase;
   }
-  .pwy-hero__cta:hover {
-    background: var(--cobalt);
+  .pwy-hero__cta:hover,
+  .pwy-hero__cta:focus-visible {
+    background: var(--calendar);
     color: white;
+  }
+  .pwy-hero__cta:focus-visible {
+    outline: 3px solid var(--calendar);
+    outline-offset: 2px;
   }
   .pwy-kicker {
     margin: 0 0 1rem;

@@ -8,6 +8,7 @@ import { runtimeEnv } from "@lib/runtime-env";
 // The wizard shows the current step, the remaining blockers,
 // and never activates a paid member without required gates.
 import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
 import {
   OnboardingService,
   ONBOARDING_STEPS,
@@ -59,48 +60,45 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
   description="Set up your membership."
   canonicalPath={`/onboarding/${step.id}/`}
 >
-  <section class="section">
+  <section class="app-surface">
     <div class="container">
-      <p style="color: var(--fg-faint)">
-        <a href="/onboarding/">Onboarding</a> / {step.title}
-      </p>
-      <h1>Onboarding</h1>
-      {
-        applicant ? (
-          <p>
-            Signed in as <strong>{applicant.preferred_name ?? applicant.email}</strong>
+      <header class="app-page-head app-page-head--onboarding">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb">
+            <a href="/portal/">Portal</a> / Onboarding / {step.title}
           </p>
-        ) : (
-          <p style="color: var(--fg-muted)">
-            No applicant record. <a href="/waiting-list/">Join the waitlist</a> first.
+          <h1>Onboarding</h1>
+          <p class="app-lede">
+            Step <strong>{step.order}</strong> of {ONBOARDING_STEPS.length} · {step.title}
+            {step.requiredForActivation ? " · required" : ""}
           </p>
-        )
-      }
-
-      <h2>Progress</h2>
-      <ol class="onboarding-progress">
-        {
-          ONBOARDING_STEPS.map((s) => {
-            const isCurrent = s.id === stepId;
-            const isDone = s.order < step.order;
-            const classes = ["onboarding-progress__step"];
-            if (isCurrent) classes.push("is-current");
-            if (isDone) classes.push("is-done");
-            const cls = classes.join(" ");
-            return (
-              <li class={cls}>
-                <span class="onboarding-progress__num">{s.order}</span>
-                <a href={memberId ? `/onboarding/${s.id}/` : "#"}>{s.title}</a>
-                {s.requiredForActivation ? <span class="pill pill--warn">required</span> : null}
-              </li>
-            );
-          })
-        }
-      </ol>
+          {
+            applicant ? (
+              <p class="app-note">
+                Signed in as <strong>{applicant.preferred_name ?? applicant.email}</strong>
+              </p>
+            ) : (
+              <p class="app-note">
+                No applicant record. <a href="/waiting-list/">Join the waitlist</a> first.
+              </p>
+            )
+          }
+        </div>
+        <dl class="app-page-head__aside" aria-label="Current onboarding status">
+          <dt>Step</dt>
+          <dd>
+            {String(step.order).padStart(2, "0")} / {
+              String(ONBOARDING_STEPS.length).padStart(2, "0")
+            }
+          </dd>
+          <dt>Type</dt>
+          <dd>{step.requiredForActivation ? "Required" : "Optional"}</dd>
+        </dl>
+      </header>
 
       {
         evaluation && !evaluation.ready && evaluation.blockers.length > 0 ? (
-          <div class="onboarding-blockers" role="status">
+          <div class="app-callout app-callout--danger onboarding-blockers" role="status">
             <h2>Remaining blockers</h2>
             <ul>
               {evaluation.blockers.map((b) => (
@@ -111,12 +109,47 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
         ) : null
       }
 
-      <h2>Step {step.order}: {step.title}</h2>
-      <p style="color: var(--fg-muted)">{step.description}</p>
+      <details class="onboarding-progress-details" name="onboarding-progress">
+        <summary>
+          <span class="onboarding-progress__summary-label"
+            >All {ONBOARDING_STEPS.length} onboarding steps</span
+          >
+          <span class="onboarding-progress__summary-hint">
+            {ONBOARDING_STEPS.length - step.order} remaining after this one
+          </span>
+        </summary>
+        <ol class="onboarding-progress">
+          {
+            ONBOARDING_STEPS.map((s) => {
+              const isCurrent = s.id === stepId;
+              const isDone = s.order < step.order;
+              const classes = ["onboarding-progress__step"];
+              if (isCurrent) classes.push("is-current");
+              if (isDone) classes.push("is-done");
+              const cls = classes.join(" ");
+              return (
+                <li class={cls}>
+                  <span class="onboarding-progress__num">{s.order}</span>
+                  <a href={memberId ? `/onboarding/${s.id}/` : "#"}>{s.title}</a>
+                  {s.requiredForActivation ? <span class="pill pill--warn">required</span> : null}
+                </li>
+              );
+            })
+          }
+        </ol>
+      </details>
+
+      <section class="app-section" aria-labelledby="current-step-heading">
+        <div class="app-section__head">
+          <h2 id="current-step-heading">Step {step.order}: {step.title}</h2>
+          <p>{step.requiredForActivation ? "Required" : "Optional"}</p>
+        </div>
+        <p class="app-lede">{step.description}</p>
+      </section>
 
       {
         step.id === "identity" ? (
-          <form class="form" method="post" action="/api/onboarding/identity">
+          <form class="app-form" method="post" action="/api/onboarding/identity">
             <label for="preferredName">Preferred first name</label>
             <input
               id="preferredName"
@@ -166,10 +199,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               maxlength="60"
               value={(stepData as Record<string, string> | null)?.timezone ?? "Australia/Melbourne"}
             />
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "chapter" ? (
-          <form class="form" method="post" action="/api/onboarding/chapter">
+          <form class="app-form" method="post" action="/api/onboarding/chapter">
             <label for="chapterId">Chapter</label>
             <select id="chapterId" name="chapterId" required>
               <option
@@ -209,10 +246,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
                 Perth — coming
               </option>
             </select>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "tier" ? (
-          <form class="form" method="post" action="/api/onboarding/tier">
+          <form class="app-form" method="post" action="/api/onboarding/tier">
             <label for="tier">Choose your tier</label>
             <div>
               <label>
@@ -235,10 +276,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
                 {brand.tiers.deluxe.tagline}
               </label>
             </div>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "why" ? (
-          <form class="form" method="post" action="/api/onboarding/why">
+          <form class="app-form" method="post" action="/api/onboarding/why">
             <label>Why are you joining? (multi-select)</label>
             <div>
               <label>
@@ -296,10 +341,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
                 <input type="checkbox" name="why" value="funny" /> I mostly think this is funny.
               </label>
             </div>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "event-preferences" ? (
-          <form class="form" method="post" action="/api/onboarding/event-preferences">
+          <form class="app-form" method="post" action="/api/onboarding/event-preferences">
             <label for="frequency">Frequency</label>
             <select id="frequency" name="frequency">
               <option value="occasional">Occasional</option>
@@ -338,10 +387,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <label>
               <input type="checkbox" name="types" value="surprise" /> Surprise me
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "communications" ? (
-          <form class="form" method="post" action="/api/onboarding/communications">
+          <form class="app-form" method="post" action="/api/onboarding/communications">
             <label>
               <input type="checkbox" name="opt" value="NEWSLETTER" /> Newsletter (slow, mostly text)
             </label>
@@ -366,10 +419,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <input type="checkbox" name="opt" value="APPEARANCE_INTEREST" /> Appearance service
               interest
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "memory" ? (
-          <form class="form" method="post" action="/api/onboarding/memory">
+          <form class="app-form" method="post" action="/api/onboarding/memory">
             <p>
               You may add facts we can use to personalise correspondence. You can edit or remove any
               fact at any time from the portal.
@@ -386,10 +443,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               What should we <strong>never</strong> mention? (free text, optional)
             </label>
             <textarea id="doNotMention" name="doNotMention" rows="3" maxlength="600" />
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "post" ? (
-          <form class="form" method="post" action="/api/onboarding/post">
+          <form class="app-form" method="post" action="/api/onboarding/post">
             <label for="postalName">Postal name</label>
             <input id="postalName" name="postalName" type="text" maxlength="200" />
             <label for="addressLine1">Address line 1</label>
@@ -406,10 +467,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <input type="checkbox" name="surprisePackages" value="true" /> Surprise packages are
               OK
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "gifts" ? (
-          <form class="form" method="post" action="/api/onboarding/gifts">
+          <form class="app-form" method="post" action="/api/onboarding/gifts">
             <label>
               <input type="checkbox" name="gifts" value="enabled" checked /> Enable gifts (Deluxe
               Member and above)
@@ -427,10 +492,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               maxlength="500"
               placeholder="no alcohol, no leather, no soy candles"
             />
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "calls" ? (
-          <form class="form" method="post" action="/api/onboarding/calls">
+          <form class="app-form" method="post" action="/api/onboarding/calls">
             <label for="callMode">Mode</label>
             <select id="callMode" name="callMode">
               <option value="NO_CALLS">No calls</option>
@@ -453,10 +522,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
             <label>
               <input type="checkbox" name="surpriseCall" value="ok" /> Surprise calls are OK
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "manufactured-commitments" ? (
-          <form class="form" method="post" action="/api/onboarding/manufactured-commitments">
+          <form class="app-form" method="post" action="/api/onboarding/manufactured-commitments">
             <p>
               A manufactured commitment is a consensual artificial social obligation. You ask us to
               construct a plausible visitor. You confirm. We create useful pressure and then
@@ -466,15 +539,19 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <input id="mcOptIn" type="checkbox" name="mcOptIn" value="true" /> I may request
               manufactured commitments in the future
             </label>
-            <p style="color: var(--fg-muted)">
+            <p class="app-note">
               I understand the scenario is constructed. Fictional names may be used. No one is
               really travelling unless I separately book the appearance service. I can abort at any
               time and we will cancel the scenario.
             </p>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "appearance-interest" ? (
-          <form class="form" method="post" action="/api/onboarding/appearance-interest">
+          <form class="app-form" method="post" action="/api/onboarding/appearance-interest">
             <label for="app">
               <select id="app" name="appearance">
                 <option value="INTERESTED">
@@ -484,14 +561,18 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
                 <option value="NOT_INTERESTED">Not interested</option>
               </select>
             </label>
-            <p style="color: var(--fg-muted)">
+            <p class="app-note">
               This is not a booking. Real bookings go through the portal appearance page when the
               service is enabled.
             </p>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "plain-language" ? (
-          <form class="form" method="post" action="/api/onboarding/plain-language">
+          <form class="app-form" method="post" action="/api/onboarding/plain-language">
             <p>
               Before paid activation, the {brand.shortName} asks you to explicitly acknowledge in
               plain language that:
@@ -509,10 +590,14 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <input type="checkbox" name="acknowledged" value="true" required /> I have read and
               acknowledge the above.
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "terms" ? (
-          <form class="form" method="post" action="/api/onboarding/terms">
+          <form class="app-form" method="post" action="/api/onboarding/terms">
             <p>
               {brand.name} shows the exact document version, effective date, and content hash for
               every acceptance. You can re-accept at any time. Re-acceptance of an updated document
@@ -534,7 +619,11 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               <input type="checkbox" name="theatricalAccepted" value="true" required /> I accept the
               Theatrical / Constructed Experience acknowledgement.
             </label>
-            <button type="submit">Save and continue</button>
+            <div class="app-form__actions">
+              <button type="submit" class="app-action">
+                Save and continue
+              </button>
+            </div>
           </form>
         ) : step.id === "payment-gate" ? (
           <div>
@@ -543,7 +632,7 @@ const stepData = memberId ? await onboarding.getStepData(memberId, stepId) : nul
               paid activation is webhook-authoritative (a verified Stripe payment is required) and
               is not enabled until the user explicitly approves paid launch.
             </p>
-            <p style="color: var(--fg-muted)">
+            <p class="app-note">
               {evaluation?.ready
                 ? "All required gates are satisfied. Once Stripe is enabled, the verified payment webhook will activate the membership."
                 : "All required gates must be satisfied before activation. See remaining blockers above."}

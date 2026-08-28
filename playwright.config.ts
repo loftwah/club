@@ -11,6 +11,12 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/browser",
+  // The visual baselines suite is opt-in only. It runs via
+  // `pnpm test:visual` and `pnpm test:visual:update`. Normal
+  // `pnpm acceptance` must not regenerate baselines from a
+  // current page state; reviewers must approve each baseline
+  // before it lands in git.
+  testIgnore: /visual\/baselines\.spec\.ts/,
   fullyParallel: true,
   reporter: [["list"], ["html", { open: "never" }]],
   timeout: 30_000,
@@ -24,13 +30,27 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: /webkit\.spec\.ts/,
-      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /webkit\.spec\.ts|visual\/baselines\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        deviceScaleFactor: 1,
+      },
     },
     {
       name: "webkit-targeted",
       testMatch: /webkit\.spec\.ts/,
       use: { ...devices["iPhone 13"], browserName: "webkit" },
+    },
+    {
+      name: "visual",
+      testMatch: /visual\/baselines\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        deviceScaleFactor: 1,
+        // `reducedMotion` is a context option, applied per
+        // test through `browser.newContext({ reducedMotion: 'reduce' })`
+        // in the baseline spec itself.
+      },
     },
   ],
 });

@@ -1,0 +1,168 @@
+---
+import Base from "@layouts/Base.astro";
+import "../../styles/app-surfaces.css";
+
+// Member-facing Club Meetings portal.
+//
+// A Club Meeting reserves the member's calendar and is
+// automatically cancelled at the configured point. The
+// outward-facing title is intentionally ordinary so the
+// meeting looks like a real prior commitment in the
+// member's calendar.
+import { runtimeEnv } from "@lib/runtime-env";
+import { requireOnboardingSession } from "../../lib/portal-auth";
+import { ClubMeetingService } from "../../services/club-meeting-service";
+import { SystemClock } from "../../infra/clock";
+import { D1AuditWriter } from "../../infra/audit";
+
+const env = runtimeEnv;
+const ctx = await requireOnboardingSession(Astro.request, env);
+if (!ctx) {
+  return Astro.redirect("/portal/login/?next=/portal/club-meetings/");
+}
+const member = ctx.member;
+const clock = new SystemClock();
+const audit = new D1AuditWriter(env.DB, clock);
+const service = new ClubMeetingService({
+  db: env.DB,
+  audit,
+  clock,
+  appBaseUrl: env.APP_BASE_URL,
+});
+const meetings = await service.listForMember(member.id);
+const allowedTitles = ClubMeetingService.allowedTitles();
+---
+
+<Base
+  title="Club Meetings"
+  description="Reserve your calendar with a real commitment the Club will cancel on time."
+  canonicalPath="/portal/club-meetings/"
+>
+  <section class="app-surface">
+    <div class="container">
+      <header class="app-page-head app-page-head--onboarding">
+        <div class="app-page-head__main">
+          <p class="app-breadcrumb"><a href="/portal/">Portal</a> / Club Meetings</p>
+          <h1>Club Meetings</h1>
+          <p class="app-lede">
+            Reserve a real block in your calendar. The Club will cancel the meeting at the
+            configured point. The calendar title stays ordinary — your calendar tools just see a
+            busy block, nothing more.
+          </p>
+        </div>
+        <dl class="app-page-head__aside">
+          <dt>How it works</dt>
+          <dd>
+            1. Pick a title. 2. Pick a start time. 3. Pick how close to the start the Club should
+            cancel. 4. Submit.
+          </dd>
+        </dl>
+      </header>
+
+      <section class="app-section" aria-labelledby="schedule-heading">
+        <div class="app-section__head">
+          <h2 id="schedule-heading">Schedule a meeting</h2>
+          <p>Required fields</p>
+        </div>
+        <form
+          class="app-form"
+          method="post"
+          action="/api/club-meetings"
+          data-testid="schedule-club-meeting"
+        >
+          <div class="app-form__field">
+            <label for="title">Calendar title</label>
+            <select id="title" name="title" required>
+              {allowedTitles.map((t) => <option value={t}>{t}</option>)}
+            </select>
+            <p class="app-form__hint">The title appears in your calendar. Keep it ordinary.</p>
+          </div>
+          <div class="app-form__field">
+            <label for="startAt">Start time (ISO UTC)</label>
+            <input
+              id="startAt"
+              name="startAt"
+              type="text"
+              required
+              placeholder="2026-09-01T18:00:00.000Z"
+            />
+            <p class="app-form__hint">
+              Use UTC. Your local time will be respected via the timezone field below.
+            </p>
+          </div>
+          <div class="app-form__field">
+            <label for="durationMinutes">Duration (minutes)</label>
+            <input
+              id="durationMinutes"
+              name="durationMinutes"
+              type="number"
+              min="1"
+              max="720"
+              value="60"
+              required
+            />
+          </div>
+          <div class="app-form__field">
+            <label for="timezone">Timezone (IANA)</label>
+            <input
+              id="timezone"
+              name="timezone"
+              type="text"
+              value={member.timezone ?? "Australia/Melbourne"}
+              required
+            />
+          </div>
+          <div class="app-form__field">
+            <label for="cancellationWindowMinutes">Cancel how close to the start?</label>
+            <select id="cancellationWindowMinutes" name="cancellationWindowMinutes">
+              <option value="5">5 minutes before</option>
+              <option value="15">15 minutes before</option>
+              <option value="30" selected>30 minutes before (recommended)</option>
+              <option value="60">1 hour before</option>
+              <option value="120">2 hours before</option>
+            </select>
+          </div>
+          <div class="app-form__field app-form__field--full">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" rows="2" maxlength="2000"></textarea>
+          </div>
+          <div class="app-form__actions">
+            <button type="submit" class="app-action">Schedule</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="app-section" aria-labelledby="list-heading">
+        <div class="app-section__head">
+          <h2 id="list-heading">Your meetings</h2>
+          <p>{meetings.length} total</p>
+        </div>
+        {
+          meetings.length === 0 ? (
+            <p class="app-empty">
+              <strong>No meetings yet</strong>
+              <span>Schedule one above and the Club will cancel it at the configured point.</span>
+            </p>
+          ) : (
+            <ul class="app-list">
+              {meetings.map((m) => (
+                <li>
+                  <span class="app-list__label">{m.state}</span>
+                  <div class="app-list__detail">
+                    <strong>{m.title}</strong> — {new Date(m.startAt).toUTCString()} (
+                    {m.durationMinutes} min, {m.timezone})
+                  </div>
+                  <span class="app-list__label">
+                    {m.cancelledAt
+                      ? "cancelled"
+                      : `cancels at ${new Date(m.cancellationDueAt).toUTCString()}`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
+    </div>
+  </section>
+</Base>

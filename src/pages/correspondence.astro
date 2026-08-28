@@ -1,6 +1,7 @@
 ---
 import Base from "@layouts/Base.astro";
 import { brand } from "../brand/config";
+import "../styles/public-pages.css";
 ---
 
 <Base
@@ -146,11 +147,6 @@ import { brand } from "../brand/config";
   .pwy-page {
     color: var(--fg);
   }
-  .pwy-shell {
-    max-width: 78rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .pwy-hero {
     padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
     border-bottom: 1px solid var(--line);
@@ -172,8 +168,9 @@ import { brand } from "../brand/config";
   .pwy-hero h1 {
     max-width: 12ch;
     margin: 0;
-    font: 400 clamp(3rem, 8vw, 7rem)/0.88 var(--font-serif);
-    letter-spacing: -0.055em;
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    line-height: 0.95;
+    font-weight: 680;
   }
   .pwy-hero__lede {
     max-width: 38rem;
@@ -343,7 +340,7 @@ import { brand } from "../brand/config";
     background: var(--accent-secondary);
     color: #fff;
   }
-  @media (max-width: 760px) {
+  @media (max-width: 48rem) {
     .pwy-hero__grid,
     .pwy-contents,
     .pwy-production {

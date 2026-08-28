@@ -112,6 +112,9 @@ export interface Brand {
   readonly tagline: string;
   /** Long proposition sentence (used in meta description, hero sub). */
   readonly proposition: string;
+  /** Short internal-shorthand proposition used by surfaces that
+   * need to fit a single sentence (hero lede, OG description). */
+  readonly shortProposition: string;
   /** Brand voice principles. */
   readonly voice: {
     readonly precision: string;
@@ -173,7 +176,9 @@ export const brand: Brand = {
   legalName: "Plans With You Pty Ltd",
   tagline: "You are wanted. You don't have to go.",
   proposition:
-    "Plans With You is a real paid membership that takes your absence seriously. We make plans with you and then we unmake them, gently, on purpose, so you are remembered without having to show up.",
+    "A real scheduled commitment you can rely on, with credible supporting correspondence, predictably cancelled on time. Plans With You reserves a block in your calendar, makes the commitment look ordinary to anyone else, and unbreaks your week when the time comes.",
+  shortProposition:
+    "Protected time with a commitment that looks the part — and predictably gets cancelled.",
   voice: {
     precision: "precise, dry",
     warmth: "warm, never sentimental",
@@ -205,43 +210,46 @@ export const brand: Brand = {
     member: {
       name: "Member",
       priceAud: 5,
-      tagline: "Plans, cancellations, memory.",
-      positioning: "The complete core membership.",
+      tagline: "The digital proof of a real commitment.",
+      positioning:
+        "A scheduled commitment that blocks your calendar and a credible email confirming it. The same product at every tier, plus more credibility outside the website as the price rises.",
       includes: [
         "Club identity and member number",
-        "Invitations and unmade plans",
+        "Calendar Meetings that block your time as busy",
+        "A scheduled cancellation, sent on time",
         "Personalised digital correspondence",
         "Birthday and anniversary recognition",
         "Memory of the things you choose to share",
-        "An occasional small item, when available",
       ],
     },
     corresponding: {
       name: "Corresponding Member",
       priceAud: 20,
-      tagline: "Plans arrive in the post.",
-      positioning: "Everything in Member, with substantial physical correspondence.",
+      tagline: "Human validation, posted letters.",
+      positioning:
+        "Everything in Member, with a real person able to confirm the commitment by letter or phone when someone asks.",
       includes: [
         "Welcome pack and physical membership card",
         "Posted birthday card",
         "Posted anniversary card",
-        "Signed letters",
+        "Signed letters from our team",
         "Milestone artefacts",
-        "Optional help with a commitment you choose",
+        "Human validation of the commitment by phone or letter on request",
         "More personal attention from our team",
       ],
     },
     deluxe: {
       name: "Deluxe Member",
       priceAud: 50,
-      tagline: "Genuine attention from the people behind it.",
-      positioning: "Everything in Corresponding Member, with deeper personal attention.",
+      tagline: "Physical evidence, presence if you ever need it.",
+      positioning:
+        "Everything in Corresponding Member, with posted parcels, optional calls, and access to a real person who can be physically present if the commitment ever needs it.",
       includes: [
         "All of the above",
-        "Thoughtful gifts",
-        "Opted-in calls",
+        "Posted parcels and gifts",
+        "Opted-in calls at permitted windows",
         "Premium milestone treatment",
-        "More involved help with a commitment you choose",
+        "Operator who can travel, attend or be present if the commitment requires it (quoted separately)",
         "Higher-quality physical items",
         "Deeper personal attention from our team",
       ],

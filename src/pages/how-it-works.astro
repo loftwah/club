@@ -1,6 +1,7 @@
 ---
 import Base from "@layouts/Base.astro";
 import { brand } from "../brand/config";
+import "../styles/public-pages.css";
 ---
 
 <Base
@@ -142,11 +143,6 @@ import { brand } from "../brand/config";
   .pwy-page {
     color: var(--fg);
   }
-  .pwy-shell {
-    max-width: 78rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .pwy-hero {
     padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
     border-bottom: 1px solid var(--line);
@@ -167,8 +163,11 @@ import { brand } from "../brand/config";
   }
   .pwy-hero h1 {
     margin: 0;
-    font: 400 clamp(3.2rem, 9vw, 8rem)/0.86 var(--font-serif);
-    letter-spacing: -0.055em;
+    /* Canonical Dispatch Wall display grammar; cap is shared via
+       public-pages.css and not exceeded here. */
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    line-height: 0.95;
+    font-weight: 680;
   }
   .pwy-hero__lede {
     max-width: 38rem;
@@ -216,7 +215,10 @@ import { brand } from "../brand/config";
   .pwy-lifecycle__rail {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(6, minmax(8rem, 1fr));
+    /* minmax(0, 1fr) lets tracks shrink with the container so the
+       six-step rail can never overflow its content box, even at the
+       boundary viewports documented in the visual acceptance matrix. */
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 0;
     margin: 3rem 0 1rem;
     padding: 0;
@@ -230,6 +232,11 @@ import { brand } from "../brand/config";
     padding: 1rem 0.8rem 0 0;
     color: var(--fg-muted);
     font: 0.9rem/1.3 var(--font-serif);
+    /* allow the label itself to wrap inside a track whose container
+       forces it small; without this the 6-track wide composition can
+       push content beyond its parent at boundary widths. */
+    overflow-wrap: anywhere;
+    min-width: 0;
   }
   .pwy-lifecycle__step::before {
     content: "";
@@ -337,13 +344,14 @@ import { brand } from "../brand/config";
     background: var(--accent-secondary);
     color: #fff;
   }
-  @media (max-width: 760px) {
-    .pwy-hero__grid,
-    .pwy-two-column,
-    .pwy-operator {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
+  /* The lifecycle rail collapses to two columns as soon as the wide
+     six-track composition can no longer fit comfortably inside the
+     document content box. We use a higher threshold (52rem / 832px)
+     than the rest of the page so the wide composition never enters
+     the 761–835px failure band described in issue #3. The narrow
+     breakpoint of the rest of the page (48rem) still applies to the
+     other grids below. */
+  @media (max-width: 52rem) {
     .pwy-lifecycle__rail {
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
@@ -351,6 +359,15 @@ import { brand } from "../brand/config";
     }
     .pwy-lifecycle__step {
       border-top: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .pwy-hero__grid,
+    .pwy-two-column,
+    .pwy-operator {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
     .pwy-schedule__grid {
       grid-template-columns: 1fr;

@@ -126,11 +126,6 @@ const tierSlug: Record<string, "member" | "corresponding" | "deluxe"> = {
   .pwy-page {
     color: var(--fg);
   }
-  .pwy-shell {
-    max-width: 78rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .pwy-hero {
     padding: clamp(3.5rem, 9vw, 7rem) 0 clamp(2.5rem, 6vw, 4.5rem);
     border-bottom: 1px solid var(--line);
@@ -152,8 +147,11 @@ const tierSlug: Record<string, "member" | "corresponding" | "deluxe"> = {
   .pwy-hero h1 {
     max-width: 12ch;
     margin: 0;
-    font: 400 clamp(3rem, 8vw, 7rem)/0.88 var(--font-serif);
-    letter-spacing: -0.055em;
+    /* Canonical Dispatch Wall display grammar; cap is shared via
+       public-pages.css and not exceeded here. */
+    font-size: clamp(2.6rem, 6vw, 4.6rem);
+    line-height: 0.95;
+    font-weight: 680;
   }
   .pwy-hero__lede {
     max-width: 38rem;
@@ -325,15 +323,13 @@ const tierSlug: Record<string, "member" | "corresponding" | "deluxe"> = {
     margin: 0;
     color: var(--fg-muted);
   }
-  @media (max-width: 800px) {
+  @media (max-width: 48rem) {
     .pwy-tier-grid {
       grid-template-columns: 1fr;
     }
     .pwy-tier {
       min-height: 0;
     }
-  }
-  @media (max-width: 680px) {
     .pwy-hero__grid,
     .pwy-launch-note,
     .pwy-boundary {

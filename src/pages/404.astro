@@ -1,5 +1,6 @@
 ---
 import Base from "@layouts/Base.astro";
+import "../styles/public-pages.css";
 
 export const prerender = false;
 ---
@@ -27,11 +28,6 @@ export const prerender = false;
   .pwy-page {
     color: var(--fg);
   }
-  .pwy-shell {
-    max-width: 78rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .pwy-not-found {
     min-height: 65vh;
     display: grid;
@@ -52,10 +48,14 @@ export const prerender = false;
     text-transform: uppercase;
   }
   .pwy-not-found h1 {
+    /* Override the shared default only with a narrower fluid term
+       so the 404 hero still composes at small viewports. The cap
+       remains the canonical 5.8rem defined in
+       src/styles/public-pages.css. */
     max-width: 10ch;
     margin: 0 0 1.2rem;
-    font: 400 clamp(3.5rem, 10vw, 9rem)/0.83 var(--font-serif);
-    letter-spacing: -0.06em;
+    font-size: clamp(2.6rem, 6.5vw, 4.6rem);
+    line-height: 0.95;
   }
   .pwy-not-found p:not(.pwy-kicker) {
     max-width: 34rem;

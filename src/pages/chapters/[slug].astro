@@ -1,33 +1,69 @@
 ---
 import Base from "@layouts/Base.astro";
+import { formatLocality, formatInZone, type ChapterGeography } from "@lib/geography";
 
 const slug = Astro.params.slug ?? "";
 
-const chapters: Record<string, { name: string; status: "ACTIVE" | "COMING"; note: string }> = {
+const chapters: Record<string, ChapterGeography & { status: "ACTIVE" | "COMING"; note: string }> = {
   melbourne: {
+    slug: "melbourne",
     name: "Melbourne",
     status: "ACTIVE",
     note: "The opening chapter. Waitlist signups are accepted now.",
+    countryCode: "AU",
+    region: "VIC",
+    timezone: "Australia/Melbourne",
+    locale: "en-AU",
   },
   sydney: {
+    slug: "sydney",
     name: "Sydney",
     status: "COMING",
     note: "Locations under research. Waitlist open for expressions of interest.",
+    countryCode: "AU",
+    region: "NSW",
+    timezone: "Australia/Sydney",
+    locale: "en-AU",
   },
   brisbane: {
+    slug: "brisbane",
     name: "Brisbane",
     status: "COMING",
     note: "Locations under research. Waitlist open for expressions of interest.",
+    countryCode: "AU",
+    region: "QLD",
+    timezone: "Australia/Brisbane",
+    locale: "en-AU",
   },
   adelaide: {
+    slug: "adelaide",
     name: "Adelaide",
     status: "COMING",
     note: "Locations under research. Waitlist open for expressions of interest.",
+    countryCode: "AU",
+    region: "SA",
+    timezone: "Australia/Adelaide",
+    locale: "en-AU",
   },
   perth: {
+    slug: "perth",
     name: "Perth",
     status: "COMING",
     note: "Locations under research. Waitlist open for expressions of interest.",
+    countryCode: "AU",
+    region: "WA",
+    timezone: "Australia/Perth",
+    locale: "en-AU",
+  },
+  auckland: {
+    slug: "auckland",
+    name: "Auckland",
+    status: "COMING",
+    note: "Locations under research. Waitlist open for expressions of interest.",
+    countryCode: "NZ",
+    region: "Auckland",
+    timezone: "Pacific/Auckland",
+    locale: "en-NZ",
   },
 };
 
@@ -36,6 +72,9 @@ const chapter = chapters[slug];
 if (!chapter) {
   return Astro.redirect("/chapters/");
 }
+const chapterLocality = formatLocality(chapter);
+const sampleTimestamp = "2026-09-15T08:00:00.000Z";
+const sampleLocal = formatInZone(sampleTimestamp, chapter.timezone, chapter.locale);
 ---
 
 <Base
@@ -59,8 +98,12 @@ if (!chapter) {
               {chapter.status === "ACTIVE" ? "Accepting waitlist" : "Forming"}
             </p>
             <h1 id="chapter-heading">{chapter.name}</h1>
+            <p class="pwy-chapter__locality">{chapterLocality}</p>
           </div>
           <p class="pwy-hero__lede">{chapter.note}</p>
+          <p class="pwy-chapter__timezone">
+            Local time preview: <span>{sampleLocal}</span> ({chapter.timezone})
+          </p>
         </div>
         <div class="pwy-hero__meta">
           <span>Paid membership closed</span>
@@ -102,11 +145,6 @@ if (!chapter) {
   .pwy-page {
     color: var(--fg);
   }
-  .pwy-shell {
-    max-width: 78rem;
-    margin: 0 auto;
-    padding: 0 clamp(1rem, 4vw, 3rem);
-  }
   .pwy-breadcrumb {
     margin: 1.25rem 0 0;
     font-size: 0.9rem;
@@ -141,8 +179,13 @@ if (!chapter) {
   }
   .pwy-hero h1 {
     margin: 0;
-    font: 400 clamp(4rem, 12vw, 11rem)/0.8 var(--font-serif);
-    letter-spacing: -0.065em;
+    /* Canonical Dispatch Wall display grammar; cap from
+       public-pages.css (5.8rem) is the max for ordinary public
+       routes. The chapter detail heading was previously 11rem
+       (nearly 2× the cap) — brought into the canonical grammar. */
+    font-size: clamp(2.6rem, 6vw, 5.8rem);
+    line-height: 0.95;
+    font-weight: 680;
   }
   .pwy-hero__lede {
     max-width: 38rem;
@@ -150,6 +193,17 @@ if (!chapter) {
     color: var(--fg-muted);
     font-size: clamp(1.1rem, 1.8vw, 1.45rem);
     line-height: 1.35;
+  }
+  .pwy-chapter__locality,
+  .pwy-chapter__timezone {
+    margin: 0.4rem 0 0;
+    color: var(--fg-faint);
+    font: 0.72rem/1.4 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pwy-chapter__timezone span {
+    color: var(--ink);
   }
   .pwy-hero__meta {
     display: flex;
@@ -209,7 +263,7 @@ if (!chapter) {
     background: var(--accent-secondary);
     color: #fff;
   }
-  @media (max-width: 680px) {
+  @media (max-width: 48rem) {
     .pwy-hero__grid,
     .pwy-chapter-detail {
       grid-template-columns: 1fr;

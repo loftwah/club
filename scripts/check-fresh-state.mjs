@@ -90,6 +90,133 @@ if (envExample.includes("APP_ENV=")) {
   process.exit(1);
 }
 
+// Issue #4: --cobalt is an undefined custom property. The canonical
+// schedule cobalt is --calendar (defined in src/styles/global.css).
+// Any application source that resolves --cobalt would produce an
+// invalid computed style. Reject its reappearance anywhere under
+// src/ outside the brand config documentation comment.
+const { readFileSync: readFile, statSync, readdirSync: readdir } = await import("node:fs");
+const sourceRoots = [resolve(repoRoot, "src")];
+const cobaltViolations = [];
+const skipDirs = new Set(["node_modules", ".astro", "dist", ".wrangler"]);
+function walk(dir) {
+  for (const entry of readdir(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (skipDirs.has(entry.name)) continue;
+      walk(join(dir, entry.name));
+    } else if (entry.isFile()) {
+      if (!/\.(astro|css|ts|tsx|js|mjs|css)$/.test(entry.name)) continue;
+      const text = readFile(join(dir, entry.name), "utf-8");
+      // Allow the brand config comment that documents the historical
+      // vocabulary; reject actual use sites.
+      const lines = text.split("\n");
+      for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i];
+        if (line.includes("var(--cobalt)") || /--cobalt\s*:/.test(line)) {
+          cobaltViolations.push(`${join(dir, entry.name)}:${i + 1}: ${line.trim()}`);
+        }
+      }
+    }
+  }
+}
+for (const root of sourceRoots) {
+  if (statSync(root, { throwIfNoEntry: false })) walk(root);
+}
+if (cobaltViolations.length > 0) {
+  console.error("Fresh-state check: undefined --cobalt token referenced in source:");
+  for (const v of cobaltViolations) console.error(`  ${v}`);
+  process.exit(1);
+}
+
+// Issue #2: ordinary public routes must not define a local
+// 78rem shell. The waiting-list route is the documented focus
+// exception and is the only file allowed to keep that geometry.
+const ORDINARY_PUBLIC_ROUTES = [
+  "src/pages/404.astro",
+  "src/pages/how-it-works.astro",
+  "src/pages/membership.astro",
+  "src/pages/correspondence.astro",
+  "src/pages/chapters.astro",
+  "src/pages/chapters/[slug].astro",
+  "src/pages/journal.astro",
+  "src/pages/faq.astro",
+  "src/pages/privacy.astro",
+  "src/pages/terms.astro",
+];
+const shellViolations = [];
+for (const relPath of ORDINARY_PUBLIC_ROUTES) {
+  const full = resolve(repoRoot, relPath);
+  if (!statSync(full, { throwIfNoEntry: false })) continue;
+  const text = readFile(full, "utf-8");
+  // Match any `max-width: 78rem;` (or `78rem` in any property)
+  // that lives inside the route's <style> block. We exclude the
+  // waiting-list document which is the documented exception.
+  if (/max-width\s*:\s*78rem/i.test(text)) {
+    shellViolations.push(`${relPath} defines a local 78rem shell`);
+  }
+}
+if (shellViolations.length > 0) {
+  console.error("Fresh-state check: ordinary public route declares the waitlist 78rem shell:");
+  for (const v of shellViolations) console.error(`  ${v}`);
+  process.exit(1);
+}
+
+// Issue #2: ordinary public route primary h1 must remain below
+// the canonical 5.8rem cap. The cap may be set via the shared
+// public-pages.css; this guard only rejects local rules whose
+// selector targets an h1 and that try to exceed the cap.
+const HEADING_CAP_REM = 5.8;
+const headingViolations = [];
+for (const relPath of ORDINARY_PUBLIC_ROUTES) {
+  const full = resolve(repoRoot, relPath);
+  if (!statSync(full, { throwIfNoEntry: false })) continue;
+  const text = readFile(full, "utf-8");
+  // Find every CSS rule whose selector list contains an h1 and
+  // whose body contains a `font-size` declaration that resolves
+  // to more than the canonical 5.8rem cap. We only inspect the
+  // `font-size` line directly (so body/letter clamps are not
+  // affected), and we accept either rem or pixel values.
+  const ruleRe = /([^{}]*h1[^{}]*)\{([^{}]*)\}/gi;
+  let m;
+  while ((m = ruleRe.exec(text)) !== null) {
+    const selector = m[1];
+    const body = m[2];
+    // Skip rules that don't actually set a font-size. We still
+    // catch rules that set a font-size with clamp() above the cap.
+    const sizeMatch = body.match(/font-size\s*:\s*([^;]+);/i);
+    if (!sizeMatch) continue;
+    const sizeExpr = sizeMatch[1];
+    // Reject a clamp whose third (max) value is a rem greater than
+    // the canonical cap.
+    const clampRe = /clamp\s*\(\s*[^,]+,\s*[^,]+,\s*([0-9.]+)\s*rem\s*\)/i;
+    const clampMatch = sizeExpr.match(clampRe);
+    if (clampMatch) {
+      const max = Number.parseFloat(clampMatch[1]);
+      if (Number.isFinite(max) && max > HEADING_CAP_REM + 0.01) {
+        headingViolations.push(
+          `${relPath} h1 rule exceeds 5.8rem cap (max ${max}rem): ${selector.trim()}`,
+        );
+      }
+    }
+    // Reject a literal rem value that exceeds the cap (e.g.
+    // `font-size: 6rem;`).
+    const literalRem = sizeExpr.match(/^\s*([0-9.]+)\s*rem\s*$/i);
+    if (literalRem) {
+      const max = Number.parseFloat(literalRem[1]);
+      if (Number.isFinite(max) && max > HEADING_CAP_REM + 0.01) {
+        headingViolations.push(
+          `${relPath} h1 rule literal ${max}rem exceeds 5.8rem cap: ${selector.trim()}`,
+        );
+      }
+    }
+  }
+}
+if (headingViolations.length > 0) {
+  console.error("Fresh-state check: ordinary public route primary h1 exceeds the 5.8rem cap:");
+  for (const v of headingViolations) console.error(`  ${v}`);
+  process.exit(1);
+}
+
 console.info(
-  `Fresh-state check: ${expectedTables.length} tables present, no forbidden states, env naming clean.`,
+  `Fresh-state check: ${expectedTables.length} tables present, no forbidden states, env naming clean, no undefined --cobalt references, public-page shell/heading drift clean.`,
 );
