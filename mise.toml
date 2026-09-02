@@ -26,15 +26,41 @@ node node_modules/eslint/bin/eslint.js . --max-warnings=0
 node node_modules/astro/bin/astro.mjs check
 node node_modules/typescript/bin/tsc --noEmit
 node node_modules/vitest/vitest.mjs run tests/unit
+node --test scripts/cf-preview.test.mjs
 """
 
 [tasks.test]
-description = "Run all tests (unit + integration)."
+description = "Run all tests (unit + integration + script tests)."
 run = """
 set -euo pipefail
 node node_modules/vitest/vitest.mjs run tests/unit
 node node_modules/vitest/vitest.mjs run tests/integration
+node --test scripts/cf-preview.test.mjs
 """
+
+[tasks."cf:preview:status"]
+description = "Read-only Preview status: derived names, current Preview settings, recent production deployments."
+run = "node scripts/cf-preview.mjs status"
+
+[tasks."cf:preview:create"]
+description = "Provision Preview-only KV/D1/R2, apply migrations, and create a Preview for the current branch (refuses main)."
+run = "node scripts/cf-preview.mjs create"
+
+[tasks."cf:preview:update"]
+description = "Update the Preview for the current branch (refuses main)."
+run = "node scripts/cf-preview.mjs update"
+
+[tasks."cf:preview:smoke"]
+description = "HTTP-smoke the stable Preview URL (refuses main)."
+run = "node scripts/cf-preview.mjs smoke"
+
+[tasks."cf:preview:delete"]
+description = "Delete the Preview and clean up Preview-only KV/D1/R2 (refuses main; ownership-proven)."
+run = "node scripts/cf-preview.mjs delete"
+
+[tasks."cf:preview:orphans"]
+description = "Read-only: list Preview-named KV/D1/R2 candidates that look unused. Does not delete."
+run = "node scripts/cf-preview.mjs orphans"
 
 [tasks.acceptance]
 description = "Authoritative local acceptance. Operates from a clean local state."
