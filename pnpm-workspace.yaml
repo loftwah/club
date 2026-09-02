@@ -41,3 +41,5 @@ minimumReleaseAgeExclude:
   - "@remotion/web-renderer@4.0.516"
   - "@remotion/zod-types@4.0.516"
   - remotion@4.0.516
+  - miniflare@5.20260831.0-alpha
+  - wrangler@4.128.0
