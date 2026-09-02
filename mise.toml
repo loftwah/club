@@ -26,7 +26,7 @@ node node_modules/eslint/bin/eslint.js . --max-warnings=0
 node node_modules/astro/bin/astro.mjs check
 node node_modules/typescript/bin/tsc --noEmit
 node node_modules/vitest/vitest.mjs run tests/unit
-node --test scripts/cf-preview.test.mjs
+node --test scripts/cf-preview.test.mjs scripts/cf-audit.test.mjs
 """
 
 [tasks.test]
@@ -35,7 +35,7 @@ run = """
 set -euo pipefail
 node node_modules/vitest/vitest.mjs run tests/unit
 node node_modules/vitest/vitest.mjs run tests/integration
-node --test scripts/cf-preview.test.mjs
+node --test scripts/cf-preview.test.mjs scripts/cf-audit.test.mjs
 """
 
 [tasks."cf:preview:status"]
@@ -61,6 +61,10 @@ run = "node scripts/cf-preview.mjs delete"
 [tasks."cf:preview:orphans"]
 description = "Read-only: list Preview-named KV/D1/R2 candidates that look unused. Does not delete."
 run = "node scripts/cf-preview.mjs orphans"
+
+[tasks."cf:audit"]
+description = "Read-only Cloudflare account audit: workers / D1 / KV / R2 / cron / queues / observability / Workers Builds. Writes a machine-readable JSON report to out/cf-audit/."
+run = "node scripts/cf-audit.mjs"
 
 [tasks.acceptance]
 description = "Authoritative local acceptance. Operates from a clean local state."
