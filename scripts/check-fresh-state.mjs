@@ -161,6 +161,63 @@ if (shellViolations.length > 0) {
   process.exit(1);
 }
 
+// Issue #16: every ordinary public route must wrap its content
+// in the canonical `.pwy-page` > `.pwy-shell` chassis so the
+// shared stylesheet loaded by Base.astro actually renders
+// geometry. A page that omits the wrap renders edge-to-edge
+// and the regression test
+// (tests/browser/issue-2-public-shell.spec.ts) catches it at
+// runtime; this source-level guard makes the failure cheaper
+// and prevents a new route from silently regressing before any
+// test runs.
+const chassisWrapViolations = [];
+for (const relPath of ORDINARY_PUBLIC_ROUTES) {
+  const full = resolve(repoRoot, relPath);
+  if (!statSync(full, { throwIfNoEntry: false })) continue;
+  const text = readFile(full, "utf-8");
+  // Accept either a static `class="pwy-page` (or `pwy-page `) on
+  // a section, or a template-literal / spread form like
+  // `class={...pwy-page...}` / `class={`pwy-page ${extra}`}`.
+  const hasPageClass =
+    /class\s*=\s*["'`{][^"'`}]*\bpwy-page\b/.test(text) ||
+    /class\s*=\s*\{[^}]*\bpwy-page\b/.test(text);
+  const hasShellClass =
+    /class\s*=\s*["'`]pwy-shell["'`]/.test(text) || /class\s*=\s*\{[^}]*\bpwy-shell\b/.test(text);
+  if (!hasPageClass) {
+    chassisWrapViolations.push(`${relPath} does not declare a .pwy-page section`);
+  }
+  if (!hasShellClass) {
+    chassisWrapViolations.push(`${relPath} does not declare a .pwy-shell wrapper`);
+  }
+}
+if (chassisWrapViolations.length > 0) {
+  console.error("Fresh-state check: ordinary public route is missing the canonical chassis wrap:");
+  for (const v of chassisWrapViolations) console.error(`  ${v}`);
+  process.exit(1);
+}
+
+// Issue #16: with the shared public-pages.css now loaded by
+// Base.astro, ordinary public routes must not re-import it
+// directly. A re-import is harmless but it muddies the
+// architecture (every route remembers to import) and lets a
+// future change silently land in the wrong place.
+const publicPagesDirectImportViolations = [];
+for (const relPath of ORDINARY_PUBLIC_ROUTES) {
+  const full = resolve(repoRoot, relPath);
+  if (!statSync(full, { throwIfNoEntry: false })) continue;
+  const text = readFile(full, "utf-8");
+  if (/from\s+["']\.\.\/styles\/public-pages\.css["']/.test(text)) {
+    publicPagesDirectImportViolations.push(`${relPath} imports public-pages.css directly`);
+  }
+}
+if (publicPagesDirectImportViolations.length > 0) {
+  console.error(
+    "Fresh-state check: ordinary public route imports public-pages.css directly; the canonical chassis is loaded by Base.astro.",
+  );
+  for (const v of publicPagesDirectImportViolations) console.error(`  ${v}`);
+  process.exit(1);
+}
+
 // Issue #2: ordinary public route primary h1 must remain below
 // the canonical 5.8rem cap. The cap may be set via the shared
 // public-pages.css; this guard only rejects local rules whose
@@ -218,5 +275,5 @@ if (headingViolations.length > 0) {
 }
 
 console.info(
-  `Fresh-state check: ${expectedTables.length} tables present, no forbidden states, env naming clean, no undefined --cobalt references, public-page shell/heading drift clean.`,
+  `Fresh-state check: ${expectedTables.length} tables present, no forbidden states, env naming clean, no undefined --cobalt references, public-page chassis wrap + heading drift clean.`,
 );

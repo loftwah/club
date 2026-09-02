@@ -2,7 +2,20 @@
 import { runtimeEnv } from "@lib/runtime-env";
 // Base layout for public-facing pages. Essential navigation and content work
 // without JavaScript; the native disclosure is the mobile navigation.
+//
+// Issue #16: the canonical ordinary public-page chassis
+// (90rem shell + clamp gutter + Dispatch Wall h1) is loaded
+// here so every route that uses Base automatically inherits
+// it. The waiting-list route is the documented focus exception
+// and overrides `.pwy-shell { max-width: 78rem }` locally
+// (its local <style> is later in source order and therefore
+// wins). Ordinary public routes must wrap their content in
+// `<section class="pwy-page">...<div class="pwy-shell">...</div></section>`
+// to receive the chassis; the regression test
+// tests/browser/issue-2-public-shell.spec.ts asserts the
+// rendered geometry.
 import "../styles/global.css";
+import "../styles/public-pages.css";
 import { ArrowUpRight } from "@lucide/astro";
 import { brand } from "../brand/config";
 
