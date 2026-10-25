@@ -32,6 +32,9 @@ const wranglerArgs = [
   // fixtures and local mail rendering must use this owned loopback runtime.
   "--var",
   `APP_BASE_URL:http://127.0.0.1:${port}`,
+  // Match the existing synthetic operator fixture without copying owner secrets.
+  "--var",
+  `OPERATOR_EMAIL:${process.env.OPERATOR_EMAIL ?? "operator@local.test"}`,
 ];
 if (localRuntimeEnv.path) wranglerArgs.push("--env-file", localRuntimeEnv.path);
 

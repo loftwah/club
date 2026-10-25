@@ -16,7 +16,7 @@ import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.describe("public routes (semantic HTML, no essential JS)", () => {
-  test("GET / renders the homepage", async ({ page }) => {
+  test("GET / renders the homepage", async ({ page, baseURL }) => {
     const response = await page.goto("/");
     expect(response?.status()).toBe(200);
     // The canonical proposition appears in the raw HTML.
@@ -33,7 +33,9 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
     const title = await page.title();
     expect(title.length).toBeGreaterThan(0);
     const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
-    expect(canonical).toMatch(/^https:\/\/club\.loftwah\.com/);
+    // Clean local acceptance uses its loopback origin for safe session cookies.
+    // Public-origin canonical/OG bytes are checked again after native promotion.
+    expect(canonical).toBe(new URL("/", baseURL ?? "http://127.0.0.1:8788").href);
     const desc = await page.locator('meta[name="description"]').getAttribute("content");
     expect(desc?.length ?? 0).toBeGreaterThan(20);
     // Skip link for keyboard users.
