@@ -28,6 +28,10 @@ const wranglerArgs = [
   ".wrangler/state",
   "--ip",
   "127.0.0.1",
+  // Clean acceptance cannot depend on an ignored .dev.vars file. Magic-link
+  // fixtures and local mail rendering must use this owned loopback runtime.
+  "--var",
+  `APP_BASE_URL:http://127.0.0.1:${port}`,
 ];
 if (localRuntimeEnv.path) wranglerArgs.push("--env-file", localRuntimeEnv.path);
 
