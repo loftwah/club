@@ -180,7 +180,24 @@ test.describe("public routes (semantic HTML, no essential JS)", () => {
 });
 
 test.describe("waiting-list form submission", () => {
-  test("valid email submits and shows a success message", async ({ page }) => {
+  test("valid email reaches real local D1 with a fake welcome and shows success", async ({
+    page,
+  }) => {
+    await page.route("**/api/waitlist", async (route) => {
+      // Keep the real form payload, service and local D1. The provider edge is
+      // the existing local-only fixture; live Resend contracts are separate.
+      expect(route.request().method()).toBe("POST");
+      const fixture = await page.request.post("/api/internal/dev-fixture/waitlist", {
+        data: route.request().postDataJSON(),
+      });
+      expect(fixture.status()).toBe(202);
+      const proof = await fixture.json();
+      expect(proof.state).toBe("ACTIVE_WAITLIST");
+      expect(proof.duplicateIsSameEntry).toBe(true);
+      expect(proof.fakeWelcomeCount).toBe(1);
+      expect(proof.fakeWelcomeSubject).toBe("You're on the Plans With You waiting list");
+      await route.fulfill({ response: fixture });
+    });
     await page.goto("/waiting-list/");
     const unique = `e2e_${Date.now()}@example.com`;
     await page.locator('input[type="email"]').fill(unique);
