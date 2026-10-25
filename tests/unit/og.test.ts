@@ -29,3 +29,41 @@ describe("og", () => {
     expect(ogPath("chapter", { chapter: "Melbourne" })).toContain("chapter=Melbourne");
   });
 });
+
+it("refuses an altered native illustration or substituted raster", async () => {
+  const { readFileSync, mkdtempSync, mkdirSync, copyFileSync, writeFileSync, rmSync } =
+    await import("node:fs");
+  const { dirname, join } = await import("node:path");
+  const { tmpdir } = await import("node:os");
+  const { spawnSync } = await import("node:child_process");
+  const receiptFile = "public/og/cancelled-20261025-provenance.json";
+  const receipt = JSON.parse(readFileSync(receiptFile, "utf8"));
+  const temporary = mkdtempSync(join(tmpdir(), "pwy-og-provenance-"));
+  try {
+    for (const file of [
+      receiptFile,
+      ...Object.keys(receipt.sources),
+      ...receipt.outputs.map((out: { file: string }) => "public/og/" + out.file),
+    ]) {
+      mkdirSync(dirname(join(temporary, file)), { recursive: true });
+      copyFileSync(file, join(temporary, file));
+    }
+    const check = () =>
+      spawnSync(process.execPath, ["scripts/og-generate.mjs", "--check"], {
+        cwd: temporary,
+        encoding: "utf8",
+      });
+    expect(check().status).toBe(0);
+    const master = "creative/og-20261025/master.png";
+    writeFileSync(join(temporary, master), "substituted illustration");
+    expect(check().status).not.toBe(0);
+    copyFileSync(master, join(temporary, master));
+    const raster = join(temporary, "public/og/cancelled-20261025.jpg");
+    const bytes = readFileSync(raster);
+    bytes[bytes.length - 1] ^= 1;
+    writeFileSync(raster, bytes);
+    expect(check().status).not.toBe(0);
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});

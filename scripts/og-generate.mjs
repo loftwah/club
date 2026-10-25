@@ -2,7 +2,9 @@
 // Generate canonical 1200×630 Dispatch Wall social cards.
 // The layout mirrors src/lib/og.ts without importing TypeScript into Node.
 
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -104,9 +106,94 @@ function renderOg({ title, subtitle }) {
   </svg>`;
 }
 
-mkdirSync("public/og", { recursive: true });
-for (const [name, template] of Object.entries(TEMPLATES)) {
-  const svg = renderOg(template);
-  writeFileSync(`public/og/${name}.svg`, svg);
-  console.info(`wrote public/og/${name}.svg (${svg.length} bytes)`);
+const checkOnly = process.argv.includes("--check");
+if (!checkOnly && !process.argv.includes("--raster-only")) {
+  mkdirSync("public/og", { recursive: true });
+  for (const [name, template] of Object.entries(TEMPLATES)) {
+    const svg = renderOg(template);
+    writeFileSync(`public/og/${name}.svg`, svg);
+    console.info(`wrote public/og/${name}.svg (${svg.length} bytes)`);
+  }
+}
+
+// #35: the actual native social preview is a dated raster. Legacy SVG routes
+// remain historical; this conceptual correspondence contains no real member,
+// venue, booking or invitation and does not announce paid activation.
+const artRoot = "creative/og-20261025/";
+const rasterInputs = ["scripts/og-generate.mjs", artRoot + "master.png", artRoot + "prompt.txt"];
+const sha = (file) => createHash("sha256").update(readFileSync(file)).digest("hex");
+const rasterSources = () => Object.fromEntries(rasterInputs.map((file) => [file, sha(file)]));
+const rasterOutputs = [
+  { file: "cancelled-20261025.jpg", width: 1200, height: 630 },
+  { file: "cancelled-20261025-square.jpg", width: 1200, height: 1200 },
+  { file: "cancelled-20261025-portrait.jpg", width: 1200, height: 1500 },
+  { file: "cancelled-20261025-story.jpg", width: 1080, height: 1920 },
+];
+const receiptPath = "public/og/cancelled-20261025-provenance.json";
+if (checkOnly) {
+  if (!existsSync(receiptPath))
+    throw new Error("Missing native raster receipt; run the OG generator.");
+  const receipt = JSON.parse(readFileSync(receiptPath, "utf8"));
+  if (JSON.stringify(receipt.sources) !== JSON.stringify(rasterSources()))
+    throw new Error("Native OG source changed; regenerate the dated raster.");
+  for (const out of rasterOutputs) {
+    const record = receipt.outputs.find((item) => item.file === out.file);
+    if (
+      !record ||
+      record.sha256 !== sha("public/og/" + out.file) ||
+      record.width !== out.width ||
+      record.height !== out.height
+    )
+      throw new Error(out.file + ": raster no longer matches its source receipt.");
+  }
+  console.info("Native raster sources and four exports match their receipt.");
+} else {
+  const picture =
+    "data:image/png;base64," + readFileSync(artRoot + "master.png").toString("base64");
+  const outputRecords = [];
+  mkdirSync("out/og-20261025", { recursive: true });
+  for (const out of rasterOutputs) {
+    const wide = out.width > out.height;
+    const square = out.width === out.height;
+    const story = out.height > 1600;
+    const sceneSize = wide ? 630 : square ? 950 : out.width;
+    const sceneX = wide ? 550 : (out.width - sceneSize) / 2;
+    const sceneY = wide ? 0 : square ? 170 : story ? 400 : 170;
+    const titleSize = wide ? 83 : story ? 82 : 75;
+    const title = wide
+      ? `<text x="45" y="151">Plans</text><text x="45" y="248">With You</text>`
+      : `<text x="60" y="${story ? 150 : 96}">Plans With You</text>`;
+    const statusY = wide ? 525 : out.height - (story ? 165 : 67);
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${out.width}" height="${out.height}" viewBox="0 0 ${out.width} ${out.height}"><rect width="100%" height="100%" fill="#f4efe5"/><image x="${sceneX}" y="${sceneY}" width="${sceneSize}" height="${sceneSize}" preserveAspectRatio="xMidYMid meet" href="${picture}"/><g fill="#12110f" font-family="Georgia" font-size="${titleSize}">${title}</g><g fill="#12110f" font-family="Georgia"><text x="${wide ? 48 : 60}" y="${statusY}" font-size="${wide ? 27 : 30}">Waitlist open.</text><text x="${wide ? 48 : 60}" y="${statusY + (wide ? 44 : 43)}" font-size="${wide ? 24 : 27}">Paid membership closed.</text></g></svg>`;
+    const intermediate = "out/og-20261025/" + out.file + ".svg";
+    writeFileSync(intermediate, svg);
+    execFileSync("magick", [
+      "-background",
+      "none",
+      intermediate,
+      "-strip",
+      "-quality",
+      "90",
+      "public/og/" + out.file,
+    ]);
+    outputRecords.push({ ...out, sha256: sha("public/og/" + out.file) });
+    console.info(`wrote public/og/${out.file} (${out.width}×${out.height})`);
+  }
+  writeFileSync(
+    receiptPath,
+    JSON.stringify(
+      {
+        reviewedAt: "2026-10-25",
+        provider: "OpenAI built-in image_gen",
+        model: "not exposed by tool",
+        generatedFor: "Plans With You conceptual campaign, reused by native product",
+        privateMemberData: false,
+        paidMembershipOpen: false,
+        sources: rasterSources(),
+        outputs: outputRecords,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
 }

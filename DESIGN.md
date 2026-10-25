@@ -420,3 +420,20 @@ navigation/actions while keeping semantic content.
 - Treat `PRODUCT.md`, `AGENTS.md`, the route brief, and runtime/D1 state machines as authority for claims and lifecycle vocabulary. A visual change cannot relax those constraints.
 - Preserve the two-route evidence set: homepage Dispatch Wall plus the quieter waitlist task surface. Re-check the exact desktop/mobile screenshots after substantial layout or type changes.
 - Before handoff, report acceptance PASS/FAIL, tests, migrations/provider contracts if relevant, manual checks, open questions, and limitations. A failing acceptance run is not complete.
+
+## Native social artwork — reviewed 25 October 2026
+
+#35 replaces the flyer-like SVG as the advertised public preview with one tactile
+cancellation scene: a fictional cream invitation stamped CANCELLED over a cobalt
+envelope, an embossed clock and Evening returned. The product name stays readable
+at feed size and the image states waitlist open, paid membership closed. This is
+conceptual correspondence, not an actual booking, member or partnership.
+
+The existing paper/ink/cancellation palette remains. Georgia, already a native
+correspondence fallback, supplies deterministic raster lettering. This artwork
+does not replace the site's Dispatch Wall layout or publish the separate local
+Press redesign. `scripts/og-generate.mjs` retains legacy SVG exports and composes
+four dated raster frames from the preserved generated master and exact prompt in
+`creative/og-20261025/`. Source and output hashes share a checked receipt. Public
+metadata uses the new dated landscape JPEG with matching dimensions, type and
+visual description; historical SVG routes remain available.

@@ -1,0 +1,39 @@
+{
+  "reviewedAt": "2026-10-25",
+  "provider": "OpenAI built-in image_gen",
+  "model": "not exposed by tool",
+  "generatedFor": "Plans With You conceptual campaign, reused by native product",
+  "privateMemberData": false,
+  "paidMembershipOpen": false,
+  "sources": {
+    "scripts/og-generate.mjs": "04908368fd68d8a5632577c11bccc41d2c387320cceae4624b28328dbcaa2388",
+    "creative/og-20261025/master.png": "899906106b1ff655bdca48b2ef05a428ab22c95dfab64473ced5f972169523a3",
+    "creative/og-20261025/prompt.txt": "17c2c3f5111b94290e687e464db819f004381fde987f5cb337d14e3c9a82cd62"
+  },
+  "outputs": [
+    {
+      "file": "cancelled-20261025.jpg",
+      "width": 1200,
+      "height": 630,
+      "sha256": "226071f6f1e85c29a411b5c6081359d61415170a141da6b1580a332b27d5c3e6"
+    },
+    {
+      "file": "cancelled-20261025-square.jpg",
+      "width": 1200,
+      "height": 1200,
+      "sha256": "234e8be55d04f1b266b57df9e6bbd109e50f2dad8b0876af85dc76325f14a09a"
+    },
+    {
+      "file": "cancelled-20261025-portrait.jpg",
+      "width": 1200,
+      "height": 1500,
+      "sha256": "32cb7fde6ed55d4dc2f6c1cb3c6bfb048a7f33618ddc82b720ba9d77bc0484e0"
+    },
+    {
+      "file": "cancelled-20261025-story.jpg",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "0016a501624cd9d5aedd7c96199a701eb1628c2766f4ea722437a1c8dea8e963"
+    }
+  ]
+}

@@ -69,6 +69,10 @@ const steps = [
     cmd: ["node", "scripts/clean-build-output.mjs"],
   },
   {
+    name: "native social raster provenance",
+    cmd: ["node", "scripts/og-generate.mjs", "--check"],
+  },
+  {
     name: "production build (astro build)",
     cmd: ["node", "node_modules/astro/bin/astro.mjs", "build"],
   },
