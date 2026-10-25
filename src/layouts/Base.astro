@@ -24,13 +24,15 @@ interface Props {
   description?: string;
   canonicalPath?: string;
   ogImagePath?: string;
+  ogImageAlt?: string;
 }
 
 const {
   title = brand.name,
   description = brand.seo.description,
   canonicalPath = "/",
-  ogImagePath = "/og/default.svg",
+  ogImagePath = "/og/cancelled-20261025.jpg",
+  ogImageAlt = "Plans With You: a fictional cream invitation stamped CANCELLED over a blue envelope, with an embossed clock and Evening returned. Waitlist open; paid membership closed.",
 } = Astro.props;
 
 const baseUrl = runtimeEnv.APP_BASE_URL ?? "https://club.loftwah.com";
@@ -67,12 +69,15 @@ const isCurrent = (href: string) => currentPath === href || currentPath.startsWi
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
     <meta name="robots" content="index,follow" />
     <meta name="theme-color" content={brand.palette.bg} />
   </head>

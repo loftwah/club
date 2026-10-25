@@ -69,6 +69,10 @@ const steps = [
     cmd: ["node", "scripts/clean-build-output.mjs"],
   },
   {
+    name: "native social raster provenance",
+    cmd: ["node", "scripts/og-generate.mjs", "--check"],
+  },
+  {
     name: "production build (astro build)",
     cmd: ["node", "node_modules/astro/bin/astro.mjs", "build"],
   },
@@ -178,16 +182,29 @@ const e2eCmd = [
 ];
 console.info(`\n→ browser E2E (Playwright)`);
 const e2eStart = Date.now();
-const e2e = spawnSync(e2eCmd[0], e2eCmd.slice(1), {
-  cwd: repoRoot,
-  stdio: "inherit",
-  env: process.env,
-});
+// Keep the event loop free to drain the owned Wrangler stdout/stderr pipes
+// while browsers are active. spawnSync blocks those server lifecycle handlers.
+/** @returns {Promise<number>} */
+function waitForBrowserE2E() {
+  return new Promise((resolve) => {
+    const child = spawn(e2eCmd[0], e2eCmd.slice(1), {
+      cwd: repoRoot,
+      stdio: "inherit",
+      env: process.env,
+    });
+    child.once("error", (error) => {
+      console.error(error);
+      resolve(1);
+    });
+    child.once("close", (code) => resolve(code ?? 1));
+  });
+}
+const e2eStatus = await waitForBrowserE2E();
 const e2eDt = ((Date.now() - e2eStart) / 1000).toFixed(2);
-if (e2e.status !== 0) {
+if (e2eStatus !== 0) {
   console.error(`✗ browser E2E failed (${e2eDt}s)`);
   dev.kill("SIGTERM");
-  process.exit(e2e.status ?? 1);
+  process.exit(e2eStatus);
 }
 console.info(`✓ browser E2E (${e2eDt}s)`);
 

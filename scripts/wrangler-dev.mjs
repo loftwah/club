@@ -28,6 +28,13 @@ const wranglerArgs = [
   ".wrangler/state",
   "--ip",
   "127.0.0.1",
+  // Clean acceptance cannot depend on an ignored .dev.vars file. Magic-link
+  // fixtures and local mail rendering must use this owned loopback runtime.
+  "--var",
+  `APP_BASE_URL:http://127.0.0.1:${port}`,
+  // Match the existing synthetic operator fixture without copying owner secrets.
+  "--var",
+  `OPERATOR_EMAIL:${process.env.OPERATOR_EMAIL ?? "operator@local.test"}`,
 ];
 if (localRuntimeEnv.path) wranglerArgs.push("--env-file", localRuntimeEnv.path);
 
@@ -36,7 +43,9 @@ const child = spawn(wrangler, wranglerArgs, {
   stdio: ["ignore", "inherit", "inherit"],
 });
 
+let stopping = false;
 const cleanup = () => {
+  stopping = true;
   if (!child.killed) child.kill("SIGTERM");
   void localRuntimeEnv.cleanup();
 };
@@ -69,7 +78,10 @@ waitForReady()
     process.exit(1);
   });
 
-child.on("exit", async (code) => {
+child.on("exit", async (code, signal) => {
+  process.stderr.write(
+    `[wrangler-dev] worker ${stopping ? "stopped" : "exited unexpectedly"}: code=${code ?? "none"} signal=${signal ?? "none"}\n`,
+  );
   await localRuntimeEnv.cleanup();
-  process.exit(code ?? 0);
+  process.exit(stopping ? 0 : code || 1);
 });

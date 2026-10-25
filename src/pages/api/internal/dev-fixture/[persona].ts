@@ -43,6 +43,8 @@ import { OnboardingService } from "@services/onboarding";
 import { D1AuditWriter } from "@infra/audit";
 import { SystemClock } from "@infra/clock";
 import { listChapters } from "@lib/chapters";
+import { FakeResend } from "@adapters/resend-fake";
+import { WaitlistService, waitlistSubmissionSchema } from "@services/waitlist";
 
 type Persona = "member" | "onboarding" | "operator";
 
@@ -61,19 +63,17 @@ function isLoopback(url: URL): boolean {
  * `club.loftwah.com/*`). The actual TCP connection is from the
  * local loopback address, so the only way to prove a request
  * originated from a local process is to inspect the connection
- * peer or a forwarded header. `cf-connecting-ip` is the
+ * peer. `cf-connecting-ip` is the
  * canonical Cloudflare header for the original client address
  * and works the same way under workerd's local mode.
  */
 function isLoopbackConnection(request: Request): boolean {
   const ip = (request.headers.get("cf-connecting-ip") ?? "").trim();
   if (!ip) return false;
-  if (ip === "127.0.0.1" || ip === "::1") return true;
-  // The x-forwarded-for list is comma-separated; the first
-  // entry is the original client.
-  const xff = (request.headers.get("x-forwarded-for") ?? "").split(",")[0]?.trim();
-  if (xff === "127.0.0.1" || xff === "::1") return true;
-  return false;
+  // Cloudflare may preserve an incoming X-Forwarded-For chain. Its first hop
+  // cannot override a known non-loopback peer and never grants fixture access.
+  // https://developers.cloudflare.com/fundamentals/reference/http-headers/
+  return ip === "127.0.0.1" || ip === "::1";
 }
 
 function json(body: unknown, status = 200): Response {
@@ -569,6 +569,51 @@ export const POST: APIRoute = async (ctx) => {
   const env = getRuntimeEnv(ctx.locals);
   if (!env?.DB) {
     return json({ error: "D1 not available" }, 500);
+  }
+  // Ordinary browser acceptance exercises the real local D1/service with the
+  // existing fake provider. A preview-image edit must not send real email.
+  // This remains behind the same loopback guard as every other fixture.
+  if (ctx.params.persona === "waitlist") {
+    let input: unknown;
+    try {
+      input = await ctx.request.json();
+    } catch {
+      return json({ error: "Invalid waitlist fixture JSON" }, 400);
+    }
+    const parsed = waitlistSubmissionSchema.safeParse(input);
+    if (!parsed.success) return json({ error: "Invalid waitlist fixture input" }, 400);
+    try {
+      const clock = new SystemClock();
+      const resend = new FakeResend();
+      const service = new WaitlistService({
+        db: env.DB,
+        resend,
+        audit: new D1AuditWriter(env.DB, clock),
+        clock,
+        appBaseUrl: deriveLoopbackBaseUrl(ctx.request),
+        fromAddress: "local-acceptance@example.test",
+      });
+      const first = await service.submit(parsed.data);
+      const duplicate = await service.submit(parsed.data);
+      const stored = await env.DB.prepare("SELECT state FROM waitlist_entries WHERE id = ?")
+        .bind(first.id)
+        .first<{ state: string }>();
+      return json(
+        {
+          ok: true,
+          state: stored?.state,
+          duplicateIsSameEntry: first.id === duplicate.id,
+          fakeWelcomeCount: resend.sent.length,
+          fakeWelcomeSubject: resend.sent[0]?.subject,
+        },
+        202,
+      );
+    } catch (error) {
+      return json(
+        { error: error instanceof Error ? error.message : "waitlist fixture failed" },
+        500,
+      );
+    }
   }
   const persona = parsePersona(ctx.params.persona);
   if (!persona) {
