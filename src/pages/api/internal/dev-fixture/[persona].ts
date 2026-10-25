@@ -63,19 +63,17 @@ function isLoopback(url: URL): boolean {
  * `club.loftwah.com/*`). The actual TCP connection is from the
  * local loopback address, so the only way to prove a request
  * originated from a local process is to inspect the connection
- * peer or a forwarded header. `cf-connecting-ip` is the
+ * peer. `cf-connecting-ip` is the
  * canonical Cloudflare header for the original client address
  * and works the same way under workerd's local mode.
  */
 function isLoopbackConnection(request: Request): boolean {
   const ip = (request.headers.get("cf-connecting-ip") ?? "").trim();
   if (!ip) return false;
-  if (ip === "127.0.0.1" || ip === "::1") return true;
-  // The x-forwarded-for list is comma-separated; the first
-  // entry is the original client.
-  const xff = (request.headers.get("x-forwarded-for") ?? "").split(",")[0]?.trim();
-  if (xff === "127.0.0.1" || xff === "::1") return true;
-  return false;
+  // Cloudflare may preserve an incoming X-Forwarded-For chain. Its first hop
+  // cannot override a known non-loopback peer and never grants fixture access.
+  // https://developers.cloudflare.com/fundamentals/reference/http-headers/
+  return ip === "127.0.0.1" || ip === "::1";
 }
 
 function json(body: unknown, status = 200): Response {
