@@ -60,7 +60,10 @@ it("refuses an altered native illustration or substituted raster", async () => {
     copyFileSync(master, join(temporary, master));
     const raster = join(temporary, "public/og/cancelled-20261025.jpg");
     const bytes = readFileSync(raster);
-    bytes.writeUInt8(bytes.readUInt8(bytes.length - 1) ^ 1, bytes.length - 1);
+    const lastIndex = bytes.length - 1;
+    const lastByte = bytes[lastIndex];
+    if (lastByte === undefined) throw new Error("The raster has no last byte");
+    bytes[lastIndex] = lastByte ^ 1;
     writeFileSync(raster, bytes);
     expect(check().status).not.toBe(0);
   } finally {
