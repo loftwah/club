@@ -268,7 +268,7 @@ export function buildOverrideConfig(branch, ids) {
     compatibility_date: "2026-08-15",
     compatibility_flags: ["nodejs_compat"],
     assets: { binding: "ASSETS", directory: `${repoRoot}/dist/client` },
-    observability: { enabled: true },
+    observability: { enabled: true, redact_query_string: true },
     vars: {
       APP_BASE_URL: "https://preview.example.invalid",
       ENVIRONMENT: `preview-${ids.safeBranch}`,
