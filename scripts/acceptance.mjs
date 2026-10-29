@@ -81,6 +81,10 @@ const steps = [
     cmd: ["node", "scripts/secure-build-output.mjs"],
   },
   {
+    name: "verify generated Cloudflare Worker query redaction",
+    cmd: ["node", "scripts/check-cloudflare-logging.mjs"],
+  },
+  {
     name: "generate canonical OG / social SVG images",
     cmd: ["node", "scripts/og-generate.mjs"],
   },
