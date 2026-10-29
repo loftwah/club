@@ -13,6 +13,8 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { assertRedactedCloudflareLogging } from "./check-cloudflare-logging.mjs";
+
 import {
   sanitizeBranch,
   findProductionIdentityWarning,
@@ -230,4 +232,19 @@ test("production Wrangler config: sensitive URL query strings are redacted in Wo
     true,
     "auth and deletion links include token query parameters: never persist request URL queries",
   );
+});
+
+test("generated production Worker must retain query-string redaction", () => {
+  const safe = { name: "social-club", observability: { enabled: true, redact_query_string: true } };
+  assert.equal(assertRedactedCloudflareLogging(safe), true);
+  for (const bad of [
+    null,
+    {},
+    { ...safe, name: "different-worker" },
+    { ...safe, observability: { enabled: true } },
+    { ...safe, observability: { enabled: true, redact_query_string: false } },
+    { ...safe, observability: { enabled: false, redact_query_string: true } },
+  ]) {
+    assert.throws(() => assertRedactedCloudflareLogging(bad));
+  }
 });
