@@ -131,6 +131,8 @@ test("buildOverrideConfig: emits correct shape with Preview-only ids", () => {
   assert.equal(result.compatibility_date, "2026-08-15");
   assert.deepEqual(result.compatibility_flags, ["nodejs_compat"]);
   assert.equal(result.assets.binding, "ASSETS");
+  assert.equal(result.observability.enabled, true);
+  assert.equal(result.observability.redact_query_string, true);
   assert.equal(result.previews.kv_namespaces[0].binding, "SESSION");
   assert.equal(result.previews.kv_namespaces[0].id, "kv-123");
   assert.equal(result.previews.d1_databases[0].database_id, "d1-456");
@@ -212,4 +214,20 @@ test("repo wrangler.jsonc: the previews block does not reference production D1/K
       `wrangler.jsonc previews block must not reference production ids, got: ${JSON.stringify(result)}`,
     );
   }
+});
+
+test("production Wrangler config: sensitive URL query strings are redacted in Workers Logs", () => {
+  const raw = readFileSync(join(repoRoot, "wrangler.jsonc"), "utf8");
+  const config = JSON.parse(
+    raw
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/^\s*\/\/.*$/gm, "")
+      .replace(/,(\s*[}\]])/g, "$1"),
+  );
+  assert.equal(config.observability?.enabled, true);
+  assert.equal(
+    config.observability?.redact_query_string,
+    true,
+    "auth and deletion links include token query parameters: never persist request URL queries",
+  );
 });
