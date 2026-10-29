@@ -120,16 +120,28 @@ The `social-club` Worker currently has:
 ```text
 observability.enabled:        true
 observability.head_sampling:  1
-observability.redact_qs:      false
+observability.redact_qs:      true (source policy; verify deployed Worker after release)
 observability.logs.enabled:   true
 observability.logs.head_rate: 1
 observability.traces.enabled: false
 ```
 
-`redact_query_string: false` is acceptable today because the app does
-not pass tokens in query strings; if that changes, the flag must flip
-to `true`. The Worker does not log secrets, raw auth tokens, or
-unnecessary query strings today.
+**Mandatory:** `redact_query_string: true` in the production Wrangler
+configuration and the independently generated Preview override. The
+previous claim that this app has no tokens in query strings was incorrect:
+`/portal/auth?token=...` consumes a magic-link credential and
+`/api/portal/account/delete-confirm?id=...&token=...` handles a sensitive
+account-deletion credential. Worker invocation logs may capture request
+URLs, so raw query strings must not be persisted.
+
+This policy is verified in source by `scripts/cf-preview.test.mjs`. It
+is **not** proof of the currently deployed Worker: after the ordinary
+accepted production deployment, read its actual Observability settings
+and confirm query redaction is enabled. Do the same for generated
+Previews. Review other log/trace export paths and referrer behaviour
+separately rather than assuming this setting sanitises every destination.
+Do not retrieve or publish live token values to prove the fix. Historic
+log retention/exposure must be assessed separately if applicable.
 
 Do not log:
 
